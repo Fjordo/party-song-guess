@@ -16,6 +16,10 @@ Un gioco musicale multiplayer in tempo reale via browser. I giocatori devono ind
 
 ## Come avviare il progetto
 
+### Preequisiti
+
+NodeJS > 20.19 or > 22.12
+
 ### Server
 
 ```bash
@@ -31,3 +35,10 @@ cd app/client
 npm install
 npm run dev
 ```
+
+## TODO
+
+- [ ] Migliorare il layout con lo scrolling in verticale
+- [ ] Rivedere l'elenco dei generi e inserire "tutti" come default
+- [ ] Versione Containerizzata
+- [ ] Rivedere l'opzione di gioco che sceglie le canzoni in base alla lingua del testo
