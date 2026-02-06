@@ -7,6 +7,8 @@
         "install:all": "cd app/server && npm install && cd ../client && npm install"
     },
     "dependencies": {
-        "@google/generative-ai": "^0.24.1"
+        "@google/generative-ai": "^0.24.1",
+        "axios": "^1.13.4",
+        "dotenv": "^17.2.4"
     }
 }

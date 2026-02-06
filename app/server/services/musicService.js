@@ -1,5 +1,6 @@
 const axios = require('axios');
 
+// --- Helper esistente (puoi lasciarlo, anche se con l'AI serve meno) ---
 function detectLanguage(text) {
     if (!text) return null;
     const s = text.toLowerCase();
@@ -28,16 +29,15 @@ function detectLanguage(text) {
     return bestLang;
 }
 
+// --- Metodo Vecchio (Ricerca Casuale) ---
 async function getRandomSongs(genre = 'pop', limit = 10, language = null, difficulty = 'hard') {
     try {
-        // iTunes Search API
-        // media=music, entity=song
         const response = await axios.get('https://itunes.apple.com/search', {
             params: {
                 term: genre,
                 media: 'music',
                 entity: 'song',
-                limit: 50 // Fetch more to randomize
+                limit: 50
             }
         });
 
@@ -50,19 +50,15 @@ async function getRandomSongs(genre = 'pop', limit = 10, language = null, diffic
                 return detectLanguage(text) === language;
             });
             if (results.length === 0) {
-                // Fallback: if filter removed everything, use original list
                 results = response.data.results;
             }
         }
 
         let selected;
         if (difficulty === 'easy') {
-            // EASY MODE: Grab the top 100 most relevant/popular results
-            // Then shuffle THAT subset and take your limit
             const topPool = results.slice(0, 100);
             selected = topPool.sort(() => 0.5 - Math.random()).slice(0, limit);
         } else {
-            // Hard mode (default): fully random within the result set
             const shuffled = results.sort(() => 0.5 - Math.random());
             selected = shuffled.slice(0, limit);
         }
@@ -79,4 +75,51 @@ async function getRandomSongs(genre = 'pop', limit = 10, language = null, diffic
     }
 }
 
-module.exports = { getRandomSongs };
+// --- NUOVO METODO (Ricerca Specifica per AI) ---
+// Questo è quello che viene chiamato dal loop nel tuo file principale
+async function searchAndGetPreview(queryOrArtist, title = null) {
+    try {
+        // Costruiamo la stringa di ricerca. 
+        // Supporta sia una stringa unica ("Pino Daniele Napule è") che due parametri.
+        let searchTerm = title ? `${queryOrArtist} ${title}` : queryOrArtist;
+        
+        // Pulizia caratteri speciali per evitare errori URL
+        searchTerm = searchTerm.replace(/[^a-zA-Z0-9 àèéìòù]/g, " ");
+
+        const response = await axios.get('https://itunes.apple.com/search', {
+            params: {
+                term: searchTerm,
+                media: 'music',
+                entity: 'song',
+                limit: 1 // Ne vogliamo solo una, la più rilevante
+            },
+            timeout: 5000 // Timeout per non bloccare il gioco
+        });
+
+        if (response.data.results && response.data.results.length > 0) {
+            const track = response.data.results[0];
+            
+            // Se non c'è l'audio, è inutile per il gioco
+            if (!track.previewUrl) return null;
+
+            return {
+                title: track.trackName,
+                artist: track.artistName,
+                previewUrl: track.previewUrl,
+                artwork: track.artworkUrl100
+            };
+        }
+        return null;
+    } catch (error) {
+        // Non logghiamo l'errore per ogni singola canzone per non sporcare la console,
+        // ritorniamo null e il sistema proverà la prossima canzone.
+        return null;
+    }
+}
+
+// --- EXPORT ---
+// Ricordati di esportare entrambi i metodi!
+module.exports = { 
+    getRandomSongs, 
+    searchAndGetPreview 
+};

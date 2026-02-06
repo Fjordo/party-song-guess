@@ -1,8 +1,10 @@
+require('dotenv').config();
 const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
 const cors = require('cors');
 const musicService = require('./services/musicService');
+const aiService = require('./services/aiService');
 
 const app = express();
 app.use(cors());
@@ -57,48 +59,81 @@ io.on('connection', (socket) => {
 
     socket.on('start_game', async ({ roomId, genre, genres, decade, rounds, language, difficulty }) => {
         const room = rooms[roomId];
-        if (room && room.players.length > 0) {
-            // Validate / normalize number of rounds chosen by owner
-            let totalRounds = parseInt(rounds, 10);
-            if (isNaN(totalRounds) || totalRounds <= 0) {
-                totalRounds = room.totalRounds || 10;
+        if (!room || room.players.length === 0) return;
+
+        // 1. Setup Iniziale della Stanza
+        let requestedRounds = parseInt(rounds, 10) || 10;
+        if (requestedRounds > 50) requestedRounds = 50;
+
+        room.state = 'LOADING'; // Stato intermedio utile per mostrare uno spinner nel frontend
+        io.to(roomId).emit('game_loading', { message: "L'AI sta curando la tua playlist..." });
+
+        try {
+            // 2. Normalizzazione Input
+            let activeGenres = Array.isArray(genres) && genres.length ? genres : [genre || 'pop'];
+            
+            console.log(`[Room ${roomId}] Generazione playlist AI: ${language}, ${decade}, ${difficulty}`);
+
+            // 3. Chiamata a Gemini (Step 1: Ottenere i titoli)
+            const aiRecommendations = await aiService.getSongListFromAI({
+                genres: activeGenres,
+                decade,
+                language,
+                difficulty,
+                count: requestedRounds
+            });
+
+            if (!aiRecommendations || aiRecommendations.length === 0) {
+                throw new Error("L'AI non ha restituito risultati validi.");
             }
-            if (totalRounds > 50) {
-                totalRounds = 50;
+
+            // 4. Chiamata ad Apple Music (Step 2: Ottenere l'audio)
+            // OTTIMIZZAZIONE PRO: Usiamo Promise.all per fare tutte le richieste HTTP insieme
+            const searchPromises = aiRecommendations.map(song => 
+                musicService.searchAndGetPreview(song.artist, song.title)
+            );
+
+            const results = await Promise.all(searchPromises);
+
+            // 5. Filtraggio
+            // Rimuoviamo i null (canzoni non trovate o senza preview)
+            const validSongs = results.filter(song => song !== null);
+
+            // Mischiamo l'array finale per sicurezza (Fisher-Yates shuffle opzionale)
+            const shuffledSongs = validSongs.sort(() => Math.random() - 0.5);
+
+            // Tagliamo l'array al numero di round richiesti (se ne abbiamo trovate di più)
+            const finalPlaylist = shuffledSongs.slice(0, requestedRounds);
+
+            if (finalPlaylist.length === 0) {
+                throw new Error("Nessuna canzone trovata su Apple Music compatibile con la lista AI.");
             }
-            room.totalRounds = totalRounds;
-            room.state = 'PLAYING';
+
+            // 6. Aggiornamento Stato Stanza
+            room.songs = finalPlaylist;
+            room.totalRounds = finalPlaylist.length; // Aggiorniamo se ne abbiamo trovate meno del previsto
             room.currentRound = 0;
+            room.state = 'PLAYING';
 
-            try {
-                let activeGenres = Array.isArray(genres) && genres.length ? genres : [];
-                if (!activeGenres.length && genre) {
-                    activeGenres = [genre];
-                }
-                if (!activeGenres.length) {
-                    activeGenres = ['pop'];
-                }
+            console.log(`[Room ${roomId}] Partita iniziata con ${room.totalRounds} canzoni.`);
 
-                const termParts = [activeGenres.join(' ')];
-                if (decade) {
-                    termParts.push(decade);
-                }
-                const searchTerm = termParts.join(' ');
+            // 7. Start Game
+            io.to(roomId).emit('game_started', { totalRounds: room.totalRounds });
+            
+            // Piccolo delay per dare tempo al frontend di fare la transizione
+            setTimeout(() => startRound(roomId), 1000);
 
-                const songs = await musicService.getRandomSongs(
-                    searchTerm || 'pop',
-                    room.totalRounds,
-                    language || null,
-                    difficulty || 'hard'
-                );
-                room.songs = songs;
-                io.to(roomId).emit('game_started', { totalRounds: room.totalRounds });
-                setTimeout(() => startRound(roomId), 500);
-            } catch (e) {
-                console.error(e);
-            }
+        } catch (e) {
+            console.error(`[Room ${roomId}] Errore Start Game:`, e.message);
+            // Ripristina lo stato a LOBBY in modo che possano riprovare
+            room.state = 'LOBBY';
+            io.to(roomId).emit('error', { 
+                code: 'GENERATION_FAILED', 
+                message: "Impossibile generare la partita. Prova criteri meno restrittivi." 
+            });
         }
     });
+
 
     socket.on('submit_guess', ({ roomId, guess }) => {
         const room = rooms[roomId];

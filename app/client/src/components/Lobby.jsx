@@ -12,11 +12,24 @@ export default function Lobby({
     toggleGenre,
     selectedDecade,
     setSelectedDecade,
-    // selectedLanguage,
-    // setSelectedLanguage,
+    selectedLanguage, // <--- CORRETTO: Ho tolto il commento qui
+    setSelectedLanguage,
     selectedDifficulty,
     setSelectedDifficulty
 }) {
+    // Funzione helper per lanciare il gioco passando tutti i parametri
+    const handleStartGame = () => {
+        // Se la funzione startGame del padre si aspetta i dati, glieli passiamo.
+        // Se il padre ha già lo stato, questo oggetto verrà ignorato o unito (male non fa).
+        startGame({
+            rounds: totalRounds,
+            genres: selectedGenres,
+            decade: selectedDecade,
+            language: selectedLanguage,
+            difficulty: selectedDifficulty
+        });
+    };
+
     return (
         <div className="bg-gray-800 p-6 sm:p-8 rounded-xl shadow-2xl w-full max-w-lg text-center">
             <h2 className="text-xl sm:text-2xl mb-2 break-all">
@@ -37,6 +50,8 @@ export default function Lobby({
 
             {isOwner && (
                 <div className="bg-gray-900/60 border border-gray-700 rounded-lg p-4 mb-4 text-left space-y-4">
+                    
+                    {/* SELEZIONE ROUNDS */}
                     <div>
                         <label className="block text-xs sm:text-sm text-gray-400 mb-1">
                             {t('landing.roundsLabel')}
@@ -53,6 +68,7 @@ export default function Lobby({
                         </select>
                     </div>
 
+                    {/* SELEZIONE GENERI */}
                     <div>
                         <p className="block text-xs sm:text-sm text-gray-400 mb-1">
                             {t('landing.genresLabel')}
@@ -75,6 +91,7 @@ export default function Lobby({
                         </div>
                     </div>
 
+                    {/* SELEZIONE DECENNIO */}
                     <div>
                         <label className="block text-xs sm:text-sm text-gray-400 mb-1">
                             {t('landing.decadesLabel')}
@@ -96,13 +113,14 @@ export default function Lobby({
                         </select>
                     </div>
 
-                    {/* <div>
+                    {/* SELEZIONE LINGUA (Il pezzo che dava errore) */}
+                    <div>
                         <label className="block text-xs sm:text-sm text-gray-400 mb-1">
                             {t('landing.languageLabel')}
                         </label>
                         <select
                             className="w-full p-2 rounded bg-gray-700 border border-gray-600 focus:outline-none focus:border-purple-500 text-sm"
-                            value={selectedLanguage}
+                            value={selectedLanguage} 
                             onChange={e => setSelectedLanguage(e.target.value)}
                         >
                             <option value="">{t('landing.language_any')}</option>
@@ -110,8 +128,9 @@ export default function Lobby({
                             <option value="en">{t('landing.language_en')}</option>
                             <option value="es">{t('landing.language_es')}</option>
                         </select>
-                    </div> */}
+                    </div>
 
+                    {/* SELEZIONE DIFFICOLTA */}
                     <div>
                         <label className="block text-xs sm:text-sm text-gray-400 mb-1">
                             {t('landing.difficultyLabel')}
@@ -130,7 +149,7 @@ export default function Lobby({
 
             {isOwner ? (
                 <button
-                    onClick={() => startGame()}
+                    onClick={handleStartGame} 
                     className="w-full bg-green-600 hover:bg-green-700 py-3 rounded-lg font-bold text-lg shadow-lg transform hover:scale-105 transition"
                 >
                     {t('lobby.startGame')}
