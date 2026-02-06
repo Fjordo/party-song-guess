@@ -26,15 +26,8 @@ io.on('connection', (socket) => {
     socket.on('create_room', ({ playerName, totalRounds }) => {
         const roomId = Math.random().toString(36).substring(2, 7).toUpperCase();
 
-        // Validate / normalize number of rounds (default 10)
-        let rounds = parseInt(totalRounds, 10);
-        if (isNaN(rounds) || rounds <= 0) {
-            rounds = 10;
-        }
-        // Put a reasonable upper limit
-        if (rounds > 50) {
-            rounds = 50;
-        }
+        // Default number of rounds; can be overridden when starting the game
+        let rounds = 10;
 
         rooms[roomId] = {
             id: roomId,
@@ -62,14 +55,37 @@ io.on('connection', (socket) => {
         }
     });
 
-    socket.on('start_game', async ({ roomId, genre }) => {
+    socket.on('start_game', async ({ roomId, genre, genres, decade, rounds }) => {
         const room = rooms[roomId];
         if (room && room.players.length > 0) {
+            // Validate / normalize number of rounds chosen by owner
+            let totalRounds = parseInt(rounds, 10);
+            if (isNaN(totalRounds) || totalRounds <= 0) {
+                totalRounds = room.totalRounds || 10;
+            }
+            if (totalRounds > 50) {
+                totalRounds = 50;
+            }
+            room.totalRounds = totalRounds;
             room.state = 'PLAYING';
             room.currentRound = 0;
 
             try {
-                const songs = await musicService.getRandomSongs(genre || 'pop', room.totalRounds);
+                let activeGenres = Array.isArray(genres) && genres.length ? genres : [];
+                if (!activeGenres.length && genre) {
+                    activeGenres = [genre];
+                }
+                if (!activeGenres.length) {
+                    activeGenres = ['pop'];
+                }
+
+                const termParts = [activeGenres.join(' ')];
+                if (decade) {
+                    termParts.push(decade);
+                }
+                const searchTerm = termParts.join(' ');
+
+                const songs = await musicService.getRandomSongs(searchTerm || 'pop', room.totalRounds);
                 room.songs = songs;
                 io.to(roomId).emit('game_started', { totalRounds: room.totalRounds });
                 setTimeout(() => startRound(roomId), 500);

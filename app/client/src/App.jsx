@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { t } from './i18n';
 import io from 'socket.io-client';
 import Lobby from './components/Lobby';
@@ -13,6 +13,8 @@ function App() {
   const [playerName, setPlayerName] = useState('');
   const [totalRounds, setTotalRounds] = useState(10);
   const [errorMessage, setErrorMessage] = useState('');
+  const [selectedGenres, setSelectedGenres] = useState(['pop']);
+  const [selectedDecade, setSelectedDecade] = useState('');
 
   useEffect(() => {
     socket.on('room_created', (roomData) => {
@@ -70,7 +72,7 @@ function App() {
       return;
     }
     setErrorMessage('');
-    socket.emit('create_room', { playerName, totalRounds });
+    socket.emit('create_room', { playerName });
   };
 
   const joinRoom = (roomId) => {
@@ -86,10 +88,23 @@ function App() {
     socket.emit('join_room', { roomId, playerName });
   };
 
-  const startGame = (genre) => {
+  const startGame = () => {
     if (room) {
-      socket.emit('start_game', { roomId: room.id, genre: genre || 'pop' });
+      socket.emit('start_game', {
+        roomId: room.id,
+        genres: selectedGenres,
+        decade: selectedDecade || null,
+        rounds: totalRounds
+      });
     }
+  };
+
+  const toggleGenre = (genreKey) => {
+    setSelectedGenres((prev) =>
+      prev.includes(genreKey)
+        ? prev.filter((g) => g !== genreKey)
+        : [...prev, genreKey]
+    );
   };
 
   return (
@@ -126,21 +141,6 @@ function App() {
             value={playerName}
             onChange={e => setPlayerName(e.target.value)}
           />
-          <div className="text-left">
-            <label className="block text-sm text-gray-400 mb-1">
-              {t('landing.roundsLabel')}
-            </label>
-            <select
-              className="w-full p-2 rounded bg-gray-700 border border-gray-600 focus:outline-none focus:border-purple-500"
-              value={totalRounds}
-              onChange={e => setTotalRounds(parseInt(e.target.value, 10))}
-            >
-              <option value={5}>5</option>
-              <option value={10}>10</option>
-              <option value={15}>15</option>
-              <option value={20}>20</option>
-            </select>
-          </div>
           <div className="flex gap-4">
             <button
               onClick={createRoom}
@@ -148,7 +148,6 @@ function App() {
             >
               {t('landing.createRoom')}
             </button>
-            {/* Separate Input for Join Room ID could be cleaner, but simple prompt here */}
           </div>
 
           <div className="border-t border-gray-700 pt-4">
@@ -164,6 +163,12 @@ function App() {
           players={players}
           startGame={startGame}
           isOwner={room.players[0].id === socket.id} // Basic check
+          totalRounds={totalRounds}
+          setTotalRounds={setTotalRounds}
+          selectedGenres={selectedGenres}
+          toggleGenre={toggleGenre}
+          selectedDecade={selectedDecade}
+          setSelectedDecade={setSelectedDecade}
         />
       )}
 
