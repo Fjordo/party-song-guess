@@ -42,3 +42,4 @@ npm run dev
 - [ ] Rivedere l'elenco dei generi e inserire "tutti" come default
 - [ ] Versione Containerizzata
 - [ ] Rivedere l'opzione di gioco che sceglie le canzoni in base alla lingua del testo
+- [ ] Aggiungere pulsante Skip
