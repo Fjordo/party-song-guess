@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { t } from './i18n';
 import io from 'socket.io-client';
 import Lobby from './components/Lobby';
 import GameRoom from './components/GameRoom';
@@ -43,8 +44,13 @@ function App() {
       setPlayers(finalPlayers); // Final scores
     });
 
-    socket.on('error', (msg) => {
-      setErrorMessage(msg || 'Si è verificato un errore.');
+    socket.on('error', (payload) => {
+      const code = typeof payload === 'string' ? payload : payload?.code;
+      if (code === 'ROOM_NOT_FOUND_OR_STARTED') {
+        setErrorMessage(t('errors.roomNotFound'));
+      } else {
+        setErrorMessage(t('errors.generic'));
+      }
     });
 
     return () => {
@@ -60,7 +66,7 @@ function App() {
 
   const createRoom = () => {
     if (!playerName) {
-      setErrorMessage('Inserisci il tuo nome per creare una stanza.');
+      setErrorMessage(t('errors.missingNameCreate'));
       return;
     }
     setErrorMessage('');
@@ -69,11 +75,11 @@ function App() {
 
   const joinRoom = (roomId) => {
     if (!playerName) {
-      setErrorMessage('Inserisci il tuo nome per unirti a una stanza.');
+      setErrorMessage(t('errors.missingNameJoin'));
       return;
     }
     if (!roomId) {
-      setErrorMessage('Inserisci un ID stanza valido.');
+      setErrorMessage(t('errors.missingRoomId'));
       return;
     }
     setErrorMessage('');
@@ -89,7 +95,7 @@ function App() {
   return (
     <div className="min-h-screen bg-gray-900 text-white flex flex-col items-center justify-start sm:justify-center p-4">
       <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-6 sm:mb-8 text-center text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600">
-        Party Song Guess
+        {t('appTitle')}
       </h1>
 
       {errorMessage && (
@@ -97,7 +103,7 @@ function App() {
           <div className="flex items-start gap-3 bg-red-900/80 border border-red-500 text-red-100 px-4 py-3 rounded-lg shadow-lg">
             <div className="mt-0.5 text-lg">⚠️</div>
             <div className="flex-1 text-sm">
-              <p className="font-semibold mb-1">Errore</p>
+              <p className="font-semibold mb-1">{t('errors.title')}</p>
               <p>{errorMessage}</p>
             </div>
             <button
@@ -115,14 +121,14 @@ function App() {
         <div className="bg-gray-800 p-6 sm:p-8 rounded-xl shadow-2xl space-y-4 w-full max-w-md">
           <input
             type="text"
-            placeholder="Il tuo nome"
+            placeholder={t('landing.namePlaceholder')}
             className="w-full p-3 rounded bg-gray-700 border border-gray-600 focus:outline-none focus:border-purple-500"
             value={playerName}
             onChange={e => setPlayerName(e.target.value)}
           />
           <div className="text-left">
             <label className="block text-sm text-gray-400 mb-1">
-              Numero di round
+              {t('landing.roundsLabel')}
             </label>
             <select
               className="w-full p-2 rounded bg-gray-700 border border-gray-600 focus:outline-none focus:border-purple-500"
@@ -140,13 +146,13 @@ function App() {
               onClick={createRoom}
               className="flex-1 bg-purple-600 hover:bg-purple-700 p-3 rounded font-bold transition"
             >
-              Crea Stanza
+              {t('landing.createRoom')}
             </button>
             {/* Separate Input for Join Room ID could be cleaner, but simple prompt here */}
           </div>
 
           <div className="border-t border-gray-700 pt-4">
-            <p className="mb-2 text-sm text-gray-400">Oppure unisciti:</p>
+            <p className="mb-2 text-sm text-gray-400">{t('landing.joinLabel')}</p>
             <FormJoin joinRoom={joinRoom} />
           </div>
         </div>
@@ -189,7 +195,7 @@ function FormJoin({ joinRoom }) {
     <div className="flex flex-col sm:flex-row gap-2">
       <input
         type="text"
-        placeholder="ID Stanza"
+        placeholder={t('landing.joinPlaceholder')}
         className="flex-1 p-2 rounded bg-gray-700 w-full"
         value={id}
         onChange={e => setId(e.target.value)}
@@ -198,7 +204,7 @@ function FormJoin({ joinRoom }) {
         onClick={() => joinRoom(id)}
         className="bg-gray-600 hover:bg-gray-500 px-4 py-2 rounded w-full sm:w-auto"
       >
-        Unisciti
+        {t('landing.joinButton')}
       </button>
     </div>
   )

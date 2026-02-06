@@ -58,7 +58,7 @@ io.on('connection', (socket) => {
             socket.emit('room_joined', rooms[roomId]);
             console.log(`${playerName} joined room ${roomId}`);
         } else {
-            socket.emit('error', 'Room not found or game already started');
+            socket.emit('error', { code: 'ROOM_NOT_FOUND_OR_STARTED' });
         }
     });
 

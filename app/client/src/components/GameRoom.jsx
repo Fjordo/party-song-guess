@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
+import { t } from '../i18n';
 
 export default function GameRoom({ socket, room, players }) {
     const [currentRound, setCurrentRound] = useState(0);
@@ -12,7 +13,7 @@ export default function GameRoom({ socket, room, players }) {
 
     useEffect(() => {
         socket.on('start_countdown', ({ duration }) => {
-            setStatus('Get Ready...'); // Or specific status
+            setStatus(t('game.getReady')); // Or specific status
             setCountdown(duration);
             let count = duration;
             const timer = setInterval(() => {
@@ -52,7 +53,7 @@ export default function GameRoom({ socket, room, players }) {
         });
 
         socket.on('wrong_guess', () => {
-            setErrorMessage('Risposta sbagliata, riprova!');
+            setErrorMessage(t('game.wrongGuess'));
         });
 
         // Clean up listeners
@@ -83,7 +84,7 @@ export default function GameRoom({ socket, room, players }) {
                     Round {currentRound} / {room?.totalRounds || 10}
                 </div>
                 <div className="text-lg sm:text-xl font-bold animate-pulse text-purple-400">
-                    {status === 'PLAYING' ? '🎵 GUESS THE SONG 🎵' : status}
+                    {status === 'PLAYING' ? t('game.guessTheSong') : status}
                 </div>
             </div>
 
@@ -99,7 +100,9 @@ export default function GameRoom({ socket, room, players }) {
             {status === 'ROUND_OVER' && roundResult && (
                 <div className="mb-6 text-center animate-bounce px-2">
                     <h3 className="text-lg sm:text-xl text-green-400 font-bold">
-                        {roundResult.winner ? `${roundResult.winner} ha indovinato!` : 'Tempo Scaduto!'}
+                        {roundResult.winner
+                            ? `${roundResult.winner} ${t('game.guessed')}`
+                            : t('game.timeUp')}
                     </h3>
                     <p className="text-base sm:text-lg break-words">
                         {roundResult.song.title} - <span className="text-gray-400">{roundResult.song.artist}</span>
@@ -112,7 +115,7 @@ export default function GameRoom({ socket, room, players }) {
                     type="text"
                     value={guess}
                     onChange={e => setGuess(e.target.value)}
-                    placeholder="Titolo della canzone..."
+                    placeholder={t('game.inputPlaceholder')}
                     disabled={status !== 'PLAYING'}
                     className="flex-1 p-3 sm:p-4 rounded-lg bg-gray-800 border-2 border-gray-700 focus:border-purple-500 focus:outline-none text-base sm:text-lg"
                     autoFocus

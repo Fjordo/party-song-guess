@@ -1,4 +1,5 @@
 import React from 'react';
+import { t } from '../i18n';
 
 export default function Lobby({ room, players, startGame, isOwner }) {
     return (
@@ -6,7 +7,7 @@ export default function Lobby({ room, players, startGame, isOwner }) {
             <h2 className="text-xl sm:text-2xl mb-2 break-all">
                 Room ID: <span className="font-mono text-purple-400 font-bold">{room.id}</span>
             </h2>
-            <p className="text-gray-400 mb-6 text-sm sm:text-base">Waiting for players...</p>
+            <p className="text-gray-400 mb-6 text-sm sm:text-base">{t('lobby.waiting')}</p>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
                 {players.map(p => (
@@ -24,10 +25,10 @@ export default function Lobby({ room, players, startGame, isOwner }) {
                     onClick={() => startGame()}
                     className="w-full bg-green-600 hover:bg-green-700 py-3 rounded-lg font-bold text-lg shadow-lg transform hover:scale-105 transition"
                 >
-                    Avvia Gioco
+                    {t('lobby.startGame')}
                 </button>
             ) : (
-                <p className="animate-pulse text-gray-400">L'host sta per avviare la partita...</p>
+                <p className="animate-pulse text-gray-400">{t('lobby.hostStarting')}</p>
             )}
         </div>
     );
