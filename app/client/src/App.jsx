@@ -11,6 +11,7 @@ function App() {
   const [players, setPlayers] = useState([]);
   const [playerName, setPlayerName] = useState('');
   const [totalRounds, setTotalRounds] = useState(10);
+  const [errorMessage, setErrorMessage] = useState('');
 
   useEffect(() => {
     socket.on('room_created', (roomData) => {
@@ -43,7 +44,7 @@ function App() {
     });
 
     socket.on('error', (msg) => {
-      alert(msg);
+      setErrorMessage(msg || 'Si è verificato un errore.');
     });
 
     return () => {
@@ -58,13 +59,24 @@ function App() {
   }, []);
 
   const createRoom = () => {
-    if (!playerName) return alert('Inserisci il tuo nome');
+    if (!playerName) {
+      setErrorMessage('Inserisci il tuo nome per creare una stanza.');
+      return;
+    }
+    setErrorMessage('');
     socket.emit('create_room', { playerName, totalRounds });
   };
 
   const joinRoom = (roomId) => {
-    if (!playerName) return alert('Inserisci il tuo nome');
-    if (!roomId) return alert('Inserisci ID stanza');
+    if (!playerName) {
+      setErrorMessage('Inserisci il tuo nome per unirti a una stanza.');
+      return;
+    }
+    if (!roomId) {
+      setErrorMessage('Inserisci un ID stanza valido.');
+      return;
+    }
+    setErrorMessage('');
     socket.emit('join_room', { roomId, playerName });
   };
 
@@ -75,13 +87,32 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white flex flex-col items-center justify-center p-4">
-      <h1 className="text-4xl font-bold mb-8 text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600">
+    <div className="min-h-screen bg-gray-900 text-white flex flex-col items-center justify-start sm:justify-center p-4">
+      <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-6 sm:mb-8 text-center text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600">
         Party Song Guess
       </h1>
 
+      {errorMessage && (
+        <div className="w-full max-w-md mb-4">
+          <div className="flex items-start gap-3 bg-red-900/80 border border-red-500 text-red-100 px-4 py-3 rounded-lg shadow-lg">
+            <div className="mt-0.5 text-lg">⚠️</div>
+            <div className="flex-1 text-sm">
+              <p className="font-semibold mb-1">Errore</p>
+              <p>{errorMessage}</p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setErrorMessage('')}
+              className="ml-2 text-red-200 hover:text-white text-sm font-bold"
+            >
+              ✕
+            </button>
+          </div>
+        </div>
+      )}
+
       {gameState === 'LANDING' && (
-        <div className="bg-gray-800 p-8 rounded-xl shadow-2xl space-y-4 w-full max-w-md">
+        <div className="bg-gray-800 p-6 sm:p-8 rounded-xl shadow-2xl space-y-4 w-full max-w-md">
           <input
             type="text"
             placeholder="Il tuo nome"
@@ -155,15 +186,18 @@ function App() {
 function FormJoin({ joinRoom }) {
   const [id, setId] = useState('');
   return (
-    <div className="flex gap-2">
+    <div className="flex flex-col sm:flex-row gap-2">
       <input
         type="text"
         placeholder="ID Stanza"
-        className="flex-1 p-2 rounded bg-gray-700"
+        className="flex-1 p-2 rounded bg-gray-700 w-full"
         value={id}
         onChange={e => setId(e.target.value)}
       />
-      <button onClick={() => joinRoom(id)} className="bg-gray-600 hover:bg-gray-500 px-4 rounded">
+      <button
+        onClick={() => joinRoom(id)}
+        className="bg-gray-600 hover:bg-gray-500 px-4 py-2 rounded w-full sm:w-auto"
+      >
         Unisciti
       </button>
     </div>
