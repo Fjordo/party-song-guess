@@ -84,7 +84,6 @@ Attualmente, il piano **"Free of Charge"** per i modelli Flash prevede i seguent
 
 - [ ] Migliorare il layout con lo scrolling in verticale
 - [ ] Rivedere l'elenco dei generi e inserire "tutti" come default
-- [ ] Versione Containerizzata
 - [ ] Rivedere l'opzione di gioco che sceglie le canzoni in base alla lingua del testo
 - [ ] Aggiungere pulsante Skip
 - [ ] Aggiungere un
