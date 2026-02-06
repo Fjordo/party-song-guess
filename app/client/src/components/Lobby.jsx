@@ -19,7 +19,7 @@ export default function Lobby({ room, players, startGame, isOwner }) {
 
             {isOwner ? (
                 <button
-                    onClick={startGame}
+                    onClick={() => startGame()}
                     className="w-full bg-green-600 hover:bg-green-700 py-3 rounded-lg font-bold text-lg shadow-lg transform hover:scale-105 transition"
                 >
                     Avvia Gioco
