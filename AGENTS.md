@@ -509,6 +509,102 @@ Return JSON array: [{ "artist": "...", "title": "..." }, ...]
 3. Test with features: "Song" should match "Song (feat. Artist)"
 4. Test with partial match: "Teen Spirit" should match "Smells Like Teen Spirit"
 
+### Automated Testing
+
+The server has a comprehensive test suite using **Jest** covering unit tests and integration tests.
+
+**Test Coverage** (as of latest):
+- **Total Tests**: 107 passing
+- **Services Coverage**: 97.91% statements, 85.71% branches, 100% functions
+- **Test Types**: Unit tests (87 tests) + Integration tests (20 tests)
+
+**Running Tests**:
+```bash
+cd app/server
+npm test                  # Run all tests
+npm run test:watch        # Watch mode (re-run on file changes)
+npm run test:coverage     # Generate coverage report
+```
+
+**Test Files Structure**:
+```
+app/server/__tests__/
+├── unit/
+│   ├── checkAnswer.test.js          # 43 tests - Answer validation algorithm
+│   ├── languageDetection.test.js    # 19 tests - Heuristic language detection
+│   ├── musicService.test.js         # 14 tests - iTunes API integration
+│   └── aiService.test.js            # 11 tests - Gemini AI integration
+├── integration/
+│   └── gameFlow.test.js             # 20 tests - Complete game workflows
+└── fixtures/
+    └── mockData.js                  # Reusable mock responses
+```
+
+**What's Tested**:
+
+1. **Answer Validation** ([app/server/utils/checkAnswer.js](app/server/utils/checkAnswer.js)):
+   - Exact matches (case-insensitive)
+   - Punctuation handling ("Song!" → "Song")
+   - Parentheses removal ("Song (Remix)" → "Song")
+   - Featured artists stripping ("Song feat. Artist" → "Song")
+   - Substring matches ("Wonder" matches "Wonderwall")
+   - Word overlap (≥60% threshold)
+   - Levenshtein distance for typos (≥70% similarity)
+   - Edge cases (null, empty strings, whitespace)
+   - Accented characters (Italian, Spanish, French)
+
+2. **Language Detection** ([app/server/utils/languageDetection.js](app/server/utils/languageDetection.js)):
+   - Italian keyword hints ('che', 'non', 'per', accents: àèéìòù)
+   - Spanish keyword hints ('que', 'para', 'el', accents: áéíóúñ)
+   - English keyword hints ('the', 'and', 'you', 'love')
+   - Mixed language handling (returns dominant)
+   - Edge cases (null, empty, no hints)
+
+3. **Music Service** ([app/server/services/musicService.js](app/server/services/musicService.js)):
+   - iTunes API integration with mocked axios
+   - `searchAndGetPreview()`: Song lookup, preview filtering, timeout handling
+   - `getRandomSongs()`: Easy/hard difficulty, language filtering
+   - Error handling (API failures, empty results)
+
+4. **AI Service** ([app/server/services/aiService.js](app/server/services/aiService.js)):
+   - Gemini AI integration with mocked API
+   - Playlist generation with genres, decade, language, difficulty
+   - 30% buffer calculation for song count
+   - JSON parsing error handling
+   - API error graceful degradation
+
+5. **Game Flow Integration**:
+   - Complete AI → iTunes workflow
+   - Score tracking across multiple rounds
+   - Race condition handling (simultaneous guesses)
+   - Game state transitions (LOBBY → LOADING → PLAYING → ENDED)
+   - Playlist shuffling and slicing
+   - Error scenarios (empty playlists, no previews)
+
+**Mocking Strategy**:
+- **axios**: Mocked for iTunes API calls (no actual HTTP requests)
+- **@google/generative-ai**: Mocked for Gemini AI calls (no API costs)
+- **External dependencies**: All external APIs are mocked to ensure fast, deterministic tests
+
+**Coverage Limitations**:
+- [app/server/index.js](app/server/index.js) (Socket.io event handlers): **0% coverage**
+  - **Reason**: Requires architectural refactoring to make Socket.io handlers testable
+  - **Workaround**: Manual testing with multiple browser tabs (see "Critical Test Scenarios" above)
+  - **Future**: Extract Socket.io handlers to separate module for integration testing
+
+**When to Run Tests**:
+- Before committing changes to critical functions (checkAnswer, musicService, aiService)
+- After modifying answer validation algorithm
+- When adding new features to services or utilities
+- Before merging pull requests
+
+**Adding New Tests**:
+1. Create test file in appropriate directory (`__tests__/unit/` or `__tests__/integration/`)
+2. Mock external dependencies at top of file
+3. Use descriptive `describe()` blocks for organization
+4. Follow existing patterns (see [checkAnswer.test.js](app/server/__tests__/unit/checkAnswer.test.js) for examples)
+5. Run `npm test` to verify all tests pass
+
 ### Debugging Tips
 
 **Socket.io events**: Add logging in [app/server/index.js](app/server/index.js):

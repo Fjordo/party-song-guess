@@ -1,33 +1,5 @@
 const axios = require('axios');
-
-// --- Helper esistente (puoi lasciarlo, anche se con l'AI serve meno) ---
-function detectLanguage(text) {
-    if (!text) return null;
-    const s = text.toLowerCase();
-    const words = s.split(/\s+/).filter(Boolean);
-
-    const scores = { it: 0, en: 0, es: 0 };
-
-    const itHints = ['che', 'non', 'per', 'con', 'una', 'uno', 'una', 'di', 'nel', 'della', 'delle', 'degli', 'gli'];
-    const esHints = ['que', 'para', 'con', 'una', 'uno', 'del', 'de', 'las', 'los', 'el'];
-    const enHints = ['the', 'and', 'you', 'me', 'of', 'in', 'on', 'love'];
-
-    for (const w of words) {
-        if (itHints.includes(w)) scores.it += 1;
-        if (esHints.includes(w)) scores.es += 1;
-        if (enHints.includes(w)) scores.en += 1;
-    }
-
-    // Accent hints
-    if (/[áéíóúñ]/.test(s)) scores.es += 1;
-    if (/[àèéìòù]/.test(s)) scores.it += 1;
-
-    const entries = Object.entries(scores);
-    entries.sort((a, b) => b[1] - a[1]);
-    const [bestLang, bestScore] = entries[0];
-    if (bestScore <= 0) return null;
-    return bestLang;
-}
+const { detectLanguage } = require('../utils/languageDetection');
 
 // --- Metodo Vecchio (Ricerca Casuale) ---
 async function getRandomSongs(genre = 'pop', limit = 10, language = null, difficulty = 'hard') {
