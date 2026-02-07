@@ -105,13 +105,5 @@ Attualmente, il piano **"Free of Charge"** per i modelli Flash prevede i seguent
 
 - **Costo:** €0.00 (Gratis per sempre entro i limiti sopra).
 - **Privacy Dati:** Nel piano gratuito, Google si riserva il diritto di utilizzare i dati di input/output per migliorare i propri modelli. Poiché noi inviamo solo richieste generiche ("Dammi canzoni pop anni 90"), **non ci sono problemi di privacy** o dati sensibili.
-=======
 
-## TODO
-
-- [ ] Migliorare il layout con lo scrolling in verticale
-- [ ] Rivedere l'elenco dei generi e inserire "tutti" come default
-- [ ] Versione Containerizzata
-- [ ] Rivedere l'opzione di gioco che sceglie le canzoni in base alla lingua del testo
-- [ ] Aggiungere pulsante Skip
-- [ ] Aggiungere un
+---
