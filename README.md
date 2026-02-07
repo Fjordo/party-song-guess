@@ -1,8 +1,8 @@
 # Party Song Guess
 
-[![Node.js CI](https://github.com/YOUR_USERNAME/party-song-guess/actions/workflows/node.js.yml/badge.svg)](https://github.com/YOUR_USERNAME/party-song-guess/actions/workflows/node.js.yml)
-[![Tests](https://img.shields.io/badge/tests-107%20passing-brightgreen)](https://github.com/YOUR_USERNAME/party-song-guess/actions)
-[![Coverage](https://img.shields.io/badge/coverage-97.91%25-brightgreen)](https://github.com/YOUR_USERNAME/party-song-guess)
+[![Node.js CI](https://github.com/Fjordo/party-song-guess/actions/workflows/node.js.yml/badge.svg)](https://github.com/Fjordo/party-song-guess/actions/workflows/node.js.yml)
+[![Tests](https://img.shields.io/badge/tests-107%20passing-brightgreen)](https://github.com/Fjordo/party-song-guess/actions)
+[![Coverage](https://img.shields.io/badge/coverage-97.91%25-brightgreen)](https://github.com/Fjordo/party-song-guess)
 
 Un gioco musicale multiplayer in tempo reale via browser. I giocatori devono indovinare il titolo della canzone riprodotta randomicamente.
 
