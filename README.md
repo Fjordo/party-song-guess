@@ -1,5 +1,9 @@
 # Party Song Guess
 
+[![Node.js CI](https://github.com/Fjordo/party-song-guess/actions/workflows/node.js.yml/badge.svg)](https://github.com/Fjordo/party-song-guess/actions/workflows/node.js.yml)
+[![Tests](https://img.shields.io/badge/tests-107%20passing-brightgreen)](https://github.com/Fjordo/party-song-guess/actions)
+[![Coverage](https://img.shields.io/badge/coverage-97.91%25-brightgreen)](https://github.com/Fjordo/party-song-guess)
+
 Un gioco musicale multiplayer in tempo reale via browser. I giocatori devono indovinare il titolo della canzone riprodotta randomicamente.
 
 ## Struttura del Progetto
@@ -82,6 +86,28 @@ Una volta avviati server e client, puoi accedere all'applicazione:
 - **Backend API**: <http://localhost:3000>
 
 > **Nota:** Il client si connetterà automaticamente al server via Socket.io
+## Testing
+
+Il server include una suite completa di test automatici con Jest.
+
+### Eseguire i test
+
+```bash
+cd app/server
+npm test                  # Esegui tutti i 107 test
+npm run test:watch        # Modalità watch (ri-esegue i test sui cambiamenti)
+npm run test:coverage     # Genera il report di copertura
+```
+
+### Test Coverage
+
+- **107 test** totali (43 checkAnswer + 19 languageDetection + 14 musicService + 11 aiService + 20 gameFlow)
+- **97.91%** di copertura sui servizi
+- **100%** di copertura sulle utility (checkAnswer, languageDetection)
+
+### CI/CD
+
+I test vengono eseguiti automaticamente su GitHub Actions ad ogni push/pull request su Node.js 20.x e 22.x.
 
 ## GOOGLE API KEY
 
@@ -125,13 +151,5 @@ Attualmente, il piano **"Free of Charge"** per i modelli Flash prevede i seguent
 
 - **Costo:** €0.00 (Gratis per sempre entro i limiti sopra).
 - **Privacy Dati:** Nel piano gratuito, Google si riserva il diritto di utilizzare i dati di input/output per migliorare i propri modelli. Poiché noi inviamo solo richieste generiche ("Dammi canzoni pop anni 90"), **non ci sono problemi di privacy** o dati sensibili.
-=======
 
-## TODO
-
-- [ ] Migliorare il layout con lo scrolling in verticale
-- [ ] Rivedere l'elenco dei generi e inserire "tutti" come default
-- [ ] Rivedere l'opzione di gioco che sceglie le canzoni in base alla lingua del testo
-- [ ] Aggiungere pulsante Skip
-- [ ] Aggiungere statistiche di gioco (vincite/perdite per giocatore)
-- [ ] Aggiungere tema scuro/chiaro
+---

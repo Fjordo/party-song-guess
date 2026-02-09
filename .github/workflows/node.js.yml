@@ -1,0 +1,109 @@
+# This workflow will do a clean installation of node dependencies, cache/restore them, build the source code and run tests across different versions of node
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-nodejs
+
+name: Node.js CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  # Test the server (backend)
+  test-server:
+    name: Test Server (Node.js ${{ matrix.node-version }})
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [20.x, 22.x]
+        # Project requires Node.js >20.19 or >22.12
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+        cache-dependency-path: app/server/package-lock.json
+
+    - name: Install dependencies
+      working-directory: app/server
+      run: npm ci
+
+    - name: Run tests
+      working-directory: app/server
+      run: npm test
+
+    - name: Generate coverage report
+      working-directory: app/server
+      run: npm run test:coverage
+      if: matrix.node-version == '22.x'
+
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v4
+      if: matrix.node-version == '22.x'
+      with:
+        files: ./app/server/coverage/lcov.info
+        flags: server
+        name: server-coverage
+        fail_ci_if_error: false
+      continue-on-error: true
+
+  # Build the client (frontend)
+  build-client:
+    name: Build Client (Node.js ${{ matrix.node-version }})
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [20.x, 22.x]
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+        cache-dependency-path: app/client/package-lock.json
+
+    - name: Install dependencies
+      working-directory: app/client
+      run: npm ci
+
+    - name: Build client
+      working-directory: app/client
+      run: npm run build
+
+    - name: Check build output
+      working-directory: app/client
+      run: |
+        if [ ! -d "dist" ]; then
+          echo "Build failed: dist directory not found"
+          exit 1
+        fi
+        echo "Build successful - dist directory created"
+
+  # Lint check (optional - if you add linting later)
+  # lint:
+  #   name: Lint Code
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #   - uses: actions/checkout@v4
+  #   - name: Setup Node.js
+  #     uses: actions/setup-node@v4
+  #     with:
+  #       node-version: '22.x'
+  #   - name: Install server dependencies
+  #     working-directory: app/server
+  #     run: npm ci
+  #   - name: Lint server
+  #     working-directory: app/server
+  #     run: npm run lint
