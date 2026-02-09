@@ -49,7 +49,7 @@ npm run dev
 
 ### Avvio Docker
 
-Si può avviare l'intero progetto anche attraverso l'utilizzo di Docker. Per prima cosa, assicurati di aver configurato il file `.env` come descritto nella sezione [Configurazione .env](#configurazione-env).
+Si può avviare l'intero progetto anche attraverso l'utilizzo di Docker. Per prima cosa, deve essere configurato il file `.env` come descritto nella sezione [GOOGLE API KEY](#google-api-key).
 
 ```bash
 cd docker-compose
@@ -86,6 +86,7 @@ Una volta avviati server e client, puoi accedere all'applicazione:
 - **Backend API**: <http://localhost:3000>
 
 > **Nota:** Il client si connetterà automaticamente al server via Socket.io
+
 ## Testing
 
 Il server include una suite completa di test automatici con Jest.

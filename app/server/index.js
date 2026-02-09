@@ -18,6 +18,9 @@ const io = new Server(server, {
     }
 });
 
+
+const { createGameRoom, updateGameRoomStatus, endGame } = require('./services/supabaseClient');
+
 const PORT = process.env.PORT || 3000;
 
 // Store rooms in memory for speed
@@ -26,7 +29,7 @@ const rooms = {};
 io.on('connection', (socket) => {
     console.log('User connected:', socket.id);
 
-    socket.on('create_room', ({ playerName, totalRounds }) => {
+    socket.on('create_room', async ({ playerName, userId }) => {
         const roomId = Math.random().toString(36).substring(2, 7).toUpperCase();
 
         // Default number of rounds; can be overridden when starting the game
@@ -34,7 +37,8 @@ io.on('connection', (socket) => {
 
         rooms[roomId] = {
             id: roomId,
-            players: [{ id: socket.id, name: playerName, score: 0 }],
+            hostId: userId, // Store host ID for DB
+            players: [{ id: socket.id, name: playerName, score: 0, userId }], // Store userId for DB
             state: 'LOBBY', // LOBBY, PLAYING, ENDED
             currentRound: 0,
             totalRounds: rounds,
@@ -42,13 +46,27 @@ io.on('connection', (socket) => {
             scores: {}
         };
         socket.join(roomId);
+
+        // SAVE TO DB
+        if (userId) {
+            await createGameRoom({
+                id: roomId,
+                hostId: userId,
+                totalRounds: rounds,
+                genres: ['pop'], // Default, will update later if needed or just track initial
+                decade: null,
+                language: null,
+                difficulty: 'easy'
+            });
+        }
+
         socket.emit('room_created', rooms[roomId]);
-        console.log(`Room ${roomId} created by ${playerName}`);
+        console.log(`Room ${roomId} created by ${playerName} (${userId})`);
     });
 
-    socket.on('join_room', ({ roomId, playerName }) => {
+    socket.on('join_room', ({ roomId, playerName, userId }) => {
         if (rooms[roomId] && rooms[roomId].state === 'LOBBY') {
-            rooms[roomId].players.push({ id: socket.id, name: playerName, score: 0 });
+            rooms[roomId].players.push({ id: socket.id, name: playerName, score: 0, userId }); // Store userId
             socket.join(roomId);
             io.to(roomId).emit('player_joined', rooms[roomId].players);
             socket.emit('room_joined', rooms[roomId]);
@@ -123,6 +141,13 @@ io.on('connection', (socket) => {
 
             console.log(`Room ${roomId} Game started with ${room.totalRounds} songs.`);
 
+            // UPDATE DB STATUS
+            if (room.hostId) {
+                updateGameRoomStatus(roomId, 'PLAYING', { started_at: new Date().toISOString(), total_rounds: requestedRounds, genres: activeGenres, decade: decade, language: language, difficulty: difficulty });
+            }
+
+            console.log(`[Room ${roomId}] Partita iniziata con ${room.totalRounds} canzoni.`);
+
             // 7. Start Game
             io.to(roomId).emit('game_started', { totalRounds: room.totalRounds });
 
@@ -160,7 +185,7 @@ io.on('connection', (socket) => {
                     if (room.currentRound < room.totalRounds) {
                         startRound(roomId);
                     } else {
-                        endGame(roomId);
+                        endGameInternal(roomId);
                     }
                 }, 5000);
             }
@@ -178,7 +203,7 @@ io.on('connection', (socket) => {
 function startRound(roomId) {
     const room = rooms[roomId];
     if (room.currentRound >= room.totalRounds) {
-        endGame(roomId);
+        endGameInternal(roomId);
         return;
     }
 
@@ -210,14 +235,20 @@ function startRound(roomId) {
 
 }
 
-function endGame(roomId) {
+function endGameInternal(roomId) {
     if (rooms[roomId]) {
-        rooms[roomId].state = 'ENDED';
-        io.to(roomId).emit('game_over', rooms[roomId].players);
+        const room = rooms[roomId];
+        room.state = 'ENDED';
+        io.to(roomId).emit('game_over', room.players); // Pass players explicitely
+
+        // SAVE TO DB (Async, don't block)
+        if (room.hostId) {
+            endGame(roomId, room.players).catch(err =>
+                console.error("Failed to save game stats:", err)
+            );
+        }
     }
 }
-
-// checkAnswer function moved to utils/checkAnswer.js for better testability
 
 server.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
