@@ -90,7 +90,7 @@ export default function GameRoom({ socket, room, players }) {
 
             <div className="w-full flex flex-col sm:flex-row gap-2 sm:gap-0 justify-between items-center mb-4 sm:mb-6 px-2 sm:px-4 text-center sm:text-left">
                 <div className="bg-gray-800 px-4 py-2 rounded-full font-mono">
-                    Round {currentRound} / {room?.totalRounds || 10}
+                    {t('game.round')} {currentRound} / {room?.totalRounds || 10}
                 </div>
                 <div className="text-lg sm:text-xl font-bold animate-pulse text-purple-400">
                     {status === 'PLAYING' ? t('game.guessTheSong') : status}
@@ -140,7 +140,7 @@ export default function GameRoom({ socket, room, players }) {
                     disabled={status !== 'PLAYING'}
                     className="bg-purple-600 hover:bg-purple-700 disabled:bg-gray-600 px-6 sm:px-8 py-3 sm:py-4 rounded-lg font-bold transition text-base sm:text-lg"
                 >
-                    INVIA
+                    {t('game.submit')}
                 </button>
             </form>
 
@@ -151,7 +151,7 @@ export default function GameRoom({ socket, room, players }) {
             )}
 
             <div className="mt-8 w-full">
-                <h4 className="text-gray-400 mb-2 font-bold uppercase text-sm tracking-wider">Scoreboard</h4>
+                <h4 className="text-gray-400 mb-2 font-bold uppercase text-sm tracking-wider">{t('game.scoreboard')}</h4>
                 <div className="flex flex-wrap gap-4">
                     {players.sort((a, b) => b.score - a.score).map(p => (
                         <div key={p.id} className="bg-gray-800 px-3 py-1 rounded flex items-center gap-2 border border-gray-700">

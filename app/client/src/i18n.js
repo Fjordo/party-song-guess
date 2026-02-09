@@ -42,16 +42,21 @@ const messages = {
     lobby: {
       waiting: 'Waiting for players...',
       startGame: 'Start Game',
+      generating: 'Generating...',
       hostStarting: 'The host is about to start the game...'
     },
     game: {
       getReady: 'Get Ready...',
       guessTheSong: '🎵 GUESS THE SONG 🎵',
+      round: 'Round',
+      submit: 'SUBMIT',
       timeUp: 'Time\'s Up!',
       guessed: 'guessed it!',
       inputPlaceholder: 'Song title...',
       scoreboard: 'Scoreboard',
-      wrongGuess: 'Wrong answer, try again!'
+      wrongGuess: 'Wrong answer, try again!',
+      gameOver: 'Game Over!',
+      newGame: 'New Game'
     },
     errors: {
       title: 'Error',
@@ -59,7 +64,8 @@ const messages = {
       missingNameCreate: 'Enter your name to create a room.',
       missingNameJoin: 'Enter your name to join a room.',
       missingRoomId: 'Enter a valid room ID.',
-      roomNotFound: 'Room not found or game already started.'
+      roomNotFound: 'Room not found or game already started.',
+      generationFailed: 'The AI service is temporarily unavailable. Please try again.'
     }
   },
   it: {
@@ -105,16 +111,21 @@ const messages = {
     lobby: {
       waiting: 'In attesa di giocatori...',
       startGame: 'Avvia Gioco',
+      generating: 'Generazione in corso...',
       hostStarting: 'L\'host sta per avviare la partita...'
     },
     game: {
       getReady: 'Preparati...',
       guessTheSong: '🎵 INDOVINA LA CANZONE 🎵',
+      round: 'Round',
+      submit: 'INVIA',
       timeUp: 'Tempo Scaduto!',
       guessed: 'ha indovinato!',
       inputPlaceholder: 'Titolo della canzone...',
       scoreboard: 'Classifica',
-      wrongGuess: 'Risposta sbagliata, riprova!'
+      wrongGuess: 'Risposta sbagliata, riprova!',
+      gameOver: 'Partita Finita!',
+      newGame: 'Nuova Partita'
     },
     errors: {
       title: 'Errore',
@@ -122,7 +133,8 @@ const messages = {
       missingNameCreate: 'Inserisci il tuo nome per creare una stanza.',
       missingNameJoin: 'Inserisci il tuo nome per unirti a una stanza.',
       missingRoomId: 'Inserisci un ID stanza valido.',
-      roomNotFound: 'Stanza non trovata o partita già iniziata.'
+      roomNotFound: 'Stanza non trovata o partita già iniziata.',
+      generationFailed: 'Il servizio AI è temporaneamente non disponibile. Riprova.'
     }
   }
 };

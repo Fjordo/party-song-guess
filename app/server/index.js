@@ -90,7 +90,7 @@ io.on('connection', (socket) => {
 
             // 4. Chiamata ad Apple Music (Step 2: Ottenere l'audio)
             // OTTIMIZZAZIONE PRO: Usiamo Promise.all per fare tutte le richieste HTTP insieme
-            const searchPromises = aiRecommendations.map(song => 
+            const searchPromises = aiRecommendations.map(song =>
                 musicService.searchAndGetPreview(song.artist, song.title)
             );
 
@@ -116,21 +116,21 @@ io.on('connection', (socket) => {
             room.currentRound = 0;
             room.state = 'PLAYING';
 
-            console.log(`[Room ${roomId}] Partita iniziata con ${room.totalRounds} canzoni.`);
+            console.log(`Room ${roomId} Partita iniziata con ${room.totalRounds} canzoni.`);
 
             // 7. Start Game
             io.to(roomId).emit('game_started', { totalRounds: room.totalRounds });
-            
+
             // Piccolo delay per dare tempo al frontend di fare la transizione
             setTimeout(() => startRound(roomId), 1000);
 
         } catch (e) {
-            console.error(`[Room ${roomId}] Errore Start Game:`, e.message);
+            console.error(`Room ${roomId} Errore Start Game:`, e.message);
             // Ripristina lo stato a LOBBY in modo che possano riprovare
             room.state = 'LOBBY';
-            io.to(roomId).emit('error', { 
-                code: 'GENERATION_FAILED', 
-                message: "Impossibile generare la partita. Prova criteri meno restrittivi." 
+            io.to(roomId).emit('error', {
+                code: 'GENERATION_FAILED',
+                message: "Impossibile generare la partita. Prova criteri meno restrittivi."
             });
         }
     });

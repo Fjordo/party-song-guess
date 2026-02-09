@@ -222,7 +222,7 @@ return (
             {gameState === 'ENDED' && (
               /* 3. GAME OVER FIX: Altezza massima fissa (80% viewport) e flex column */
               <div className="bg-gray-800 p-6 rounded-xl text-center w-full max-w-lg shadow-2xl flex flex-col max-h-[80vh]">
-                <h2 className="text-3xl font-bold mb-4 text-purple-400 flex-shrink-0">Game Over!</h2>
+                <h2 className="text-3xl font-bold mb-4 text-purple-400 flex-shrink-0">{t('game.gameOver')}</h2>
                 
                 {/* TRUCCO: 'flex-1' prende lo spazio disponibile
                     'min-h-0' permette al flex item di rimpicciolirsi sotto il suo contenuto minimo (fondamentale per lo scroll)
@@ -250,7 +250,7 @@ return (
                   onClick={() => window.location.reload()} 
                   className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition transform hover:scale-105 flex-shrink-0"
                 >
-                  New Game
+                  {t('game.newGame')}
                 </button>
               </div>
             )}
