@@ -3,6 +3,8 @@ import { t } from './i18n';
 import io from 'socket.io-client';
 import Lobby from './components/Lobby';
 import GameRoom from './components/GameRoom';
+import Auth from './components/Auth';
+import { onAuthStateChange, signOut } from './services/supabaseClient';
 
 const socket = io(`http://${window.location.hostname}:3000`);
 
@@ -36,6 +38,20 @@ function App() {
   const [selectedDecade, setSelectedDecade] = useState('');
   const [selectedLanguage, setSelectedLanguage] = useState('');
   const [selectedDifficulty, setSelectedDifficulty] = useState('easy');
+  const [user, setUser] = useState(null);
+  const [authLoading, setAuthLoading] = useState(true);
+
+  // Auth state listener
+  useEffect(() => {
+    const { data: authListener } = onAuthStateChange((event, session) => {
+      setUser(session?.user || null);
+      setAuthLoading(false);
+    });
+
+    return () => {
+      authListener?.subscription?.unsubscribe();
+    };
+  }, []);
 
   useEffect(() => {
     socket.on('room_created', (roomData) => {
@@ -113,7 +129,11 @@ function App() {
       return;
     }
     setErrorMessage('');
-    socket.emit('create_room', { playerName });
+    // Pass user.id if logged in
+    socket.emit('create_room', {
+      playerName,
+      userId: user ? user.id : null
+    });
   };
 
   const joinRoom = (roomId) => {
@@ -126,7 +146,11 @@ function App() {
       return;
     }
     setErrorMessage('');
-    socket.emit('join_room', { roomId, playerName });
+    socket.emit('join_room', {
+      roomId,
+      playerName,
+      userId: user ? user.id : null
+    });
   };
 
   const startGame = () => {
@@ -154,10 +178,44 @@ function App() {
   // ... (tutti gli import e la logica rimangono uguali)
 
   // AGGIUNGIAMO min-h-0 alla lista e max-h-[xx] al contenitore
+
+  // Se è in fase di loading dell'auth, mostra uno schermo di caricamento
+  if (authLoading) {
+    return (
+      <div className="fixed inset-0 bg-gradient-to-br from-purple-900 via-blue-900 to-blue-800 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-12 h-12 border-4 border-blue-300 border-t-white rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-white">Caricamento...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Se non è autenticato, mostra la schermata di login
+  if (!user) {
+    return <Auth onAuthSuccess={() => { }} />;
+  }
+
   return (
     // 1. BLOCCO PRINCIPALE: h-screen fissa l'app alla finestra, overflow-hidden evita scroll doppi
     <div className="fixed inset-0 bg-gray-900 text-white flex flex-col overflow-hidden">
       <style>{scrollbarStyle}</style>
+
+      {/* Pulsante Logout in alto a destra */}
+      <div className="absolute top-4 right-4 z-50">
+        <button
+          onClick={async () => {
+            await signOut();
+            setGameState('LANDING');
+            setRoom(null);
+            setPlayers([]);
+            setPlayerName('');
+          }}
+          className="px-3 py-1 text-sm bg-red-600 hover:bg-red-700 rounded flex items-center gap-2"
+        >
+          🚪 Logout
+        </button>
+      </div>
 
       {/* 2. AREA DI SCROLL GENERALE: Se il contenuto sfora (es. tastiera mobile), qui si scrolla */}
       <div className="flex-1 overflow-y-auto p-4 w-full custom-scrollbar">
