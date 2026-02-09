@@ -39,12 +39,14 @@ function App() {
 
   useEffect(() => {
     socket.on('room_created', (roomData) => {
+      setErrorMessage(t(''));
       setRoom(roomData);
       setGameState('LOBBY');
       setPlayers(roomData.players);
     });
 
     socket.on('room_joined', (roomData) => {
+      setErrorMessage(t(''));
       setRoom(roomData);
       setGameState('LOBBY');
       setPlayers(roomData.players);
@@ -54,7 +56,8 @@ function App() {
       setPlayers(updatedPlayers);
     });
 
-    socket.on('game_started', () => {
+    socket.on('game_started', ({ totalRounds }) => {
+      setRoom(prev => ({ ...prev, totalRounds }));
       setGameState('PLAYING');
     });
 
@@ -67,10 +70,25 @@ function App() {
       setPlayers(finalPlayers);
     });
 
+    socket.on('connect_error', () => {
+      setErrorMessage(t('errors.serverUnavailable'));
+    });
+
+    socket.on('disconnect', () => {
+      setGameState('LANDING');
+      setRoom(null);
+      setPlayers([]);
+      setErrorMessage(t('errors.disconnected'));
+    });
+
     socket.on('error', (payload) => {
       const code = typeof payload === 'string' ? payload : payload?.code;
       if (code === 'ROOM_NOT_FOUND_OR_STARTED') {
         setErrorMessage(t('errors.roomNotFound'));
+      } else if (code === 'AI_TIMEOUT') {
+        setErrorMessage(t('errors.aiTimeout'));
+      } else if (code === 'GENERATION_FAILED') {
+        setErrorMessage(t('errors.generationFailed'));
       } else {
         setErrorMessage(t('errors.generic'));
       }
@@ -83,6 +101,8 @@ function App() {
       socket.off('game_started');
       socket.off('update_scores');
       socket.off('game_over');
+      socket.off('connect_error');
+      socket.off('disconnect');
       socket.off('error');
     };
   }, []);
@@ -111,6 +131,7 @@ function App() {
 
   const startGame = () => {
     if (room) {
+      setErrorMessage('');
       socket.emit('start_game', {
         roomId: room.id,
         genres: selectedGenres,
@@ -130,10 +151,10 @@ function App() {
     );
   };
 
-// ... (tutti gli import e la logica rimangono uguali)
+  // ... (tutti gli import e la logica rimangono uguali)
 
-// AGGIUNGIAMO min-h-0 alla lista e max-h-[xx] al contenitore
-return (
+  // AGGIUNGIAMO min-h-0 alla lista e max-h-[xx] al contenitore
+  return (
     // 1. BLOCCO PRINCIPALE: h-screen fissa l'app alla finestra, overflow-hidden evita scroll doppi
     <div className="fixed inset-0 bg-gray-900 text-white flex flex-col overflow-hidden">
       <style>{scrollbarStyle}</style>
@@ -209,6 +230,7 @@ return (
                 setSelectedLanguage={setSelectedLanguage}
                 selectedDifficulty={selectedDifficulty}
                 setSelectedDifficulty={setSelectedDifficulty}
+                errorMessage={errorMessage}
               />
             )}
 
@@ -219,35 +241,34 @@ return (
             {gameState === 'ENDED' && (
               /* 3. GAME OVER FIX: Altezza massima fissa (80% viewport) e flex column */
               <div className="bg-gray-800 p-6 rounded-xl text-center w-full max-w-lg shadow-2xl flex flex-col max-h-[80vh]">
-                <h2 className="text-3xl font-bold mb-4 text-purple-400 flex-shrink-0">Game Over!</h2>
-                
+                <h2 className="text-3xl font-bold mb-4 text-purple-400 flex-shrink-0">{t('game.gameOver')}</h2>
+
                 {/* TRUCCO: 'flex-1' prende lo spazio disponibile
                     'min-h-0' permette al flex item di rimpicciolirsi sotto il suo contenuto minimo (fondamentale per lo scroll)
                     'overflow-y-auto' abilita la barra
                 */}
                 <div className="flex-1 overflow-y-auto min-h-0 custom-scrollbar pr-2 space-y-2 mb-4">
                   {players.sort((a, b) => b.score - a.score).map((p, i) => (
-                    <div 
-                      key={p.id} 
-                      className={`flex items-center justify-between p-3 rounded ${
-                         i === 0 ? 'bg-yellow-500/20 border border-yellow-500/50' : 'bg-gray-700'
-                      }`}
+                    <div
+                      key={p.id}
+                      className={`flex items-center justify-between p-3 rounded ${i === 0 ? 'bg-yellow-500/20 border border-yellow-500/50' : 'bg-gray-700'
+                        }`}
                     >
                       <span className="font-bold flex items-center gap-2 truncate">
-                         {i === 0 && '👑'} {i + 1}. {p.name}
+                        {i === 0 && '👑'} {i + 1}. {p.name}
                       </span>
                       <span className="font-mono bg-gray-900 px-2 py-1 rounded text-purple-300 ml-2 whitespace-nowrap">
-                          {p.score} pts
+                        {p.score} pts
                       </span>
                     </div>
                   ))}
                 </div>
-                
-                <button 
-                  onClick={() => window.location.reload()} 
+
+                <button
+                  onClick={() => window.location.reload()}
                   className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition transform hover:scale-105 flex-shrink-0"
                 >
-                  New Game
+                  {t('game.newGame')}
                 </button>
               </div>
             )}

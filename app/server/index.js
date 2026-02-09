@@ -62,75 +62,81 @@ io.on('connection', (socket) => {
         const room = rooms[roomId];
         if (!room || room.players.length === 0) return;
 
-        // 1. Setup Iniziale della Stanza
+        // 1. Initial room setup
         let requestedRounds = parseInt(rounds, 10) || 10;
         if (requestedRounds > 50) requestedRounds = 50;
 
-        room.state = 'LOADING'; // Stato intermedio utile per mostrare uno spinner nel frontend
-        io.to(roomId).emit('game_loading', { message: "L'AI sta curando la tua playlist..." });
+        room.state = 'LOADING';
+        io.to(roomId).emit('game_loading', { message: 'Generating playlist...' });
 
         try {
-            // 2. Normalizzazione Input
+            // 2. Input normalization
             let activeGenres = Array.isArray(genres) && genres.length ? genres : [genre || 'pop'];
-            
-            console.log(`[Room ${roomId}] Generazione playlist AI: ${language}, ${decade}, ${difficulty}`);
 
-            // 3. Chiamata a Gemini (Step 1: Ottenere i titoli)
-            const aiRecommendations = await aiService.getSongListFromAI({
-                genres: activeGenres,
-                decade,
-                language,
-                difficulty,
-                count: requestedRounds
-            });
+            console.log(`Room ${roomId} Generating AI playlist: ${language}, ${decade}, ${difficulty}, ${requestedRounds} songs`);
+
+            // 3. Call Gemini (Step 1: get song titles) with 20s timeout
+            const AI_TIMEOUT = 20000;
+            const aiRecommendations = await Promise.race([
+                aiService.getSongListFromAI({
+                    genres: activeGenres,
+                    decade,
+                    language,
+                    difficulty,
+                    count: requestedRounds
+                }),
+                new Promise((_, reject) =>
+                    setTimeout(() => reject(new Error('AI timeout: no response within 15 seconds.')), AI_TIMEOUT)
+                )
+            ]);
 
             if (!aiRecommendations || aiRecommendations.length === 0) {
-                throw new Error("L'AI non ha restituito risultati validi.");
+                throw new Error('AI returned no valid results.');
             }
 
-            // 4. Chiamata ad Apple Music (Step 2: Ottenere l'audio)
-            // OTTIMIZZAZIONE PRO: Usiamo Promise.all per fare tutte le richieste HTTP insieme
-            const searchPromises = aiRecommendations.map(song => 
+            // 4. Call Apple Music (Step 2: get audio previews)
+            // Run all search requests in parallel
+            const searchPromises = aiRecommendations.map(song =>
                 musicService.searchAndGetPreview(song.artist, song.title)
             );
 
             const results = await Promise.all(searchPromises);
 
-            // 5. Filtraggio
-            // Rimuoviamo i null (canzoni non trovate o senza preview)
+            // 5. Filter out songs not found or without preview
             const validSongs = results.filter(song => song !== null);
 
-            // Mischiamo l'array finale per sicurezza (Fisher-Yates shuffle opzionale)
+            // Shuffle the final array
             const shuffledSongs = validSongs.sort(() => Math.random() - 0.5);
 
-            // Tagliamo l'array al numero di round richiesti (se ne abbiamo trovate di più)
+            // Trim to requested number of rounds
             const finalPlaylist = shuffledSongs.slice(0, requestedRounds);
 
             if (finalPlaylist.length === 0) {
-                throw new Error("Nessuna canzone trovata su Apple Music compatibile con la lista AI.");
+                throw new Error('No songs found on Apple Music matching the AI list.');
             }
 
-            // 6. Aggiornamento Stato Stanza
+            // 6. Update room state
             room.songs = finalPlaylist;
-            room.totalRounds = finalPlaylist.length; // Aggiorniamo se ne abbiamo trovate meno del previsto
+            room.totalRounds = finalPlaylist.length;
             room.currentRound = 0;
             room.state = 'PLAYING';
 
-            console.log(`[Room ${roomId}] Partita iniziata con ${room.totalRounds} canzoni.`);
+            console.log(`Room ${roomId} Game started with ${room.totalRounds} songs.`);
 
             // 7. Start Game
             io.to(roomId).emit('game_started', { totalRounds: room.totalRounds });
-            
-            // Piccolo delay per dare tempo al frontend di fare la transizione
+
+            // Short delay to let the frontend transition
             setTimeout(() => startRound(roomId), 1000);
 
         } catch (e) {
-            console.error(`[Room ${roomId}] Errore Start Game:`, e.message);
-            // Ripristina lo stato a LOBBY in modo che possano riprovare
+            console.error(`Room ${roomId} Start game error:`, e.message);
+            // Reset to LOBBY so players can retry
             room.state = 'LOBBY';
-            io.to(roomId).emit('error', { 
-                code: 'GENERATION_FAILED', 
-                message: "Impossibile generare la partita. Prova criteri meno restrittivi." 
+            const isTimeout = e.message.startsWith('AI timeout');
+            io.to(roomId).emit('error', {
+                code: isTimeout ? 'AI_TIMEOUT' : 'GENERATION_FAILED',
+                message: e.message
             });
         }
     });
@@ -149,15 +155,14 @@ io.on('connection', (socket) => {
                 io.to(roomId).emit('update_scores', room.players);
                 io.to(roomId).emit('round_winner', { player: player.name, song: room.currentSong });
 
-                // Short pause just to let the winner message appear,
-                // then immediately go to next song / end game.
+                // Pause to let players see the winner and song info
                 setTimeout(() => {
                     if (room.currentRound < room.totalRounds) {
                         startRound(roomId);
                     } else {
                         endGame(roomId);
                     }
-                }, 1000);
+                }, 5000);
             }
         } else {
             socket.emit('wrong_guess');

@@ -8,6 +8,7 @@ export default function GameRoom({ socket, room, players }) {
     const [roundResult, setRoundResult] = useState(null); // { winner: 'Name', song: {...} }
     const [errorMessage, setErrorMessage] = useState(null);
     const audioRef = useRef(new Audio());
+    const inputRef = useRef(null);
 
     const [countdown, setCountdown] = useState(null);
 
@@ -33,6 +34,13 @@ export default function GameRoom({ socket, room, players }) {
             setRoundResult(null);
             setErrorMessage(null);
             setGuess('');
+
+            // Focus input and place cursor at end
+            setTimeout(() => {
+                if (inputRef.current) {
+                    inputRef.current.focus();
+                }
+            }, 100);
 
             // Play Audio
             audioRef.current.src = previewUrl;
@@ -82,7 +90,7 @@ export default function GameRoom({ socket, room, players }) {
 
             <div className="w-full flex flex-col sm:flex-row gap-2 sm:gap-0 justify-between items-center mb-4 sm:mb-6 px-2 sm:px-4 text-center sm:text-left">
                 <div className="bg-gray-800 px-4 py-2 rounded-full font-mono">
-                    Round {currentRound} / {room?.totalRounds || 10}
+                    {t('game.round')} {currentRound} / {room?.totalRounds || 10}
                 </div>
                 <div className="text-lg sm:text-xl font-bold animate-pulse text-purple-400">
                     {status === 'PLAYING' ? t('game.guessTheSong') : status}
@@ -90,7 +98,7 @@ export default function GameRoom({ socket, room, players }) {
             </div>
 
             {/* Visualizer / Album Art placeholder */}
-            <div className="w-56 h-56 sm:w-64 sm:h-64 bg-gray-800 rounded-xl mb-6 sm:mb-8 flex items-center justify-center shadow-lg border-4 border-gray-700 relative overflow-hidden">
+            <div className="w-36 h-36 sm:w-64 sm:h-64 bg-gray-800 rounded-xl mb-6 sm:mb-8 flex items-center justify-center shadow-lg border-4 border-gray-700 relative overflow-hidden">
                 {status === 'ROUND_OVER' && roundResult?.song?.artwork ? (
                     <img src={roundResult.song.artwork.replace('100x100', '400x400')} alt="Album Art" className="w-full h-full object-cover" />
                 ) : (
@@ -113,9 +121,15 @@ export default function GameRoom({ socket, room, players }) {
 
             <form onSubmit={submitGuess} className="w-full flex flex-col sm:flex-row gap-2">
                 <input
+                    ref={inputRef}
                     type="text"
                     value={guess}
                     onChange={e => setGuess(e.target.value)}
+                    onFocus={e => {
+                        const val = e.target.value;
+                        e.target.value = '';
+                        e.target.value = val;
+                    }}
                     placeholder={t('game.inputPlaceholder')}
                     disabled={status !== 'PLAYING'}
                     className="flex-1 p-3 sm:p-4 rounded-lg bg-gray-800 border-2 border-gray-700 focus:border-purple-500 focus:outline-none text-base sm:text-lg"
@@ -126,7 +140,7 @@ export default function GameRoom({ socket, room, players }) {
                     disabled={status !== 'PLAYING'}
                     className="bg-purple-600 hover:bg-purple-700 disabled:bg-gray-600 px-6 sm:px-8 py-3 sm:py-4 rounded-lg font-bold transition text-base sm:text-lg"
                 >
-                    INVIA
+                    {t('game.submit')}
                 </button>
             </form>
 
@@ -137,7 +151,7 @@ export default function GameRoom({ socket, room, players }) {
             )}
 
             <div className="mt-8 w-full">
-                <h4 className="text-gray-400 mb-2 font-bold uppercase text-sm tracking-wider">Scoreboard</h4>
+                <h4 className="text-gray-400 mb-2 font-bold uppercase text-sm tracking-wider">{t('game.scoreboard')}</h4>
                 <div className="flex flex-wrap gap-4">
                     {players.sort((a, b) => b.score - a.score).map(p => (
                         <div key={p.id} className="bg-gray-800 px-3 py-1 rounded flex items-center gap-2 border border-gray-700">

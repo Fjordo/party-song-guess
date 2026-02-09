@@ -1,17 +1,16 @@
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 
-// Assicurati di avere GEMINI_API_KEY nel tuo file .env
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 async function getSongListFromAI({ genres, decade, language, difficulty, count }) {
-    // Richiediamo un buffer del 30% in più per coprire eventuali canzoni non trovate su Apple Music
-    const safeCount = Math.ceil(count * 1.3); 
+    // Request 30% more to cover songs not found on Apple Music
+    const safeCount = Math.ceil(count * 1.3);
 
     const model = genAI.getGenerativeModel({
         model: "gemini-3-flash-preview",
         generationConfig: {
-            responseMimeType: "application/json", // Forza l'output JSON puro
-            temperature: 0.7, // Creativo ma non troppo allucinogeno
+            responseMimeType: "application/json",
+            temperature: 0.7,
         }
     });
 
@@ -30,7 +29,7 @@ async function getSongListFromAI({ genres, decade, language, difficulty, count }
         return JSON.parse(response.text());
     } catch (error) {
         console.error("Gemini Error:", error);
-        return []; // Ritorna array vuoto in caso di errore per non crashare il server
+        return []; // Return empty array on error to avoid crashing the server
     }
 }
 
