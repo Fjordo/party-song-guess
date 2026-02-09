@@ -65,6 +65,7 @@ const messages = {
       missingNameJoin: 'Enter your name to join a room.',
       missingRoomId: 'Enter a valid room ID.',
       roomNotFound: 'Room not found or game already started.',
+      aiTimeout: 'The AI took too long to respond. Please try again.',
       generationFailed: 'The AI service is temporarily unavailable. Please try again.'
     }
   },
@@ -134,6 +135,7 @@ const messages = {
       missingNameJoin: 'Inserisci il tuo nome per unirti a una stanza.',
       missingRoomId: 'Inserisci un ID stanza valido.',
       roomNotFound: 'Stanza non trovata o partita già iniziata.',
+      aiTimeout: 'L\'AI ha impiegato troppo tempo a rispondere. Riprova.',
       generationFailed: 'Il servizio AI è temporaneamente non disponibile. Riprova.'
     }
   }

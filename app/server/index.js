@@ -75,14 +75,20 @@ io.on('connection', (socket) => {
 
             console.log(`Room ${roomId} Generazione playlist AI: ${language}, ${decade}, ${difficulty}`);
 
-            // 3. Chiamata a Gemini (Step 1: Ottenere i titoli)
-            const aiRecommendations = await aiService.getSongListFromAI({
-                genres: activeGenres,
-                decade,
-                language,
-                difficulty,
-                count: requestedRounds
-            });
+            // 3. Chiamata a Gemini (Step 1: Ottenere i titoli) con timeout 15s
+            const AI_TIMEOUT = 15000;
+            const aiRecommendations = await Promise.race([
+                aiService.getSongListFromAI({
+                    genres: activeGenres,
+                    decade,
+                    language,
+                    difficulty,
+                    count: requestedRounds
+                }),
+                new Promise((_, reject) =>
+                    setTimeout(() => reject(new Error('AI timeout: nessuna risposta entro 15 secondi.')), AI_TIMEOUT)
+                )
+            ]);
 
             if (!aiRecommendations || aiRecommendations.length === 0) {
                 throw new Error("L'AI non ha restituito risultati validi.");
@@ -128,9 +134,10 @@ io.on('connection', (socket) => {
             console.error(`Room ${roomId} Errore Start Game:`, e.message);
             // Ripristina lo stato a LOBBY in modo che possano riprovare
             room.state = 'LOBBY';
+            const isTimeout = e.message.startsWith('AI timeout');
             io.to(roomId).emit('error', {
-                code: 'GENERATION_FAILED',
-                message: "Impossibile generare la partita. Prova criteri meno restrittivi."
+                code: isTimeout ? 'AI_TIMEOUT' : 'GENERATION_FAILED',
+                message: e.message
             });
         }
     });

@@ -71,6 +71,8 @@ function App() {
       const code = typeof payload === 'string' ? payload : payload?.code;
       if (code === 'ROOM_NOT_FOUND_OR_STARTED') {
         setErrorMessage(t('errors.roomNotFound'));
+      } else if (code === 'AI_TIMEOUT') {
+        setErrorMessage(t('errors.aiTimeout'));
       } else if (code === 'GENERATION_FAILED') {
         setErrorMessage(t('errors.generationFailed'));
       } else {
