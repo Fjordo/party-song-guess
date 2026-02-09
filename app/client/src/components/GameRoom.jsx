@@ -8,6 +8,7 @@ export default function GameRoom({ socket, room, players }) {
     const [roundResult, setRoundResult] = useState(null); // { winner: 'Name', song: {...} }
     const [errorMessage, setErrorMessage] = useState(null);
     const audioRef = useRef(new Audio());
+    const inputRef = useRef(null);
 
     const [countdown, setCountdown] = useState(null);
 
@@ -33,6 +34,13 @@ export default function GameRoom({ socket, room, players }) {
             setRoundResult(null);
             setErrorMessage(null);
             setGuess('');
+
+            // Focus input and place cursor at end
+            setTimeout(() => {
+                if (inputRef.current) {
+                    inputRef.current.focus();
+                }
+            }, 100);
 
             // Play Audio
             audioRef.current.src = previewUrl;
@@ -90,7 +98,7 @@ export default function GameRoom({ socket, room, players }) {
             </div>
 
             {/* Visualizer / Album Art placeholder */}
-            <div className="w-56 h-56 sm:w-64 sm:h-64 bg-gray-800 rounded-xl mb-6 sm:mb-8 flex items-center justify-center shadow-lg border-4 border-gray-700 relative overflow-hidden">
+            <div className="w-36 h-36 sm:w-64 sm:h-64 bg-gray-800 rounded-xl mb-6 sm:mb-8 flex items-center justify-center shadow-lg border-4 border-gray-700 relative overflow-hidden">
                 {status === 'ROUND_OVER' && roundResult?.song?.artwork ? (
                     <img src={roundResult.song.artwork.replace('100x100', '400x400')} alt="Album Art" className="w-full h-full object-cover" />
                 ) : (
@@ -113,9 +121,15 @@ export default function GameRoom({ socket, room, players }) {
 
             <form onSubmit={submitGuess} className="w-full flex flex-col sm:flex-row gap-2">
                 <input
+                    ref={inputRef}
                     type="text"
                     value={guess}
                     onChange={e => setGuess(e.target.value)}
+                    onFocus={e => {
+                        const val = e.target.value;
+                        e.target.value = '';
+                        e.target.value = val;
+                    }}
                     placeholder={t('game.inputPlaceholder')}
                     disabled={status !== 'PLAYING'}
                     className="flex-1 p-3 sm:p-4 rounded-lg bg-gray-800 border-2 border-gray-700 focus:border-purple-500 focus:outline-none text-base sm:text-lg"
