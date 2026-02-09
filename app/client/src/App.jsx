@@ -71,6 +71,8 @@ function App() {
       const code = typeof payload === 'string' ? payload : payload?.code;
       if (code === 'ROOM_NOT_FOUND_OR_STARTED') {
         setErrorMessage(t('errors.roomNotFound'));
+      } else if (code === 'GENERATION_FAILED') {
+        setErrorMessage(t('errors.generationFailed'));
       } else {
         setErrorMessage(t('errors.generic'));
       }
@@ -209,6 +211,7 @@ return (
                 setSelectedLanguage={setSelectedLanguage}
                 selectedDifficulty={selectedDifficulty}
                 setSelectedDifficulty={setSelectedDifficulty}
+                errorMessage={errorMessage}
               />
             )}
 

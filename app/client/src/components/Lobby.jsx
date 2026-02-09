@@ -15,14 +15,15 @@ export default function Lobby({
     selectedLanguage,
     setSelectedLanguage,
     selectedDifficulty,
-    setSelectedDifficulty
+    setSelectedDifficulty,
+    errorMessage
 }) {
-    // 2. Stato per gestire il caricamento
-    const [isLoading, setIsLoading] = useState(false);
+    const [isLoadingInternal, setIsLoadingInternal] = useState(false);
+    const isLoading = isLoadingInternal && !errorMessage;
 
     const handleStartGame = async () => {
         // Attiviamo lo spinner
-        setIsLoading(true);
+        setIsLoadingInternal(true);
         
         try {
             // Passiamo i dati al padre.
@@ -38,7 +39,7 @@ export default function Lobby({
         } catch (error) {
             // Se c'è un errore immediato, fermiamo lo spinner (opzionale, dipende da come gestisci gli errori nel padre)
             console.error("Errore avvio:", error);
-            setIsLoading(false);
+            setIsLoadingInternal(false);
         }
     };
 

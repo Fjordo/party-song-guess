@@ -72,8 +72,8 @@ io.on('connection', (socket) => {
         try {
             // 2. Normalizzazione Input
             let activeGenres = Array.isArray(genres) && genres.length ? genres : [genre || 'pop'];
-            
-            console.log(`[Room ${roomId}] Generazione playlist AI: ${language}, ${decade}, ${difficulty}`);
+
+            console.log(`Room ${roomId} Generazione playlist AI: ${language}, ${decade}, ${difficulty}`);
 
             // 3. Chiamata a Gemini (Step 1: Ottenere i titoli)
             const aiRecommendations = await aiService.getSongListFromAI({
