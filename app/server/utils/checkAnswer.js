@@ -11,6 +11,7 @@ function checkAnswer(guess, actual) {
     const clean = (str) =>
         str
             .toLowerCase()
+            .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // remove accents
             .replace(/\(.*?\)/g, '') // remove parentheses e.g. (Remix)
             .replace(/\bfeat\.?\b.*$/g, '') // drop "feat." and following
             .replace(/[^\w\s]/g, ' ') // remove special chars
@@ -27,7 +28,7 @@ function checkAnswer(guess, actual) {
 
     // 2. Token-based overlap (handles "The Beatles" vs "Beatles")
     const getTokens = (str) => {
-        const stopwords = new Set(['the', 'a', 'an', 'le', 'la', 'il', 'lo', 'i', 'gli', 'un', 'una', 'uno', 'and', 'of', 'in', 'on', 'at', 'to']);
+        const stopwords = new Set(['the', 'a', 'an', 'le', 'la', 'il', 'lo', 'i', 'gli', 'un', 'una', 'uno', 'el', 'los', 'las', 'unos', 'unas', 'and', 'of', 'in', 'on', 'at', 'to']);
         return new Set(str.split(' ').filter(w => w.length > 0 && !stopwords.has(w)));
     };
 

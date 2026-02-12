@@ -93,6 +93,28 @@ describe('checkAnswer() - Answer Validation', () => {
     });
   });
 
+  describe('International / Non-English Songs', () => {
+    test('should match French with accents normalized', () => {
+      expect(checkAnswer('Hélène', 'Helene')).toBe(true);
+      expect(checkAnswer('Ça Plane Pour Moi', 'Ca Plane Pour Moi')).toBe(true);
+    });
+
+    test('should match Spanish with accents', () => {
+      expect(checkAnswer('Bésame Mucho', 'Besame Mucho')).toBe(true);
+      expect(checkAnswer('Corazón Espinado', 'Corazon Espinado')).toBe(true);
+    });
+
+    test('should match German umlauts', () => {
+      // "99 Luftballons" is standard, but if someone typed "Luftballōns" (fake accent) it should match "Luftballons"
+      expect(checkAnswer('Mädchen', 'Madchen')).toBe(true);
+    });
+
+    test('should match Italian accented words', () => {
+      expect(checkAnswer('Città Vuota', 'Citta Vuota')).toBe(true);
+      expect(checkAnswer('Perchè', 'Perche')).toBe(true);
+    });
+  });
+
   describe('Levenshtein distance (typo handling)', () => {
     test('should accept small typos (≥75% similarity)', () => {
       // 0.75 threshold allows 1 error in 4 chars
