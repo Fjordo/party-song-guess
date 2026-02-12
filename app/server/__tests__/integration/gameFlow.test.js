@@ -167,8 +167,8 @@ describe('Game Flow Integration Tests', () => {
       // With punctuation
       expect(checkAnswer('Wonderwall!', songTitle)).toBe(true);
 
-      // Partial match
-      expect(checkAnswer('Wonder', songTitle)).toBe(true);
+      // Partial match (should fail with stricter rules)
+      expect(checkAnswer('Wonder', songTitle)).toBe(false);
 
       // Wrong answer
       expect(checkAnswer('Champagne Supernova', songTitle)).toBe(false);

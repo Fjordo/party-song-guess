@@ -13,7 +13,7 @@ function checkAnswer(guess, actual) {
             .toLowerCase()
             .replace(/\(.*?\)/g, '') // remove parentheses e.g. (Remix)
             .replace(/\bfeat\.?\b.*$/g, '') // drop "feat." and following
-            .replace(/[^\w\s]/g, ' ')
+            .replace(/[^\w\s]/g, ' ') // remove special chars
             .replace(/\s+/g, ' ')
             .trim();
 
@@ -22,23 +22,47 @@ function checkAnswer(guess, actual) {
 
     if (!g || !a) return false;
 
-    // Exact or substring match after normalization
+    // 1. Exact match
     if (g === a) return true;
-    if (g.includes(a) || a.includes(g)) return true;
 
-    // Word-overlap heuristic: at least 60% of actual's words must appear in guess
-    const aWords = Array.from(new Set(a.split(' ')));
-    const gWords = new Set(g.split(' '));
-    const common = aWords.filter((w) => gWords.has(w));
-    if (aWords.length > 0 && common.length / aWords.length >= 0.6) {
-        return true;
+    // 2. Token-based overlap (handles "The Beatles" vs "Beatles")
+    const getTokens = (str) => {
+        const stopwords = new Set(['the', 'a', 'an', 'le', 'la', 'il', 'lo', 'i', 'gli', 'un', 'una', 'uno', 'and', 'of', 'in', 'on', 'at', 'to']);
+        return new Set(str.split(' ').filter(w => w.length > 0 && !stopwords.has(w)));
+    };
+
+    const gTokens = getTokens(g);
+    const aTokens = getTokens(a);
+
+    // If after removing stopwords we have no tokens (e.g. answer was just "The"), fallback to raw tokens
+    const finalGTokens = gTokens.size > 0 ? gTokens : new Set(g.split(' ').filter(w => w));
+    const finalATokens = aTokens.size > 0 ? aTokens : new Set(a.split(' ').filter(w => w));
+
+    if (finalATokens.size > 0) {
+        const intersection = [...finalGTokens].filter(x => finalATokens.has(x));
+        // Require high overlap: 
+        // If guess has all important words from answer, it's good. 
+        // We also check that guess doesn't have too many *extra* words? 
+        // For now, let's stick to user's "80%" idea or simply:
+        // If > 75% of answer's important tokens are in guess.
+        const overlapRatio = intersection.length / finalATokens.size;
+
+        // Also check if guess is not wildly different in length (prevent "Love" matching "I Love You And More...")
+        // Actually, if I say "Queen" and answer is "Queen", ratio is 1.
+        // If answer is "Dancing Queen", guess "Queen", ratio 0.5.
+        // If threshold is 0.8, "Dancing Queen" fails "Queen". This is probably correct.
+        // But "The Beatles" (tokens: Beatles) vs "Beatles" (tokens: Beatles) -> 1.0. Correct.
+        if (overlapRatio >= 0.8) return true;
     }
 
-    // Levenshtein distance similarity for small typos
+    // 3. Levenshtein distance similarity for typos
     const similarity = (s1, s2) => {
         const len1 = s1.length;
         const len2 = s2.length;
         if (len1 === 0 || len2 === 0) return 0;
+
+        // Optimization: if length difference is too big, similarity will definitely be low
+        if (Math.abs(len1 - len2) / Math.max(len1, len2) > 0.3) return 0;
 
         const dp = Array.from({ length: len1 + 1 }, () => new Array(len2 + 1).fill(0));
         for (let i = 0; i <= len1; i++) dp[i][0] = i;
@@ -60,8 +84,9 @@ function checkAnswer(guess, actual) {
         return 1 - dist / maxLen;
     };
 
-    // Accept answers with reasonably high similarity (allows for typos)
-    return similarity(g, a) >= 0.7;
+    // Stricter threshold for fuzzy match (0.75 allows 1 error in 4 chars, e.g. "Sonf" for "Song")
+    // This prevents "a" roughly matching short words or just general noise
+    return similarity(g, a) >= 0.75;
 }
 
 module.exports = { checkAnswer };
