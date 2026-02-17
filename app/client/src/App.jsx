@@ -6,8 +6,8 @@ import GameRoom from './components/GameRoom';
 
 // Socket configuration: host/port/protocol are configurable via Vite env vars
 const SOCKET_HOST =
-  import.meta.env.VITE_SOCKET_HOST || window.location.hostname;
-const SOCKET_PORT = import.meta.env.VITE_SOCKET_PORT || '3000';
+  import.meta.env.VITE_SOCKET_HOST || "party-song-guess-server.onrender.com";
+const SOCKET_PORT = import.meta.env.VITE_SOCKET_PORT || '10000';
 const SOCKET_PROTOCOL =
   import.meta.env.VITE_SOCKET_PROTOCOL ||
   (window.location.protocol === 'https:' ? 'https' : 'http');
