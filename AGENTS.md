@@ -9,12 +9,14 @@
 **Party Song Guess** is a real-time multiplayer music game played via browser. Players compete to guess song titles from 30-second audio previews. The first player to guess correctly wins the round and earns a point.
 
 **Tech Stack**:
+
 - **Frontend**: React 19, Vite 7, TailwindCSS 4
 - **Backend**: Node.js (Express 4, Socket.io 4)
 - **APIs**: iTunes Search API (song previews), Google Gemini AI (playlist generation)
 - **Requirements**: Node.js >20.19 or >22.12
 
 **Key Features**:
+
 - Real-time multiplayer synchronization via Socket.io
 - Configurable game settings (genres, decades, difficulty, language)
 - Intelligent answer matching (handles typos and variations)
@@ -25,6 +27,7 @@
 ## 2. Architecture Overview
 
 ### Client-Server Model
+
 ```
 React Frontend (Vite)  ←→ Socket.io ←→ Node.js Backend (Express)
      (Port 5173)           WebSocket         (Port 3000)
@@ -33,12 +36,14 @@ React Frontend (Vite)  ←→ Socket.io ←→ Node.js Backend (Express)
 ```
 
 ### Core Principles
+
 1. **Server as Source of Truth**: All game state mutations happen server-side to prevent cheating
 2. **Real-time Synchronization**: Socket.io broadcasts events to all players in a room
 3. **In-Memory State**: Game rooms are ephemeral (no database, stored in `rooms` object)
 4. **Event-Driven Architecture**: Client and server communicate exclusively via Socket.io events
 
 ### Game State Machine
+
 ```
 LANDING (enter name, create/join room)
    ↓
@@ -83,6 +88,7 @@ party-song-guess/
 ```
 
 ### Risk Levels
+
 - **[CRITICAL]**: Changes affect real-time multiplayer synchronization - test thoroughly with multiple clients
 - **[HIGH]**: Changes impact all users' UI/UX - verify responsive design
 - **[MODERATE]**: External API integrations - check error handling and fallbacks
@@ -95,6 +101,7 @@ party-song-guess/
 ### Real-time Communication Pattern
 
 **Server broadcasts to room**:
+
 ```javascript
 // Send event to all players in a specific room
 io.to(roomId).emit('event_name', data);
@@ -104,6 +111,7 @@ socket.emit('event_name', data);
 ```
 
 **Client listens**:
+
 ```javascript
 // In App.jsx or component
 socket.on('event_name', (data) => {
@@ -142,6 +150,7 @@ Located in [app/server/index.js:~40](app/server/index.js), the `checkAnswer()` f
 4. **Levenshtein distance**: ≥0.7 similarity (allows typos)
 
 **Example matches**:
+
 - "Wonderwall" matches "wonderwall", "WONDERWALL", "Wonderwall (Remastered)"
 - "The Beatles" matches "beatles", "Beatles", "hey beatles"
 - "Smells Like Teen Spirit" matches "teen spirit", "smells teen spirit"
@@ -149,6 +158,7 @@ Located in [app/server/index.js:~40](app/server/index.js), the `checkAnswer()` f
 ### State Management Pattern
 
 **Client-side** ([app/client/src/App.jsx](app/client/src/App.jsx)):
+
 - Centralized state in `App.jsx` for:
   - `gameState`: LANDING, LOBBY, PLAYING, ENDED
   - `room`: Current room object
@@ -157,6 +167,7 @@ Located in [app/server/index.js:~40](app/server/index.js), the `checkAnswer()` f
 - Component-level state for UI-only concerns (loading spinners, input values)
 
 **Server-side** ([app/server/index.js](app/server/index.js)):
+
 ```javascript
 rooms[roomId] = {
   id: string,                    // 5-character room code
@@ -179,6 +190,7 @@ rooms[roomId] = {
 **Example**: Add "explicit content" filter
 
 1. **Add UI control** in [app/client/src/components/Lobby.jsx](app/client/src/components/Lobby.jsx):
+
    ```javascript
    <button onClick={() => setExplicitFilter(!explicitFilter)}>
      {explicitFilter ? 'Clean' : 'Any'}
@@ -186,11 +198,13 @@ rooms[roomId] = {
    ```
 
 2. **Add state** in [app/client/src/App.jsx](app/client/src/App.jsx):
+
    ```javascript
    const [explicitFilter, setExplicitFilter] = useState(false);
    ```
 
 3. **Include in socket payload** when starting game:
+
    ```javascript
    socket.emit('start_game', {
      roomId: room.id,
@@ -200,6 +214,7 @@ rooms[roomId] = {
    ```
 
 4. **Handle in server** at [app/server/index.js:~80](app/server/index.js):
+
    ```javascript
    socket.on('start_game', async ({ roomId, explicitFilter, ... }) => {
      // Pass to music service
@@ -208,6 +223,7 @@ rooms[roomId] = {
    ```
 
 5. **Apply in music service** at [app/server/services/musicService.js](app/server/services/musicService.js):
+
    ```javascript
    async function getRandomSongs(genre, limit, language, difficulty, explicitFilter) {
      const params = {
@@ -223,6 +239,7 @@ rooms[roomId] = {
 **Example**: Add "player_ready" event for ready-check system
 
 1. **Server handler** in [app/server/index.js](app/server/index.js):
+
    ```javascript
    socket.on('player_ready', ({ roomId, playerId }) => {
      const room = rooms[roomId];
@@ -241,6 +258,7 @@ rooms[roomId] = {
    ```
 
 2. **Client emitter** in [app/client/src/components/Lobby.jsx](app/client/src/components/Lobby.jsx):
+
    ```javascript
    const handleReadyClick = () => {
      socket.emit('player_ready', {
@@ -251,6 +269,7 @@ rooms[roomId] = {
    ```
 
 3. **Client listener** in [app/client/src/App.jsx](app/client/src/App.jsx):
+
    ```javascript
    socket.on('player_ready_update', ({ playerId, players }) => {
      setPlayers(players);
@@ -262,6 +281,7 @@ rooms[roomId] = {
 ### Modifying Game Rules
 
 **Round timeout**: Change 30-second limit in [app/server/index.js:~240](app/server/index.js):
+
 ```javascript
 // Find this line:
 const roundTimeout = setTimeout(() => {
@@ -270,6 +290,7 @@ const roundTimeout = setTimeout(() => {
 ```
 
 **Scoring system**: Modify score increment in [app/server/index.js:~200](app/server/index.js):
+
 ```javascript
 // Current: +1 point per correct answer
 winner.score += 1;
@@ -279,6 +300,7 @@ winner.score += Math.max(1, room.players.length - guessCount);
 ```
 
 **Answer matching strictness**: Edit `checkAnswer()` in [app/server/index.js:~40](app/server/index.js):
+
 ```javascript
 // Find Levenshtein threshold:
 const similarity = 1 - distance / Math.max(guess.length, title.length);
@@ -286,6 +308,7 @@ return similarity >= 0.7; // ← Increase to 0.85 for stricter matching
 ```
 
 **Difficulty logic**: Edit [app/server/services/musicService.js:~60](app/server/services/musicService.js):
+
 ```javascript
 // Easy difficulty takes top results (popular songs)
 if (difficulty === 'easy') {
@@ -296,6 +319,7 @@ if (difficulty === 'easy') {
 ### Adding Internationalization
 
 1. **Add translation keys** in [app/client/src/i18n.js](app/client/src/i18n.js):
+
    ```javascript
    const messages = {
      en: {
@@ -317,6 +341,7 @@ if (difficulty === 'easy') {
    ```
 
 2. **Use in components**:
+
    ```javascript
    import { t } from '../i18n';
 
@@ -394,6 +419,7 @@ if (difficulty === 'easy') {
 **Key Function**: `getRandomSongs(genre, limit, language, difficulty)`
 
 **Parameters**:
+
 ```javascript
 {
   term: "pop rock 90s",      // Genre + decade keywords
@@ -405,6 +431,7 @@ if (difficulty === 'easy') {
 ```
 
 **Response Processing**:
+
 1. Fetch results from iTunes API
 2. Filter by language (simple heuristic checking keywords and accents)
 3. Apply difficulty:
@@ -416,6 +443,7 @@ if (difficulty === 'easy') {
 **Fallback Behavior**: Returns empty array `[]` on API failure (graceful degradation)
 
 **Alternative Function**: `searchAndGetPreview(artist, title)`
+
 - Used by Gemini AI to fetch specific songs
 - Searches by exact artist + title
 - 5-second timeout to prevent blocking
@@ -429,6 +457,7 @@ if (difficulty === 'easy') {
 **Purpose**: Generate thematic playlists based on game settings
 
 **Prompt Construction**:
+
 ```javascript
 Generate ${roundCount * 1.3} songs matching:
 - Genres: [${genres.join(', ')}]
@@ -442,10 +471,12 @@ Return JSON array: [{ "artist": "...", "title": "..." }, ...]
 **Buffer Factor**: Requests 30% more songs than needed (e.g., 13 songs for 10 rounds) to account for iTunes preview unavailability
 
 **Error Handling**:
+
 - Returns empty array `[]` on failure
 - Fallback to iTunes random search in `musicService.js`
 
 **Rate Limits** (Free Tier):
+
 - **5 requests/minute**: Max 5 games can start simultaneously
 - **20 requests/day**: Max 20 games per day
 - **250K tokens/minute**: Ample capacity (playlists use ~200-300 tokens each)
@@ -459,6 +490,7 @@ Return JSON array: [{ "artist": "...", "title": "..." }, ...]
 ### Development Setup
 
 1. **Start server** (terminal 1):
+
    ```bash
    cd app/server
    npm install
@@ -466,6 +498,7 @@ Return JSON array: [{ "artist": "...", "title": "..." }, ...]
    ```
 
 2. **Start client** (terminal 2):
+
    ```bash
    cd app/client
    npm install
@@ -477,6 +510,7 @@ Return JSON array: [{ "artist": "...", "title": "..." }, ...]
 ### Critical Test Scenarios
 
 **Test 1: Basic Multiplayer Flow**
+
 1. Tab 1: Create room as "Alice"
 2. Tab 2: Join room (enter room code) as "Bob"
 3. Tab 1: Configure settings, start game
@@ -486,17 +520,20 @@ Return JSON array: [{ "artist": "...", "title": "..." }, ...]
 7. Both tabs: Verify Alice's score updates in real-time
 
 **Test 2: Simultaneous Guesses**
+
 1. Two players in same room
 2. Both submit correct answer within ~100ms of each other
 3. Expected: Only first submission scores (server's `roundActive` flag prevents double-scoring)
 4. Second player should receive `wrong_guess` (round already ended)
 
 **Test 3: Player Disconnect Mid-Game**
+
 1. Start game with 3 players
 2. One player closes browser tab during round
 3. Expected: Other players continue normally, disconnected player removed from room
 
 **Test 4: API Failure Fallback**
+
 1. **Gemini AI fails**: Stop server, remove `GEMINI_API_KEY` from `.env`, restart
    - Expected: Falls back to iTunes random search
 2. **iTunes returns songs without previews**:
@@ -504,6 +541,7 @@ Return JSON array: [{ "artist": "...", "title": "..." }, ...]
    - If zero songs with previews: Game will fail gracefully (show error to host)
 
 **Test 5: Answer Validation Edge Cases**
+
 1. Test with typos: "Wonderwal" should match "Wonderwall"
 2. Test with articles: "Beatles" should match "The Beatles"
 3. Test with features: "Song" should match "Song (feat. Artist)"
@@ -514,11 +552,13 @@ Return JSON array: [{ "artist": "...", "title": "..." }, ...]
 The server has a comprehensive test suite using **Jest** covering unit tests and integration tests.
 
 **Test Coverage** (as of latest):
+
 - **Total Tests**: 107 passing
 - **Services Coverage**: 97.91% statements, 85.71% branches, 100% functions
 - **Test Types**: Unit tests (87 tests) + Integration tests (20 tests)
 
 **Running Tests**:
+
 ```bash
 cd app/server
 npm test                  # Run all tests
@@ -527,6 +567,7 @@ npm run test:coverage     # Generate coverage report
 ```
 
 **Test Files Structure**:
+
 ```
 app/server/__tests__/
 ├── unit/
@@ -582,23 +623,27 @@ app/server/__tests__/
    - Error scenarios (empty playlists, no previews)
 
 **Mocking Strategy**:
+
 - **axios**: Mocked for iTunes API calls (no actual HTTP requests)
 - **@google/generative-ai**: Mocked for Gemini AI calls (no API costs)
 - **External dependencies**: All external APIs are mocked to ensure fast, deterministic tests
 
 **Coverage Limitations**:
+
 - [app/server/index.js](app/server/index.js) (Socket.io event handlers): **0% coverage**
   - **Reason**: Requires architectural refactoring to make Socket.io handlers testable
   - **Workaround**: Manual testing with multiple browser tabs (see "Critical Test Scenarios" above)
   - **Future**: Extract Socket.io handlers to separate module for integration testing
 
 **When to Run Tests**:
+
 - Before committing changes to critical functions (checkAnswer, musicService, aiService)
 - After modifying answer validation algorithm
 - When adding new features to services or utilities
 - Before merging pull requests
 
 **Adding New Tests**:
+
 1. Create test file in appropriate directory (`__tests__/unit/` or `__tests__/integration/`)
 2. Mock external dependencies at top of file
 3. Use descriptive `describe()` blocks for organization
@@ -608,6 +653,7 @@ app/server/__tests__/
 ### Debugging Tips
 
 **Socket.io events**: Add logging in [app/server/index.js](app/server/index.js):
+
 ```javascript
 socket.onAny((eventName, ...args) => {
   console.log(`[${eventName}]`, args);
@@ -617,11 +663,13 @@ socket.onAny((eventName, ...args) => {
 **Client state inspection**: Use React DevTools to inspect `App.jsx` state in real-time
 
 **Room state inspection**: Add endpoint in [app/server/index.js](app/server/index.js):
+
 ```javascript
 app.get('/debug/rooms', (req, res) => {
   res.json(rooms);
 });
 ```
+
 Then visit: `http://localhost:3000/debug/rooms`
 
 ---
@@ -629,26 +677,31 @@ Then visit: `http://localhost:3000/debug/rooms`
 ## 9. Common Pitfalls & Solutions
 
 ### Pitfall 1: Round Doesn't Progress After Winner
+
 **Symptom**: Game freezes after someone guesses correctly
 **Cause**: `roundActive` flag not reset, or timeout not cleared
 **Solution**: Check [app/server/index.js:~200](app/server/index.js) - ensure `clearTimeout(roundTimeout)` is called
 
 ### Pitfall 2: Scores Don't Update in Real-time
+
 **Symptom**: Winner's score updates but other clients don't see it
 **Cause**: Emitting to single player instead of broadcasting to room
 **Solution**: Use `io.to(roomId).emit('update_scores', ...)` not `socket.emit(...)`
 
 ### Pitfall 3: Multiple Players Score for Same Round
+
 **Symptom**: Two players both get points for the same round
 **Cause**: Race condition - `roundActive` check not atomic
 **Solution**: Set `roundActive = false` IMMEDIATELY when first correct guess received (before any async operations)
 
 ### Pitfall 4: Client State Desync After Reconnect
+
 **Symptom**: Player refreshes page and can't rejoin game
 **Cause**: Socket.io generates new socket ID on reconnect, server doesn't recognize player
 **Solution**: Currently no reconnect logic - players must stay connected. To implement: use persistent player IDs (localStorage) and handle `reconnect` event
 
 ### Pitfall 5: Songs Play Overlapping Audio
+
 **Symptom**: New round starts but previous song still playing
 **Cause**: Audio element not paused before new preview loads
 **Solution**: In [app/client/src/components/GameRoom.jsx](app/client/src/components/GameRoom.jsx), always call `audioRef.current.pause()` before loading new `previewUrl`
@@ -657,7 +710,7 @@ Then visit: `http://localhost:3000/debug/rooms`
 
 ## 10. Quick Reference
 
-### Find This by Searching For:
+### Find This by Searching For
 
 | Need to Find | Search For | File |
 |--------------|-----------|------|
@@ -683,17 +736,34 @@ GEMINI_API_KEY=AIzaSy...  # Required: Get from https://aistudio.google.com
 PORT=3000                  # Optional: Server port (default 3000)
 ```
 
-### Port Configuration
+### Port & Socket Configuration
 
 - **Backend**: Port 3000 (configurable via `PORT` env var)
 - **Frontend**: Port 5173 (Vite default, configurable in `vite.config.js`)
-- **Socket.io Connection**: Client connects to `http://{hostname}:3000`
+- **Socket.io Connection**: Client connects to a configurable host/port/protocol.
 
-To change backend port:
-1. Update `.env` in `app/server/`
-2. Update socket connection URL in [app/client/src/App.jsx](app/client/src/App.jsx):
-   ```javascript
-   const socket = io('http://localhost:YOUR_NEW_PORT');
+Socket client configuration (in `app/client/src/App.jsx`):
+
+```javascript
+const SOCKET_HOST =
+  import.meta.env.VITE_SOCKET_HOST || window.location.hostname;
+const SOCKET_PORT = import.meta.env.VITE_SOCKET_PORT || '3000';
+const SOCKET_PROTOCOL =
+  import.meta.env.VITE_SOCKET_PROTOCOL ||
+  (window.location.protocol === 'https:' ? 'https' : 'http');
+
+const socket = io(`${SOCKET_PROTOCOL}://${SOCKET_HOST}:${SOCKET_PORT}`);
+```
+
+To change backend host/port/protocol for the client:
+
+1. Update `.env` in `app/server/` (e.g. `PORT=4000`) and restart the server.
+2. Set Vite env vars in `app/client/.env` (or `.env.production`) and rebuild the client:
+
+   ```env
+   VITE_SOCKET_HOST=your-backend-host
+   VITE_SOCKET_PORT=4000
+   VITE_SOCKET_PROTOCOL=http
    ```
 
 ---
@@ -703,6 +773,7 @@ To change backend port:
 This document provides a high-level overview of the Party Song Guess architecture. For detailed implementation, refer to the source files linked throughout this guide. When making changes, always test with multiple clients to verify real-time synchronization works correctly.
 
 **Key Takeaways for AI Assistants**:
+
 1. Server is source of truth - all state mutations happen server-side
 2. Socket.io events are the primary communication mechanism
 3. Test multiplayer scenarios with 2+ browser tabs

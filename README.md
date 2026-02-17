@@ -85,7 +85,15 @@ Una volta avviati server e client, puoi accedere all'applicazione:
 
 - **Backend API**: <http://localhost:3000>
 
-> **Nota:** Il client si connetterà automaticamente al server via Socket.io
+> **Nota:** Il client si connetterà automaticamente al server via Socket.io.  
+> L'host/porta/protocollo del socket possono essere configurati tramite variabili d'ambiente Vite nel client (`app/client/.env`):
+>
+> ```env
+> VITE_SOCKET_HOST=party-song-guess.onrender.com
+> VITE_SOCKET_PORT=3000
+> VITE_SOCKET_PROTOCOL=https
+> ```
+
 ## Testing
 
 Il server include una suite completa di test automatici con Jest.

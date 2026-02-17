@@ -4,7 +4,15 @@ import io from 'socket.io-client';
 import Lobby from './components/Lobby';
 import GameRoom from './components/GameRoom';
 
-const socket = io(`http://${window.location.hostname}:3000`);
+// Socket configuration: host/port/protocol are configurable via Vite env vars
+const SOCKET_HOST =
+  import.meta.env.VITE_SOCKET_HOST || window.location.hostname;
+const SOCKET_PORT = import.meta.env.VITE_SOCKET_PORT || '3000';
+const SOCKET_PROTOCOL =
+  import.meta.env.VITE_SOCKET_PROTOCOL ||
+  (window.location.protocol === 'https:' ? 'https' : 'http');
+
+const socket = io(`${SOCKET_PROTOCOL}://${SOCKET_HOST}:${SOCKET_PORT}`);
 
 // Stile per la scrollbar personalizzata (inserito direttamente qui per comodità)
 const scrollbarStyle = `
