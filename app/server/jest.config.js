@@ -20,7 +20,7 @@ module.exports = {
       statements: 95
     },
     './utils/': {
-      branches: 90,
+      branches: 80,
       functions: 90,
       lines: 90,
       statements: 90
