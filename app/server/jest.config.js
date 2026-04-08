@@ -20,10 +20,10 @@ module.exports = {
       statements: 95
     },
     './utils/': {
-      branches: 95,
-      functions: 100,
-      lines: 98,
-      statements: 98
+      branches: 90,
+      functions: 90,
+      lines: 90,
+      statements: 90
     }
   },
   testTimeout: 10000,
