@@ -35,6 +35,8 @@ const io = new Server(server, {
 
 const PORT = process.env.PORT || 3000;
 
+app.get('/health', (_req, res) => res.sendStatus(200));
+
 // Store rooms in memory for speed
 const rooms = {};
 

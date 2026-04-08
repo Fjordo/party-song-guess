@@ -1,0 +1,29 @@
+# Rename 'app' to your desired fly.io app name before deploying
+app = "party-song-guess-server"
+primary_region = "cdg"
+
+[build]
+
+[env]
+  PORT = "3000"
+
+[http_service]
+  internal_port = 3000
+  force_https = true
+  auto_stop_machines = "stop"
+  auto_start_machines = true
+  # Keep 1 instance always running: rooms are stored in memory,
+  # a cold-start would lose active sessions
+  min_machines_running = 1
+
+  [[http_service.checks]]
+    grace_period = "10s"
+    interval = "30s"
+    method = "GET"
+    path = "/health"
+    timeout = "5s"
+
+[[vm]]
+  memory = "256mb"
+  cpu_kind = "shared"
+  cpus = 1

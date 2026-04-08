@@ -1,0 +1,21 @@
+# Rename 'app' to your desired fly.io app name before deploying
+app = "party-song-guess"
+primary_region = "cdg"
+
+[build]
+  [build.args]
+    # Set this to your server app URL after deploying the server
+    # e.g. https://<your-server-app-name>.fly.dev
+    VITE_SERVER_URL = "https://party-song-guess-server.fly.dev"
+
+[http_service]
+  internal_port = 80
+  force_https = true
+  auto_stop_machines = "stop"
+  auto_start_machines = true
+  min_machines_running = 0
+
+[[vm]]
+  memory = "256mb"
+  cpu_kind = "shared"
+  cpus = 1

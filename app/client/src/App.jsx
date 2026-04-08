@@ -4,7 +4,8 @@ import io from 'socket.io-client';
 import Lobby from './components/Lobby';
 import GameRoom from './components/GameRoom';
 
-// Socket configuration: host/port/protocol are configurable via Vite env vars
+// Socket configuration: VITE_SERVER_URL takes precedence (production/fly.io)
+// Falls back to individual VITE_SOCKET_* vars for local development
 const SOCKET_HOST =
   import.meta.env.VITE_SOCKET_HOST || "localhost";
 const SOCKET_PORT = import.meta.env.VITE_SOCKET_PORT || '3000';
@@ -12,7 +13,9 @@ const SOCKET_PROTOCOL =
   import.meta.env.VITE_SOCKET_PROTOCOL ||
   (window.location.protocol === 'https:' ? 'https' : 'http');
 
-const socket = io(`${SOCKET_PROTOCOL}://${SOCKET_HOST}:${SOCKET_PORT}`);
+const socket = io(
+  import.meta.env.VITE_SERVER_URL || `${SOCKET_PROTOCOL}://${SOCKET_HOST}:${SOCKET_PORT}`
+);
 
 // Stile per la scrollbar personalizzata (inserito direttamente qui per comodità)
 const scrollbarStyle = `
