@@ -27,12 +27,18 @@ async function getRandomSongs(genre = 'pop', limit = 10, language = null, diffic
         }
 
         let selected;
+        const fisherYates = (arr) => {
+            const a = [...arr];
+            for (let i = a.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [a[i], a[j]] = [a[j], a[i]];
+            }
+            return a;
+        };
         if (difficulty === 'easy') {
-            const topPool = results.slice(0, 100);
-            selected = topPool.sort(() => 0.5 - Math.random()).slice(0, limit);
+            selected = fisherYates(results.slice(0, 100)).slice(0, limit);
         } else {
-            const shuffled = results.sort(() => 0.5 - Math.random());
-            selected = shuffled.slice(0, limit);
+            selected = fisherYates(results).slice(0, limit);
         }
 
         return selected.map(song => ({

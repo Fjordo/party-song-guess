@@ -6,8 +6,8 @@ import GameRoom from './components/GameRoom';
 
 // Socket configuration: host/port/protocol are configurable via Vite env vars
 const SOCKET_HOST =
-  import.meta.env.VITE_SOCKET_HOST || "party-song-guess-server.onrender.com";
-const SOCKET_PORT = import.meta.env.VITE_SOCKET_PORT || '10000';
+  import.meta.env.VITE_SOCKET_HOST || "localhost";
+const SOCKET_PORT = import.meta.env.VITE_SOCKET_PORT || '3000';
 const SOCKET_PROTOCOL =
   import.meta.env.VITE_SOCKET_PROTOCOL ||
   (window.location.protocol === 'https:' ? 'https' : 'http');
@@ -129,7 +129,7 @@ function App() {
       setErrorMessage(t('errors.missingNameJoin'));
       return;
     }
-    if (!roomId) {
+    if (!roomId || !/^[A-Fa-f0-9]{6}$/.test(roomId)) {
       setErrorMessage(t('errors.missingRoomId'));
       return;
     }
