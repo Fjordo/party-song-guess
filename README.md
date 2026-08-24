@@ -1,6 +1,6 @@
 # Party Song Guess
 
-[![Node.js CI](https://github.com/Fjordo/party-song-guess/actions/workflows/node.js.yml/badge.svg)](https://github.com/Fjordo/party-song-guess/actions/workflows/node.js.yml)
+[![CI](https://github.com/Fjordo/party-song-guess/actions/workflows/ci.yml/badge.svg)](https://github.com/Fjordo/party-song-guess/actions/workflows/ci.yml)
 [![Tests](https://img.shields.io/badge/tests-107%20passing-brightgreen)](https://github.com/Fjordo/party-song-guess/actions)
 [![Coverage](https://img.shields.io/badge/coverage-97.91%25-brightgreen)](https://github.com/Fjordo/party-song-guess)
 

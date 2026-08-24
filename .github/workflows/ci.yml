@@ -1,13 +1,19 @@
 # This workflow will do a clean installation of node dependencies, cache/restore them, build the source code and run tests across different versions of node
 # For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-nodejs
 
-name: Node.js CI
+name: CI
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main", "dev" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "main", "dev" ]
+  workflow_dispatch:
+
+# Cancel in-progress runs when a new commit is pushed to the same branch/PR
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   # Test the server (backend)
@@ -16,6 +22,7 @@ jobs:
     runs-on: ubuntu-latest
 
     strategy:
+      fail-fast: false
       matrix:
         node-version: [20.x, 22.x]
         # Project requires Node.js >20.19 or >22.12
@@ -60,6 +67,7 @@ jobs:
     runs-on: ubuntu-latest
 
     strategy:
+      fail-fast: false
       matrix:
         node-version: [20.x, 22.x]
 
@@ -91,19 +99,26 @@ jobs:
         fi
         echo "Build successful - dist directory created"
 
-  # Lint check (optional - if you add linting later)
-  # lint:
-  #   name: Lint Code
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #   - uses: actions/checkout@v4
-  #   - name: Setup Node.js
-  #     uses: actions/setup-node@v4
-  #     with:
-  #       node-version: '22.x'
-  #   - name: Install server dependencies
-  #     working-directory: app/server
-  #     run: npm ci
-  #   - name: Lint server
-  #     working-directory: app/server
-  #     run: npm run lint
+  # Lint the client (eslint.config.js)
+  lint-client:
+    name: Lint Client
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22.x'
+        cache: 'npm'
+        cache-dependency-path: app/client/package-lock.json
+
+    - name: Install dependencies
+      working-directory: app/client
+      run: npm ci
+
+    - name: Lint client
+      working-directory: app/client
+      run: npm run lint

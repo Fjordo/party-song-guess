@@ -2,16 +2,17 @@
 
 ## Overview
 
-This repository includes automated testing via GitHub Actions that runs on every push and pull request to the `main` branch.
+This repository includes automated testing via GitHub Actions that runs on every push and pull request to the `main` and `dev` branches.
 
 ## Workflow Structure
 
-### File: [`.github/workflows/node.js.yml`](.github/workflows/node.js.yml)
+### File: [`.github/workflows/ci.yml`](.github/workflows/ci.yml)
 
-The workflow consists of two parallel jobs:
+The workflow consists of three parallel jobs:
 
 1. **test-server**: Tests the backend (Node.js + Express + Socket.io)
 2. **build-client**: Builds the frontend (React + Vite)
+3. **lint-client**: Runs ESLint on the frontend
 
 ## What Gets Tested
 
@@ -44,7 +45,7 @@ Current coverage: **97.91%** on services, **100%** on utilities.
 To add status badges to your README, replace `YOUR_USERNAME` with your GitHub username:
 
 ```markdown
-[![Node.js CI](https://github.com/YOUR_USERNAME/party-song-guess/actions/workflows/node.js.yml/badge.svg)](https://github.com/YOUR_USERNAME/party-song-guess/actions/workflows/node.js.yml)
+[![CI](https://github.com/YOUR_USERNAME/party-song-guess/actions/workflows/ci.yml/badge.svg)](https://github.com/YOUR_USERNAME/party-song-guess/actions/workflows/ci.yml)
 ```
 
 ## Codecov Integration (Optional)
@@ -61,13 +62,13 @@ The workflow already includes Codecov upload with `fail_ci_if_error: false` and 
 
 The workflow runs automatically on:
 
-- **Push to main branch**
-- **Pull requests targeting main branch**
+- **Push to `main` or `dev`**
+- **Pull requests targeting `main` or `dev`**
 
 You can also trigger it manually:
 
 1. Go to **Actions** tab in GitHub
-2. Select **Node.js CI** workflow
+2. Select **CI** workflow
 3. Click **Run workflow**
 
 ## Local Testing Before Push
