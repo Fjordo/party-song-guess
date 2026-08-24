@@ -1,5 +1,5 @@
 # Stage 1: build
-FROM node:24-slim AS builder
+FROM node:26-slim AS builder
 WORKDIR /app
 COPY package*.json ./
 RUN npm ci
