@@ -16,7 +16,7 @@ jest.mock('@google/generative-ai', () => {
 });
 
 // Import AFTER mock is set up
-const { getSongListFromAI } = require('../../services/aiService');
+const { getSongListFromAI, isQuotaError } = require('../../services/aiService');
 
 describe('aiService - Google Gemini AI Integration', () => {
   beforeEach(() => {
@@ -178,34 +178,35 @@ describe('aiService - Google Gemini AI Integration', () => {
       expect(result).toEqual([]);
     });
 
-    test('should handle API errors and return empty array', async () => {
-      // Mock API error
+    test('should rethrow API errors, flagged when they are quota errors', async () => {
+      // A rate limit must be distinguishable from "the AI found nothing",
+      // otherwise the catalog builder cannot know it should stop.
       mockGenerateContent.mockRejectedValue(new Error('API Error: Rate limit exceeded'));
 
-      const result = await getSongListFromAI({
+      await expect(getSongListFromAI({
         genres: ['rock'],
         decade: '1990s',
         language: 'English',
         difficulty: 'hard',
         count: 10
-      });
-
-      expect(result).toEqual([]);
+      })).rejects.toMatchObject({ isQuotaError: true });
     });
 
-    test('should handle network errors gracefully', async () => {
-      // Mock network timeout
+    test('should rethrow network errors without flagging them as quota', async () => {
       mockGenerateContent.mockRejectedValue(new Error('Network timeout'));
 
-      const result = await getSongListFromAI({
+      await expect(getSongListFromAI({
         genres: ['jazz'],
         decade: '1950s',
         language: null,
         difficulty: 'easy',
         count: 8
-      });
+      })).rejects.toThrow('Network timeout');
 
-      expect(result).toEqual([]);
+      mockGenerateContent.mockRejectedValue(new Error('Network timeout'));
+      await getSongListFromAI({
+        genres: ['jazz'], decade: null, language: null, difficulty: 'easy', count: 8
+      }).catch(err => expect(err.isQuotaError).toBeUndefined());
     });
 
     test('should handle null/undefined parameters in prompt', async () => {
@@ -270,6 +271,25 @@ describe('aiService - Google Gemini AI Integration', () => {
 
       // Should still return the array (even with incomplete objects)
       expect(Array.isArray(result)).toBe(true);
+    });
+  });
+
+  describe('isQuotaError()', () => {
+    test('recognises an HTTP 429 from the SDK', () => {
+      const err = new Error('Too Many Requests');
+      err.status = 429;
+      expect(isQuotaError(err)).toBe(true);
+    });
+
+    test('recognises RESOURCE_EXHAUSTED and quota wording', () => {
+      expect(isQuotaError(new Error('429 RESOURCE_EXHAUSTED'))).toBe(true);
+      expect(isQuotaError(new Error('You exceeded your current quota'))).toBe(true);
+    });
+
+    test('does not misread ordinary failures as quota errors', () => {
+      expect(isQuotaError(new Error('Network timeout'))).toBe(false);
+      expect(isQuotaError(new Error(''))).toBe(false);
+      expect(isQuotaError(null)).toBe(false);
     });
   });
 });

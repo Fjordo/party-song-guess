@@ -83,6 +83,17 @@ fly deploy --app <nome-client>
 
 ## Aggiornamenti successivi
 
+### Volume per il catalogo canzoni (una tantum, prima del primo deploy)
+
+Il catalogo si accumula nel tempo: senza un volume il disco della macchina viene
+azzerato a ogni deploy.
+
+```bash
+fly volumes create catalog_data --region cdg --size 1 --app <nome-app-server>
+```
+
+### Deploy
+
 ```bash
 # Server
 cd app/server && fly deploy
@@ -95,7 +106,17 @@ cd app/client && fly deploy
 
 ## Note importanti
 
-- **Server: tieni `min_machines_running = 1`** — le room sono in memoria; un cold-start le azzererebbe.
+- **Server: `min_machines_running = 0`** — il server dorme quando nessuno gioca e il proxy lo risveglia
+  alla prima connessione. Una partita in corso tiene aperti i websocket, quindi il proxy non ferma una
+  macchina che sta effettivamente ospitando giocatori.
+- **L'health check va tenuto**: su Fly Machines i check di `[[http_service.checks]]` sono eseguiti da
+  `flyd` localmente sulla macchina, non passano dal proxy, quindi **non** contano come traffico e non
+  impediscono l'auto-stop. Al risveglio anzi servono, perché il proxy attende che la macchina risulti
+  sana prima di instradarle le richieste.
+- **Attenzione ai monitor di uptime esterni**: un servizio che chiama `/health` dall'esterno passa dal
+  proxy e terrebbe la macchina sveglia per sempre, vanificando il risparmio.
+- **Il volume del catalogo va creato PRIMA del primo deploy** che contiene `[[mounts]]`, altrimenti la
+  macchina non parte (vedi sopra).
 - **`GEMINI_API_KEY` e `ALLOWED_ORIGIN` sono secret fly.io**, non variabili d'ambiente nel `fly.toml`.
 - **`VITE_SERVER_URL`** nel `fly.toml` del client è un build arg (non un secret): viene baked nel bundle JS al momento del build, quindi non contiene dati sensibili.
 - WebSocket (Socket.IO) funziona nativamente su fly.io con HTTPS/WSS.

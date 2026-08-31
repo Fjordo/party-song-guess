@@ -1,6 +1,6 @@
 {
   "name": "server",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -8,7 +8,10 @@
     "dev": "nodemon index.js",
     "test": "jest",
     "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage"
+    "test:coverage": "jest --coverage",
+    "catalog:seed": "node scripts/buildSeed.js",
+    "catalog:refresh": "node scripts/refreshCatalog.js",
+    "catalog:stats": "node scripts/catalogStats.js"
   },
   "keywords": [],
   "author": "",
@@ -16,6 +19,7 @@
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
     "axios": "^1.7.9",
+    "better-sqlite3": "^13.0.3",
     "cors": "^2.8.5",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",

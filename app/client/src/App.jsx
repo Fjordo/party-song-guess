@@ -3,6 +3,7 @@ import { t } from './i18n';
 import io from 'socket.io-client';
 import Lobby from './components/Lobby';
 import GameRoom from './components/GameRoom';
+import HelpButton from './components/HelpButton';
 
 // Socket configuration: VITE_SERVER_URL takes precedence (production/fly.io)
 // Falls back to individual VITE_SOCKET_* vars for local development
@@ -47,6 +48,9 @@ function App() {
   const [selectedDecade, setSelectedDecade] = useState('');
   const [selectedLanguage, setSelectedLanguage] = useState('');
   const [selectedDifficulty, setSelectedDifficulty] = useState('easy');
+  // The server scales to zero, so the first connection of the day has to wake
+  // the machine. That takes a couple of seconds and is normal, not an error.
+  const [connectionState, setConnectionState] = useState('connecting');
 
   useEffect(() => {
     socket.on('room_created', (roomData) => {
@@ -81,11 +85,29 @@ function App() {
       setPlayers(finalPlayers);
     });
 
+    socket.on('connect', () => {
+      setConnectionState('online');
+      setErrorMessage((current) =>
+        current === t('errors.serverUnavailable') ? '' : current
+      );
+    });
+
+    // Waking the server is the normal first-visit path, so a failed attempt is
+    // only worth reporting once socket.io has retried for a while. It reconnects
+    // on its own, so the connection establishes as soon as the machine is up.
+    const WAKE_GRACE_MS = 15000;
+    const firstAttemptAt = Date.now();
     socket.on('connect_error', () => {
+      if (Date.now() - firstAttemptAt < WAKE_GRACE_MS) {
+        setConnectionState('connecting');
+        return;
+      }
+      setConnectionState('offline');
       setErrorMessage(t('errors.serverUnavailable'));
     });
 
     socket.on('disconnect', () => {
+      setConnectionState('connecting');
       setGameState('LANDING');
       setRoom(null);
       setPlayers([]);
@@ -112,6 +134,7 @@ function App() {
       socket.off('game_started');
       socket.off('update_scores');
       socket.off('game_over');
+      socket.off('connect');
       socket.off('connect_error');
       socket.off('disconnect');
       socket.off('error');
@@ -170,13 +193,24 @@ function App() {
     <div className="fixed inset-0 bg-gray-900 text-white flex flex-col overflow-hidden">
       <style>{scrollbarStyle}</style>
 
+      <HelpButton />
+
       {/* 2. AREA DI SCROLL GENERALE: Se il contenuto sfora (es. tastiera mobile), qui si scrolla */}
       <div className="flex-1 overflow-y-auto p-4 w-full custom-scrollbar">
         <div className="flex flex-col items-center justify-start min-h-full py-4">
 
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-6 text-center text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600 flex-shrink-0">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-6 px-12 sm:px-0 text-center text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600 flex-shrink-0">
             {t('appTitle')}
           </h1>
+
+          {connectionState === 'connecting' && (
+            <div className="w-full max-w-md mb-4 flex-shrink-0">
+              <div className="flex items-center gap-3 bg-purple-900/60 border border-purple-500 text-purple-100 px-4 py-3 rounded-lg shadow-lg">
+                <div className="h-4 w-4 rounded-full border-2 border-purple-300 border-t-transparent animate-spin" />
+                <p className="text-sm">{t('connection.waking')}</p>
+              </div>
+            </div>
+          )}
 
           {errorMessage && (
             <div className="w-full max-w-md mb-4 flex-shrink-0">

@@ -25,7 +25,7 @@ Party Song Guess is a real-time multiplayer browser game where players guess the
 ## Events Flow
 
 1. **Lobby**: `create_room` -> `room_created` -> User shares ID.
-2. **Game Start**: Owner clicks start -> `start_game` -> Server fetches songs -> `game_started`.
+2. **Game Start**: Owner clicks start -> `start_game` -> Server reads the song catalog -> `game_started` (typically a few ms; falls back to live AI discovery only when the catalog cannot fill the game).
 3. **Round Loop**:
     - Server: `new_round` (sends previewUrl).
     - Client: Plays audio.
@@ -35,8 +35,27 @@ Party Song Guess is a real-time multiplayer browser game where players guess the
         - Default: Wait 30s -> `round_timeout` -> Wait 5s -> Next Round.
 4. **Game Over**: Server emits `game_over` -> Client shows final scores.
 
+## Song Catalog
+
+Songs are no longer discovered when a game starts. The server keeps a SQLite
+catalog (`app/server/db/schema.sql`) of songs tagged by genre, decade and
+language, which:
+
+- **is read at game start**, so starting a game costs no external call;
+- **grows on every wake-up**, a few AI calls at a time, stopping as soon as the
+  AI reports its usage limit;
+- **corrects itself**: `play_count` / `guess_count` and the average time to
+  answer override the difficulty the AI merely claimed;
+- **repairs itself**: rotated preview URLs are re-resolved by provider id, and
+  only genuinely unplayable songs are removed.
+
+The provider (currently iTunes) appears only as a *value* in `songs.provider`,
+never as a column name; `services/musicService.js` is the sole module that knows
+the provider's response format.
+
 ## Future Improvements
 
-- Persistent Database (SQLite/Postgres).
+- Move the catalog from SQLite to Postgres if the server ever needs to scale
+  beyond a single machine (Fly volumes are single-attach).
 - Better Fuzzy Matching (Levenshtein distance).
 - OAuth with Spotify for full tracks.

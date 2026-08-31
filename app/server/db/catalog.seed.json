@@ -1,0 +1,1131 @@
+[
+  {
+    "provider": "itunes",
+    "providerRef": "269573364",
+    "title": "Billie Jean",
+    "artist": "Michael Jackson",
+    "album": "Thriller",
+    "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/dc/bc/8a/dcbc8a3e-4ce1-c00d-cc02-eda2212053c7/mzaf_8347559338388601510.plus.aac.p.m4a",
+    "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/32/4f/fd/324ffda2-9e51-8f6a-0c2d-c6fd2b41ac55/074643811224.jpg/100x100bb.jpg",
+    "releaseDate": "1982-11-29T08:00:00Z",
+    "year": 1982,
+    "decade": "80s",
+    "providerGenre": "Pop",
+    "isReissue": false,
+    "genres": [
+      "pop"
+    ],
+    "decades": [
+      "80s"
+    ],
+    "languages": [
+      "en"
+    ],
+    "aiDifficulty": "easy"
+  },
+  {
+    "provider": "itunes",
+    "providerRef": "1422648513",
+    "title": "Dancing Queen",
+    "artist": "ABBA",
+    "album": "ABBA Gold: Greatest Hits",
+    "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/ec/b1/63/ecb163bc-aff2-4dd2-d40b-c044f0b9fa4d/mzaf_4358783485405794088.plus.aac.p.m4a",
+    "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/60/f8/a6/60f8a6bc-e875-238d-f2f8-f34a6034e6d2/14UMGIM07615.rgb.jpg/100x100bb.jpg",
+    "releaseDate": "1976-01-01T12:00:00Z",
+    "year": 1976,
+    "decade": "70s",
+    "providerGenre": "Pop",
+    "isReissue": true,
+    "genres": [
+      "pop"
+    ],
+    "decades": [
+      "70s"
+    ],
+    "languages": [
+      "en"
+    ],
+    "aiDifficulty": "easy"
+  },
+  {
+    "provider": "itunes",
+    "providerRef": "83445997",
+    "title": "Like a Prayer",
+    "artist": "Madonna",
+    "album": "Like a Prayer",
+    "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/0b/23/82/0b238289-52e2-2107-5531-181836267ed2/mzaf_6726729811402686020.plus.aac.p.m4a",
+    "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music114/v4/20/3c/f5/203cf53d-689e-528f-29d7-ba33758254aa/mzi.rotbotfl.jpg/100x100bb.jpg",
+    "releaseDate": "1989-03-03T08:00:00Z",
+    "year": 1989,
+    "decade": "80s",
+    "providerGenre": "Pop",
+    "isReissue": false,
+    "genres": [
+      "pop"
+    ],
+    "decades": [
+      "80s"
+    ],
+    "languages": [
+      "en"
+    ],
+    "aiDifficulty": "easy"
+  },
+  {
+    "provider": "itunes",
+    "providerRef": "1538003843",
+    "title": "Levitating",
+    "artist": "Dua Lipa",
+    "album": "Future Nostalgia",
+    "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/59/dc/4d/59dc4dda-93ff-8f1c-c536-f005f6ea6af5/mzaf_3066686759813252385.plus.aac.p.m4a",
+    "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/6c/11/d6/6c11d681-aa3a-d59e-4c2e-f77e181026ab/190295092665.jpg/100x100bb.jpg",
+    "releaseDate": "2020-03-27T12:00:00Z",
+    "year": 2020,
+    "decade": "2020s",
+    "providerGenre": "Pop",
+    "isReissue": false,
+    "genres": [
+      "pop"
+    ],
+    "decades": [
+      "2020s"
+    ],
+    "languages": [
+      "en"
+    ],
+    "aiDifficulty": "easy"
+  },
+  {
+    "provider": "itunes",
+    "providerRef": "42235101",
+    "title": "La Solitudine",
+    "artist": "Laura Pausini",
+    "album": "Laura Pausini",
+    "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/de/ae/0f/deae0f8e-b047-c3fb-25a4-80381990a8d6/mzaf_11805627372487887199.plus.aac.p.m4a",
+    "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music/y2005/m01/d28/h19/s06.qnkcfwob.jpg/100x100bb.jpg",
+    "releaseDate": "1993-01-01T08:00:00Z",
+    "year": 1993,
+    "decade": "90s",
+    "providerGenre": "Pop",
+    "isReissue": false,
+    "genres": [
+      "pop"
+    ],
+    "decades": [
+      "90s"
+    ],
+    "languages": [
+      "it"
+    ],
+    "aiDifficulty": "easy"
+  },
+  {
+    "provider": "itunes",
+    "providerRef": "1817217220",
+    "title": "La Tortura (feat. Alejandro Sanz)",
+    "artist": "Shakira",
+    "album": "Fijación Oral Volumen 1 (Expanded Edition)",
+    "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/75/e3/97/75e39742-b8e3-3616-7a14-9d6a71f8eae1/mzaf_1115289710187553590.plus.aac.p.m4a",
+    "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/6f/18/1d/6f181d45-8041-cbdc-2c79-bc7374d01207/196872648560.jpg/100x100bb.jpg",
+    "releaseDate": "2005-04-12T12:00:00Z",
+    "year": 2005,
+    "decade": "2000s",
+    "providerGenre": "Pop Latino",
+    "isReissue": false,
+    "genres": [
+      "pop"
+    ],
+    "decades": [
+      "2000s"
+    ],
+    "languages": [
+      "es"
+    ],
+    "aiDifficulty": "easy"
+  },
+  {
+    "provider": "itunes",
+    "providerRef": "1447401620",
+    "title": "Despacito",
+    "artist": "Luis Fonsi & Daddy Yankee",
+    "album": "VIDA",
+    "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/0d/cb/ec/0dcbec41-5e9e-bd09-7cdd-fdff44acdf78/mzaf_17345185466754008149.plus.aac.p.m4a",
+    "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/e2/ef/f0/e2eff0bc-c51d-7de5-9280-6891ddcee71b/18UMGIM85289.rgb.jpg/100x100bb.jpg",
+    "releaseDate": "2017-01-12T08:00:00Z",
+    "year": 2017,
+    "decade": "2010s",
+    "providerGenre": "Pop Latino",
+    "isReissue": false,
+    "genres": [
+      "pop"
+    ],
+    "decades": [
+      "2010s"
+    ],
+    "languages": [
+      "es"
+    ],
+    "aiDifficulty": "easy"
+  },
+  {
+    "provider": "itunes",
+    "providerRef": "1440820189",
+    "title": "Bailando (Spanish Version) [feat. Descemer Bueno & Gente de Zona]",
+    "artist": "Enrique Iglesias",
+    "album": "SEX and LOVE (Deluxe Edition)",
+    "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/ea/8d/6f/ea8d6fb5-d980-f295-62b0-3fbc7b78188e/mzaf_10172751316776147095.plus.aac.p.m4a",
+    "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/c7/18/3e/c7183ef7-49f1-8941-03cf-ad17ca8b97ea/00602537854097.rgb.jpg/100x100bb.jpg",
+    "releaseDate": "1998-09-22T12:00:00Z",
+    "year": 1998,
+    "decade": "90s",
+    "providerGenre": "Pop Latino",
+    "isReissue": true,
+    "genres": [
+      "pop"
+    ],
+    "decades": [
+      "2010s"
+    ],
+    "languages": [
+      "es"
+    ],
+    "aiDifficulty": "easy"
+  },
+  {
+    "provider": "itunes",
+    "providerRef": "31739286",
+    "title": "Bamboléo",
+    "artist": "Gipsy Kings",
+    "album": "¡Volaré! The Very Best of the Gipsy Kings",
+    "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/be/d7/d5/bed7d547-1faa-7011-9e63-ac54d6a2678d/mzaf_10233677867370477289.plus.aac.p.m4a",
+    "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/0d/d2/f8/0dd2f824-8730-6bd3-a645-6697c470fe47/s06.pnsyuean.jpg/100x100bb.jpg",
+    "releaseDate": "1987-07-12T07:00:00Z",
+    "year": 1987,
+    "decade": "80s",
+    "providerGenre": "Latin",
+    "isReissue": true,
+    "genres": [
+      "pop"
+    ],
+    "decades": [
+      "80s"
+    ],
+    "languages": [
+      "es"
+    ],
+    "aiDifficulty": "easy"
+  },
+  {
+    "provider": "itunes",
+    "providerRef": "1440650711",
+    "title": "Bohemian Rhapsody",
+    "artist": "Queen",
+    "album": "Greatest Hits I, II & III: The Platinum Collection",
+    "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/8f/11/52/8f1152a9-fd5f-0021-f546-b97579c22ec3/mzaf_3962258993076347789.plus.aac.p.m4a",
+    "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/4d/08/2a/4d082a9e-7898-1aa1-a02f-339810058d9e/14DMGIM05632.rgb.jpg/100x100bb.jpg",
+    "releaseDate": "1975-10-31T12:00:00Z",
+    "year": 1975,
+    "decade": "70s",
+    "providerGenre": "Rock",
+    "isReissue": true,
+    "genres": [
+      "rock"
+    ],
+    "decades": [
+      "70s"
+    ],
+    "languages": [
+      "en"
+    ],
+    "aiDifficulty": "easy"
+  },
+  {
+    "provider": "itunes",
+    "providerRef": "1440783625",
+    "title": "Smells Like Teen Spirit",
+    "artist": "Nirvana",
+    "album": "Nevermind",
+    "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/a6/53/1e/a6531efa-397c-eb73-ecab-9b2790c1471e/mzaf_16440344883389407474.plus.aac.p.m4a",
+    "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/95/fd/b9/95fdb9b2-6d2b-92a6-97f2-51c1a6d77f1a/00602527874609.rgb.jpg/100x100bb.jpg",
+    "releaseDate": "1991-09-10T12:00:00Z",
+    "year": 1991,
+    "decade": "90s",
+    "providerGenre": "Rock",
+    "isReissue": false,
+    "genres": [
+      "rock"
+    ],
+    "decades": [
+      "90s"
+    ],
+    "languages": [
+      "en"
+    ],
+    "aiDifficulty": "easy"
+  },
+  {
+    "provider": "itunes",
+    "providerRef": "1441133277",
+    "title": "Hey Jude",
+    "artist": "The Beatles",
+    "album": "The Beatles 1967-1970 (The Blue Album)",
+    "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/3d/08/f5/3d08f5d7-1e0a-99d9-1085-d50ecc972bb9/mzaf_1689604474306790314.plus.aac.p.m4a",
+    "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/a6/8b/65/a68b657c-cac6-68e6-3bde-b79d58fbc795/18UMGIM30762.rgb.jpg/100x100bb.jpg",
+    "releaseDate": "1968-08-26T12:00:00Z",
+    "year": 1968,
+    "decade": "60s",
+    "providerGenre": "Rock",
+    "isReissue": false,
+    "genres": [
+      "rock"
+    ],
+    "decades": [
+      "60s"
+    ],
+    "languages": [
+      "en"
+    ],
+    "aiDifficulty": "easy"
+  },
+  {
+    "provider": "itunes",
+    "providerRef": "574050602",
+    "title": "Back In Black",
+    "artist": "AC/DC",
+    "album": "Back In Black",
+    "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview116/v4/b5/14/aa/b514aa08-4772-93db-c69f-420fbe0bb24c/mzaf_17779796508174317776.plus.aac.p.m4a",
+    "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/1e/14/58/1e145814-281a-58e0-3ab1-145f5d1af421/886443673441.jpg/100x100bb.jpg",
+    "releaseDate": "1980-07-25T07:00:00Z",
+    "year": 1980,
+    "decade": "80s",
+    "providerGenre": "Hard Rock",
+    "isReissue": false,
+    "genres": [
+      "rock"
+    ],
+    "decades": [
+      "80s"
+    ],
+    "languages": [
+      "en"
+    ],
+    "aiDifficulty": "easy"
+  },
+  {
+    "provider": "itunes",
+    "providerRef": "1480766133",
+    "title": "Il mio canto libero",
+    "artist": "Lucio Battisti",
+    "album": "Il mio canto libero",
+    "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/ee/41/1c/ee411c93-6961-3475-1d7b-aa64275cab0d/mzaf_8297109431875020512.plus.aac.p.m4a",
+    "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/67/de/cf/67decffd-ef47-0473-5699-b2d5ef5f6893/886447328101.jpg/100x100bb.jpg",
+    "releaseDate": "1972-01-01T12:00:00Z",
+    "year": 1972,
+    "decade": "70s",
+    "providerGenre": "Singer/Songwriter",
+    "isReissue": false,
+    "genres": [
+      "rock"
+    ],
+    "decades": [
+      "70s"
+    ],
+    "languages": [
+      "it"
+    ],
+    "aiDifficulty": "easy"
+  },
+  {
+    "provider": "itunes",
+    "providerRef": "1558504599",
+    "title": "ZITTI E BUONI (Eurovision Version)",
+    "artist": "Måneskin",
+    "album": "ZITTI E BUONI (Eurovision Version) - Single",
+    "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview124/v4/cf/ea/04/cfea046b-85af-65fe-212d-1236079aacd5/mzaf_9864638815001142268.plus.aac.p.m4a",
+    "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/5e/76/14/5e761416-1c55-1b56-e8c3-177fb475bef2/886449160334.jpg/100x100bb.jpg",
+    "releaseDate": "2021-03-16T12:00:00Z",
+    "year": 2021,
+    "decade": "2020s",
+    "providerGenre": "Hard Rock",
+    "isReissue": false,
+    "genres": [
+      "rock"
+    ],
+    "decades": [
+      "2020s"
+    ],
+    "languages": [
+      "it"
+    ],
+    "aiDifficulty": "easy"
+  },
+  {
+    "provider": "itunes",
+    "providerRef": "204669680",
+    "title": "Juicy",
+    "artist": "The Notorious B.I.G.",
+    "album": "Ready To Die the Remaster",
+    "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/dd/0f/47/dd0f4778-50bb-3e3f-dcea-5866600eba40/mzaf_15801848187432565404.plus.aac.p.m4a",
+    "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/f8/6a/3d/f86a3db0-d518-cd49-c0c9-25e767ae0a6d/075679456861.jpg/100x100bb.jpg",
+    "releaseDate": "1994-08-09T07:00:00Z",
+    "year": 1994,
+    "decade": "90s",
+    "providerGenre": "Hip-Hop/Rap",
+    "isReissue": true,
+    "genres": [
+      "hiphop"
+    ],
+    "decades": [
+      "90s"
+    ],
+    "languages": [
+      "en"
+    ],
+    "aiDifficulty": "easy"
+  },
+  {
+    "provider": "itunes",
+    "providerRef": "1442846328",
+    "title": "Stronger",
+    "artist": "Kanye West",
+    "album": "Graduation",
+    "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/9e/cc/69/9ecc6918-a8dc-354f-909f-ccc20a0a7a33/mzaf_7863921970418240507.plus.aac.p.m4a",
+    "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music128/v4/39/25/2d/39252d65-2d50-b991-0962-f7a98a761271/00602517483507.rgb.jpg/100x100bb.jpg",
+    "releaseDate": "2007-07-31T12:00:00Z",
+    "year": 2007,
+    "decade": "2000s",
+    "providerGenre": "Hip-Hop/Rap",
+    "isReissue": false,
+    "genres": [
+      "hiphop"
+    ],
+    "decades": [
+      "2000s"
+    ],
+    "languages": [
+      "en"
+    ],
+    "aiDifficulty": "easy"
+  },
+  {
+    "provider": "itunes",
+    "providerRef": "59389711",
+    "title": "The Message",
+    "artist": "Grandmaster Flash & The Furious Five",
+    "album": "The Message",
+    "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/57/14/c2/5714c2ac-66b9-d6d9-cffa-5a19b7971c11/mzaf_7606060811654518263.plus.aac.p.m4a",
+    "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/c2/34/48/c234484e-a6f3-4355-6d41-24275da82c74/s06.kststhcn.jpg/100x100bb.jpg",
+    "releaseDate": "1982-07-01T07:00:00Z",
+    "year": 1982,
+    "decade": "80s",
+    "providerGenre": "R&B/Soul",
+    "isReissue": false,
+    "genres": [
+      "hiphop"
+    ],
+    "decades": [
+      "80s"
+    ],
+    "languages": [
+      "en"
+    ],
+    "aiDifficulty": "hard"
+  },
+  {
+    "provider": "itunes",
+    "providerRef": "1440903439",
+    "title": "Lose Yourself",
+    "artist": "Eminem",
+    "album": "8 Mile (Music from and Inspired By the Motion Picture)",
+    "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/13/5a/61/135a6154-8ca2-0523-1fa2-f4ac0ea9e1e7/mzaf_13242749689945681184.plus.aac.p.m4a",
+    "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/08/23/fc/0823fcd9-cb44-695b-32bf-b3bf51d9f800/00606949351229.rgb.jpg/100x100bb.jpg",
+    "releaseDate": "2002-10-29T08:00:00Z",
+    "year": 2002,
+    "decade": "2000s",
+    "providerGenre": "Soundtrack",
+    "isReissue": false,
+    "genres": [
+      "rap"
+    ],
+    "decades": [
+      "2000s"
+    ],
+    "languages": [
+      "en"
+    ],
+    "aiDifficulty": "easy"
+  },
+  {
+    "provider": "itunes",
+    "providerRef": "1440882165",
+    "title": "HUMBLE.",
+    "artist": "Kendrick Lamar",
+    "album": "DAMN.",
+    "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/1f/2e/37/1f2e37be-bdd0-d770-6ea4-091011a6aade/mzaf_2360827885900940865.plus.aac.p.m4a",
+    "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music112/v4/ab/16/ef/ab16efe9-e7f1-66ec-021c-5592a23f0f9e/17UMGIM88793.rgb.jpg/100x100bb.jpg",
+    "releaseDate": "2017-03-30T12:00:00Z",
+    "year": 2017,
+    "decade": "2010s",
+    "providerGenre": "Hip-Hop/Rap",
+    "isReissue": false,
+    "genres": [
+      "rap"
+    ],
+    "decades": [
+      "2010s"
+    ],
+    "languages": [
+      "en"
+    ],
+    "aiDifficulty": "easy"
+  },
+  {
+    "provider": "itunes",
+    "providerRef": "1502695463",
+    "title": "Ohi Maria (Maria Maria) [FR Connection Remix]",
+    "artist": "Articolo 31",
+    "album": "Ohi Maria - EP",
+    "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview116/v4/e7/7a/34/e77a34a9-5718-94ec-7c8b-68e1063a4d1e/mzaf_8947917969264648021.plus.aac.p.m4a",
+    "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music123/v4/f3/b8/84/f3b884d6-cc7f-429b-482c-0729895c1385/4050538610765.jpg/100x100bb.jpg",
+    "releaseDate": "1994-01-01T12:00:00Z",
+    "year": 1994,
+    "decade": "90s",
+    "providerGenre": "Hip-Hop/Rap",
+    "isReissue": false,
+    "genres": [
+      "rap"
+    ],
+    "decades": [
+      "90s"
+    ],
+    "languages": [
+      "it"
+    ],
+    "aiDifficulty": "hard"
+  },
+  {
+    "provider": "itunes",
+    "providerRef": "1615488589",
+    "title": "Bad and Boujee (feat. Lil Uzi Vert)",
+    "artist": "Migos",
+    "album": "Culture",
+    "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/60/26/bb/6026bb91-53d6-1202-406a-ad8cfe0ba3fb/mzaf_14191671865341172943.plus.aac.p.m4a",
+    "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/b9/3d/60/b93d604d-e3e4-813b-1feb-8be6d6d0af89/22UMGIM27531.rgb.jpg/100x100bb.jpg",
+    "releaseDate": "2016-10-28T12:00:00Z",
+    "year": 2016,
+    "decade": "2010s",
+    "providerGenre": "Hip-Hop/Rap",
+    "isReissue": false,
+    "genres": [
+      "trap"
+    ],
+    "decades": [
+      "2010s"
+    ],
+    "languages": [
+      "en"
+    ],
+    "aiDifficulty": "easy"
+  },
+  {
+    "provider": "itunes",
+    "providerRef": "1421658123",
+    "title": "SICKO MODE",
+    "artist": "Travis Scott",
+    "album": "ASTROWORLD",
+    "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/d3/91/a1/d391a141-256f-726f-9da1-8aa4e42b3236/mzaf_17761183103753218003.plus.aac.p.m4a",
+    "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/e7/49/8f/e7498f65-df8f-bead-d6e3-2a8d4d642a79/886447235317.jpg/100x100bb.jpg",
+    "releaseDate": "2018-08-03T07:00:00Z",
+    "year": 2018,
+    "decade": "2010s",
+    "providerGenre": "Hip-Hop/Rap",
+    "isReissue": false,
+    "genres": [
+      "trap"
+    ],
+    "decades": [
+      "2010s"
+    ],
+    "languages": [
+      "en"
+    ],
+    "aiDifficulty": "easy"
+  },
+  {
+    "provider": "itunes",
+    "providerRef": "1440865073",
+    "title": "Visiera A Becco",
+    "artist": "Sfera Ebbasta",
+    "album": "Sfera Ebbasta",
+    "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/77/8c/9c/778c9cb4-b5fb-5fe7-17e2-092728cb6563/mzaf_4586325780669768691.plus.aac.p.m4a",
+    "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music114/v4/ac/b7/21/acb72195-e5bf-f6bd-5f1e-e886ea1cb6e7/00602557145502.rgb.jpg/100x100bb.jpg",
+    "releaseDate": "2016-09-09T12:00:00Z",
+    "year": 2016,
+    "decade": "2010s",
+    "providerGenre": "Hip-Hop/Rap",
+    "isReissue": false,
+    "genres": [
+      "trap"
+    ],
+    "decades": [
+      "2010s"
+    ],
+    "languages": [
+      "it"
+    ],
+    "aiDifficulty": "hard"
+  },
+  {
+    "provider": "itunes",
+    "providerRef": "1442000674",
+    "title": "Giovane fuoriclasse",
+    "artist": "Capo Plaza",
+    "album": "20 (Deluxe Edition)",
+    "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/50/7e/90/507e90b0-8e13-2913-fe59-29d8474babdf/mzaf_13926586620380452517.plus.aac.p.m4a",
+    "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/1a/59/b0/1a59b0a4-0969-6776-75bc-c1f2127727da/190295508036.jpg/100x100bb.jpg",
+    "releaseDate": "2018-04-20T12:00:00Z",
+    "year": 2018,
+    "decade": "2010s",
+    "providerGenre": "Hip-Hop/Rap",
+    "isReissue": true,
+    "genres": [
+      "trap"
+    ],
+    "decades": [
+      "2010s"
+    ],
+    "languages": [
+      "it"
+    ],
+    "aiDifficulty": "hard"
+  },
+  {
+    "provider": "itunes",
+    "providerRef": "697195462",
+    "title": "One More Time",
+    "artist": "Daft Punk",
+    "album": "Discovery",
+    "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/5d/93/d8/5d93d83f-ad1e-da4d-1d79-9937bdff24ec/mzaf_14396932211949300852.plus.aac.p.m4a",
+    "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/fd/4a/77/fd4a77db-0ebc-d043-41a2-f32fa1bb0fb4/dj.qrikkdwj.jpg/100x100bb.jpg",
+    "releaseDate": "2000-11-30T08:00:00Z",
+    "year": 2000,
+    "decade": "2000s",
+    "providerGenre": "Dance",
+    "isReissue": false,
+    "genres": [
+      "dance"
+    ],
+    "decades": [
+      "2000s"
+    ],
+    "languages": [
+      "en"
+    ],
+    "aiDifficulty": "easy"
+  },
+  {
+    "provider": "itunes",
+    "providerRef": "301002607",
+    "title": "Show Me Love",
+    "artist": "Robin S.",
+    "album": "Show Me Love",
+    "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/df/80/2d/df802df9-5ef8-ceff-9525-d2635bdcd01c/mzaf_12123587685204224481.plus.aac.p.m4a",
+    "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/8f/fc/e8/8ffce812-173c-5d0d-a264-07f81247c212/mzi.cdsdlqei.jpg/100x100bb.jpg",
+    "releaseDate": "1990-10-13T07:00:00Z",
+    "year": 1990,
+    "decade": "90s",
+    "providerGenre": "Pop",
+    "isReissue": false,
+    "genres": [
+      "dance"
+    ],
+    "decades": [
+      "90s"
+    ],
+    "languages": [
+      "en"
+    ],
+    "aiDifficulty": "hard"
+  },
+  {
+    "provider": "itunes",
+    "providerRef": "287592533",
+    "title": "Freed from Desire",
+    "artist": "Gala",
+    "album": "Come Into My Life (10th Anniversary)",
+    "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/8a/a6/ed/8aa6edd7-c6b8-a99a-d5ee-d092e1460e9d/mzaf_12498017299340318780.plus.aac.p.m4a",
+    "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/70/a3/33/70a333a9-29d8-bfde-fe2d-79d2a9a72518/mzi.hroawrfd.tif/100x100bb.jpg",
+    "releaseDate": "1996-01-01T08:00:00Z",
+    "year": 1996,
+    "decade": "90s",
+    "providerGenre": "Dance",
+    "isReissue": false,
+    "genres": [
+      "dance"
+    ],
+    "decades": [
+      "90s"
+    ],
+    "languages": [
+      "en"
+    ],
+    "aiDifficulty": "easy"
+  },
+  {
+    "provider": "itunes",
+    "providerRef": "268443097",
+    "title": "So What",
+    "artist": "Miles Davis",
+    "album": "Kind of Blue",
+    "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/54/e8/0a/54e80a8b-1d60-6b59-e908-6fd65c4ff783/mzaf_2469862574651846302.plus.aac.p.m4a",
+    "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music/7f/9f/d6/mzi.vtnaewef.jpg/100x100bb.jpg",
+    "releaseDate": "1959-08-17T07:00:00Z",
+    "year": 1959,
+    "decade": "50s",
+    "providerGenre": "Jazz",
+    "isReissue": false,
+    "genres": [
+      "jazz"
+    ],
+    "decades": [
+      "50s"
+    ],
+    "languages": [
+      "en"
+    ],
+    "aiDifficulty": "hard"
+  },
+  {
+    "provider": "itunes",
+    "providerRef": "157427932",
+    "title": "Take Five",
+    "artist": "Dave Brubeck",
+    "album": "Dave Brubeck's Greatest Hits",
+    "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/bc/26/65/bc266569-0bfb-3c64-2364-25df9ae0b960/mzaf_12459147442273741194.plus.aac.p.m4a",
+    "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/c3/32/c0/c332c05b-d589-c64f-7ba4-c3633fe75e3f/mzi.uusqmfyq.jpg/100x100bb.jpg",
+    "releaseDate": "1959-09-21T07:00:00Z",
+    "year": 1959,
+    "decade": "50s",
+    "providerGenre": "Jazz",
+    "isReissue": true,
+    "genres": [
+      "jazz"
+    ],
+    "decades": [
+      "50s"
+    ],
+    "languages": [
+      "en"
+    ],
+    "aiDifficulty": "easy"
+  },
+  {
+    "provider": "itunes",
+    "providerRef": "1440787254",
+    "title": "What a Wonderful World",
+    "artist": "Louis Armstrong",
+    "album": "What a Wonderful World",
+    "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/f0/28/3e/f0283e36-b2b5-ae0d-5276-9b55535cbdf4/mzaf_12728860797817529355.plus.aac.p.m4a",
+    "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/2e/8c/2f/2e8c2f46-4148-d40d-61dc-2cc8e2493aab/12UMGIM11012.rgb.jpg/100x100bb.jpg",
+    "releaseDate": "1967-09-01T12:00:00Z",
+    "year": 1967,
+    "decade": "60s",
+    "providerGenre": "Jazz",
+    "isReissue": false,
+    "genres": [
+      "jazz"
+    ],
+    "decades": [
+      "60s"
+    ],
+    "languages": [
+      "en"
+    ],
+    "aiDifficulty": "easy"
+  },
+  {
+    "provider": "itunes",
+    "providerRef": "962193194",
+    "title": "My Favorite Things",
+    "artist": "John Coltrane",
+    "album": "My Favorite Things",
+    "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview116/v4/cd/bb/b5/cdbbb5d4-7b32-a4c9-2f28-a68485b567d7/mzaf_14821042230185024868.plus.aac.p.m4a",
+    "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/38/49/44/384944a8-297f-0844-77da-1ae3b976c457/603497893119.jpg/100x100bb.jpg",
+    "releaseDate": "1961-03-01T12:00:00Z",
+    "year": 1961,
+    "decade": "60s",
+    "providerGenre": "Jazz",
+    "isReissue": false,
+    "genres": [
+      "jazz"
+    ],
+    "decades": [
+      "60s"
+    ],
+    "languages": [
+      "en"
+    ],
+    "aiDifficulty": "hard"
+  },
+  {
+    "provider": "itunes",
+    "providerRef": "1572051818",
+    "title": "Enter Sandman",
+    "artist": "Metallica",
+    "album": "Metallica (Deluxe Box Set)",
+    "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/53/8a/fc/538afc1c-b9cd-24ab-b401-2fa8c81abc46/mzaf_3160131754964321707.plus.aac.p.m4a",
+    "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/2e/94/95/2e9495d7-dfe3-ddc8-87ef-6ef797a60218/850007452056.png/100x100bb.jpg",
+    "releaseDate": "1991-07-29T12:00:00Z",
+    "year": 1991,
+    "decade": "90s",
+    "providerGenre": "Metal",
+    "isReissue": true,
+    "genres": [
+      "metal"
+    ],
+    "decades": [
+      "90s"
+    ],
+    "languages": [
+      "en"
+    ],
+    "aiDifficulty": "easy"
+  },
+  {
+    "provider": "itunes",
+    "providerRef": "785232521",
+    "title": "Paranoid",
+    "artist": "Black Sabbath",
+    "album": "Paranoid",
+    "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/be/9d/07/be9d07a7-0e2b-7973-a503-87e12c564d22/mzaf_11577128408735924283.plus.aac.p.m4a",
+    "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/be/27/91/be279120-2285-16c6-c7ba-9d6643d4a948/075992732727.jpg/100x100bb.jpg",
+    "releaseDate": "1970-08-07T07:00:00Z",
+    "year": 1970,
+    "decade": "70s",
+    "providerGenre": "Metal",
+    "isReissue": false,
+    "genres": [
+      "metal"
+    ],
+    "decades": [
+      "70s"
+    ],
+    "languages": [
+      "en"
+    ],
+    "aiDifficulty": "easy"
+  },
+  {
+    "provider": "itunes",
+    "providerRef": "1713861908",
+    "title": "The Trooper (2015 Remaster)",
+    "artist": "Iron Maiden",
+    "album": "Piece of Mind (2015 Remaster)",
+    "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/7f/34/0c/7f340c2b-93b3-b188-cb6b-76e5c6ab3ec7/mzaf_11925375451620085601.plus.aac.p.m4a",
+    "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/f8/cd/38/f8cd3816-a840-209a-e9f6-cf3f3e47da21/0881034134455.jpg/100x100bb.jpg",
+    "releaseDate": "1983-05-16T12:00:00Z",
+    "year": 1983,
+    "decade": "80s",
+    "providerGenre": "Metal",
+    "isReissue": true,
+    "genres": [
+      "metal"
+    ],
+    "decades": [
+      "80s"
+    ],
+    "languages": [
+      "en"
+    ],
+    "aiDifficulty": "hard"
+  },
+  {
+    "provider": "itunes",
+    "providerRef": "663097965",
+    "title": "Do I Wanna Know?",
+    "artist": "Arctic Monkeys",
+    "album": "AM",
+    "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/b2/df/5c/b2df5c8f-af5d-646a-663c-c15eede6b48e/mzaf_4729988752193461592.plus.aac.p.m4a",
+    "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/69/9c/b5/699cb5d6-115c-ff73-9d26-e57ea4350d72/887828031795.png/100x100bb.jpg",
+    "releaseDate": "2013-06-19T07:00:00Z",
+    "year": 2013,
+    "decade": "2010s",
+    "providerGenre": "Alternative",
+    "isReissue": false,
+    "genres": [
+      "indie"
+    ],
+    "decades": [
+      "2010s"
+    ],
+    "languages": [
+      "en"
+    ],
+    "aiDifficulty": "easy"
+  },
+  {
+    "provider": "itunes",
+    "providerRef": "266377010",
+    "title": "Last Nite",
+    "artist": "The Strokes",
+    "album": "Is This It",
+    "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/69/c7/30/69c73043-f9dd-0c63-23cd-bfab274520ee/mzaf_5834786258891852942.plus.aac.p.m4a",
+    "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Features115/v4/ea/04/d4/ea04d45d-6f5d-ede6-fb64-71f3e6a6e62f/dj.ojkzzidd.jpg/100x100bb.jpg",
+    "releaseDate": "2001-07-30T07:00:00Z",
+    "year": 2001,
+    "decade": "2000s",
+    "providerGenre": "Alternative",
+    "isReissue": false,
+    "genres": [
+      "indie"
+    ],
+    "decades": [
+      "2000s"
+    ],
+    "languages": [
+      "en"
+    ],
+    "aiDifficulty": "hard"
+  },
+  {
+    "provider": "itunes",
+    "providerRef": "1679849823",
+    "title": "Creep (Acoustic)",
+    "artist": "Radiohead",
+    "album": "Creep - EP",
+    "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/1f/18/e2/1f18e22b-264e-88f8-ee89-c196fa9abd7a/mzaf_14184372154331980897.plus.aac.p.m4a",
+    "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/28/7a/7c/287a7ca9-ed95-1a21-e3bb-4559a1a0ac0e/191404134351.png/100x100bb.jpg",
+    "releaseDate": "1992-09-21T12:00:00Z",
+    "year": 1992,
+    "decade": "90s",
+    "providerGenre": "Alternative",
+    "isReissue": false,
+    "genres": [
+      "indie"
+    ],
+    "decades": [
+      "90s"
+    ],
+    "languages": [
+      "en"
+    ],
+    "aiDifficulty": "easy"
+  },
+  {
+    "provider": "itunes",
+    "providerRef": "713814453",
+    "title": "Je so' pazzo",
+    "artist": "Pino Daniele",
+    "album": "Pino Daniele (2008 Remaster)",
+    "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/42/08/c9/4208c916-b2ed-043b-aabc-5903e0bd06a6/mzaf_16714766855387140627.plus.aac.p.m4a",
+    "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music112/v4/72/de/43/72de433a-27dd-e666-9a12-f262786d4196/13UABIM01570.rgb.jpg/100x100bb.jpg",
+    "releaseDate": "1979-01-01T12:00:00Z",
+    "year": 1979,
+    "decade": "70s",
+    "providerGenre": "Worldwide",
+    "isReissue": true,
+    "genres": [
+      "indie"
+    ],
+    "decades": [
+      "70s"
+    ],
+    "languages": [
+      "it"
+    ],
+    "aiDifficulty": "hard"
+  },
+  {
+    "provider": "itunes",
+    "providerRef": "714366406",
+    "title": "Block Rockin' Beats",
+    "artist": "The Chemical Brothers",
+    "album": "Dig Your Own Hole",
+    "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/33/59/7b/33597bcb-8c82-6882-de18-7e2c28188c67/mzaf_8665126214156159651.plus.aac.p.m4a",
+    "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/54/c6/e4/54c6e459-524b-790c-80d6-5dee6cde1633/00724384295059.jpg/100x100bb.jpg",
+    "releaseDate": "1997-04-07T07:00:00Z",
+    "year": 1997,
+    "decade": "90s",
+    "providerGenre": "Dance",
+    "isReissue": false,
+    "genres": [
+      "electronic"
+    ],
+    "decades": [
+      "90s"
+    ],
+    "languages": [
+      "en"
+    ],
+    "aiDifficulty": "hard"
+  },
+  {
+    "provider": "itunes",
+    "providerRef": "726157363",
+    "title": "The Model",
+    "artist": "Kraftwerk",
+    "album": "The Man-Machine (Remastered)",
+    "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/6b/b3/3a/6bb33a38-4ce8-b8ec-a26f-785f1fe72ddf/mzaf_10609372884119317503.plus.aac.p.m4a",
+    "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/b7/c1/48/b7c1481a-5a92-4b71-ee35-ab7c890770da/5099996602256.jpg/100x100bb.jpg",
+    "releaseDate": "1978-05-19T07:00:00Z",
+    "year": 1978,
+    "decade": "70s",
+    "providerGenre": "Electronic",
+    "isReissue": true,
+    "genres": [
+      "electronic"
+    ],
+    "decades": [
+      "70s"
+    ],
+    "languages": [
+      "en"
+    ],
+    "aiDifficulty": "hard"
+  },
+  {
+    "provider": "itunes",
+    "providerRef": "281242336",
+    "title": "Porcelain",
+    "artist": "Moby",
+    "album": "Play & Play: B Sides",
+    "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/5a/39/b2/5a39b2b8-bba2-c356-7b09-e1e6b3e33874/mzaf_11896684353574179920.plus.aac.p.m4a",
+    "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/b0/b4/93/b0b493b1-71ae-b154-ab40-e6acc7d84c46/842108036099_1.jpg/100x100bb.jpg",
+    "releaseDate": "1999-05-17T07:00:00Z",
+    "year": 1999,
+    "decade": "90s",
+    "providerGenre": "Electronic",
+    "isReissue": false,
+    "genres": [
+      "electronic"
+    ],
+    "decades": [
+      "2000s",
+      "90s"
+    ],
+    "languages": [
+      "en"
+    ],
+    "aiDifficulty": "easy"
+  },
+  {
+    "provider": "itunes",
+    "providerRef": "1440872929",
+    "title": "Wake Me Up",
+    "artist": "Avicii",
+    "album": "True",
+    "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/68/1e/60/681e601f-e1f2-4ebb-37de-adf00bdf57b6/mzaf_8266263075137964740.plus.aac.p.m4a",
+    "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/18/5b/1e/185b1ef5-5d97-19d8-aebf-8e29e41874ef/13UAAIM59255.rgb.jpg/100x100bb.jpg",
+    "releaseDate": "2013-06-17T12:00:00Z",
+    "year": 2013,
+    "decade": "2010s",
+    "providerGenre": "House",
+    "isReissue": false,
+    "genres": [
+      "electronic"
+    ],
+    "decades": [
+      "2010s"
+    ],
+    "languages": [
+      "en"
+    ],
+    "aiDifficulty": "easy"
+  },
+  {
+    "provider": "itunes",
+    "providerRef": "840431935",
+    "title": "I Wanna Dance with Somebody (Who Loves Me)",
+    "artist": "Whitney Houston",
+    "album": "Whitney",
+    "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/7b/67/fd/7b67fd07-6a7a-0362-135c-878ac5799f2c/mzaf_11309521725869189721.plus.aac.p.m4a",
+    "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/86/b5/25/86b525b1-bff1-4bf6-6112-531251b3d672/dj.hthdmusj.jpg/100x100bb.jpg",
+    "releaseDate": "1987-05-02T07:00:00Z",
+    "year": 1987,
+    "decade": "80s",
+    "providerGenre": "R&B/Soul",
+    "isReissue": false,
+    "genres": [
+      "rnb"
+    ],
+    "decades": [
+      "80s"
+    ],
+    "languages": [
+      "en"
+    ],
+    "aiDifficulty": "easy"
+  },
+  {
+    "provider": "itunes",
+    "providerRef": "201274644",
+    "title": "Crazy in Love (feat. JAŸ-Z)",
+    "artist": "Beyoncé",
+    "album": "Dangerously in Love",
+    "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview126/v4/b5/2a/4f/b52a4fcd-0628-cb38-c8ab-a697c11a9175/mzaf_1541321636664021445.plus.aac.p.m4a",
+    "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music/03/c5/d4/mzi.ldvrmhxt.jpg/100x100bb.jpg",
+    "releaseDate": "2003-05-14T07:00:00Z",
+    "year": 2003,
+    "decade": "2000s",
+    "providerGenre": "Pop",
+    "isReissue": false,
+    "genres": [
+      "rnb"
+    ],
+    "decades": [
+      "2000s"
+    ],
+    "languages": [
+      "en"
+    ],
+    "aiDifficulty": "easy"
+  },
+  {
+    "provider": "itunes",
+    "providerRef": "1444845198",
+    "title": "Let's Get It On",
+    "artist": "Marvin Gaye",
+    "album": "Let's Get It On (The MPG Groove Mix) - EP",
+    "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/0b/ea/30/0bea30da-9ce5-f2a1-f124-97262b0143b4/mzaf_17245474646381634587.plus.aac.p.m4a",
+    "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/a6/e6/b6/a6e6b650-c83b-07f6-fdf3-54a6cb1a8311/06UMGIM45749.rgb.jpg/100x100bb.jpg",
+    "releaseDate": "1973-06-15T12:00:00Z",
+    "year": 1973,
+    "decade": "70s",
+    "providerGenre": "R&B/Soul",
+    "isReissue": false,
+    "genres": [
+      "rnb"
+    ],
+    "decades": [
+      "70s"
+    ],
+    "languages": [
+      "en"
+    ],
+    "aiDifficulty": "easy"
+  },
+  {
+    "provider": "itunes",
+    "providerRef": "256937038",
+    "title": "Fallin'",
+    "artist": "Alicia Keys",
+    "album": "Songs In A Minor",
+    "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/39/22/91/392291b5-39f1-8189-3a9b-924361e70776/mzaf_5017281125172140671.plus.aac.p.m4a",
+    "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/bb/4d/55/bb4d552c-04d8-29ba-1b41-6ff8bcd199a5/808132000222.jpg/100x100bb.jpg",
+    "releaseDate": "2001-03-28T08:00:00Z",
+    "year": 2001,
+    "decade": "2000s",
+    "providerGenre": "R&B/Soul",
+    "isReissue": false,
+    "genres": [
+      "rnb"
+    ],
+    "decades": [
+      "2000s"
+    ],
+    "languages": [
+      "en"
+    ],
+    "aiDifficulty": "easy"
+  }
+]

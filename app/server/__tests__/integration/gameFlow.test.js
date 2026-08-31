@@ -76,7 +76,7 @@ describe('Game Flow Integration Tests', () => {
         expect(song).toHaveProperty('title');
         expect(song).toHaveProperty('artist');
         expect(song).toHaveProperty('previewUrl');
-        expect(song).toHaveProperty('artwork');
+        expect(song).toHaveProperty('artworkUrl');
         expect(song.previewUrl).not.toBeNull();
       });
     });

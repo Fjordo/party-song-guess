@@ -6,22 +6,39 @@ primary_region = "cdg"
 
 [env]
   PORT = "3000"
+  CATALOG_DB_PATH = "/data/catalog.db"
+  # error | warn | info | debug. Raise to "debug" to trace playlist selection,
+  # catalog growth and round transitions in `fly logs`.
+  LOG_LEVEL = "info"
 
 [http_service]
   internal_port = 3000
   force_https = true
   auto_stop_machines = "stop"
   auto_start_machines = true
-  # Keep 1 instance always running: rooms are stored in memory,
-  # a cold-start would lose active sessions
-  min_machines_running = 1
+  # Scale to zero: the machine sleeps when nobody is playing and the proxy wakes
+  # it on the first connection. A game in progress keeps websockets open, so the
+  # proxy will not stop a machine that is actually hosting players.
+  min_machines_running = 0
 
+  # Kept on purpose. Machine checks run locally via flyd, not through the proxy,
+  # so they do NOT count as traffic and do NOT prevent auto-stop. They earn their
+  # place at wake-up: the proxy waits for the machine to be healthy before
+  # routing to it, instead of forwarding into a process still booting.
   [[http_service.checks]]
     grace_period = "10s"
     interval = "30s"
     method = "GET"
     path = "/health"
     timeout = "5s"
+
+# The catalog accumulates over time, so it needs a real volume: without one the
+# machine's disk is wiped on every deploy.
+# Create it BEFORE the first deploy that contains this section:
+#   fly volumes create catalog_data --region cdg --size 1 --app <server-app-name>
+[[mounts]]
+  source = "catalog_data"
+  destination = "/data"
 
 [[vm]]
   memory = "256mb"

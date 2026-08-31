@@ -82,6 +82,9 @@ party-song-guess/
 │       └── services/
 │           ├── musicService.js            # [MODERATE] iTunes API integration
 │           └── aiService.js               # [MODERATE] Google Gemini AI integration
+│           ├── catalogRepo.js             # [CRITICAL] Song catalog storage (SQLite)
+│           ├── catalogBuilder.js          # [MODERATE] Incremental growth, upkeep, live fallback
+│           └── catalogScheduler.js        # [SIMPLE]   One catalog run per wake-up
 │
 ├── docs/                                  # Project documentation
 └── README.md                              # Setup instructions
@@ -472,16 +475,122 @@ Return JSON array: [{ "artist": "...", "title": "..." }, ...]
 
 **Error Handling**:
 
-- Returns empty array `[]` on failure
-- Fallback to iTunes random search in `musicService.js`
+- Content problems (malformed JSON, empty list) return an empty array `[]`
+- Call problems (network, 4xx/5xx) are **rethrown**, tagged with `isQuotaError`
+  when the limit was hit — the catalog builder needs to tell those apart
 
-**Rate Limits** (Free Tier):
+**Rate Limits** (Free Tier): 5 requests/minute, 20 requests/day, 250K tokens/minute.
 
-- **5 requests/minute**: Max 5 games can start simultaneously
-- **20 requests/day**: Max 20 games per day
-- **250K tokens/minute**: Ample capacity (playlists use ~200-300 tokens each)
+These no longer cap how many games can be played. Since the song catalog was
+introduced, a normal game start makes **zero** AI calls: the limit only bounds
+how fast the catalog grows in the background, plus the occasional live fallback
+for a combination the catalog cannot satisfy.
+
+There is deliberately **no local quota counter**. The API is the authority on
+its own limits, and a counter of ours would drift from it (the same key is used
+by local development and by the seed/refresh scripts). A refresh simply tries,
+and stops on the first 429 — see §7b.
 
 **Privacy Note**: Free tier allows Google to use inputs for model improvement, but we only send generic queries (no sensitive data)
+
+---
+
+## 7b. Song Catalog (persistent)
+
+The server keeps a SQLite catalog instead of discovering songs when a game
+starts. This is what removed the old "max 20 games/day" ceiling.
+
+### Files
+
+| File | Role |
+|---|---|
+| `db/schema.sql` | Tables: `songs`, `song_tags`, `buckets`, `meta` |
+| `db/catalog.seed.json` | Committed starter catalog, loaded only into an empty database |
+| `services/catalogRepo.js` | All data access. Knows nothing about the AI or any policy |
+| `services/catalogBuilder.js` | Fill policy, upkeep, and the live fallback |
+| `services/catalogScheduler.js` | The single wake-up-driven run |
+| `utils/catalogTags.js` | Whitelists, decade/year derivation, dedupe key |
+| `utils/difficultyStats.js` | Measured difficulty from real play data |
+
+### Provider independence
+
+The music provider appears only as a **value** (`songs.provider = 'itunes'`),
+never as a column name, and `services/musicService.js` is the only module that
+knows the provider's response format. Swapping provider is a change to that one
+file plus the values in the table.
+
+### How it grows
+
+Every boot schedules exactly one run (`CATALOG_BOOT_DELAY_MS` after start).
+There is no periodic timer: the machine is meant to sleep when nobody is
+playing, so a weekly interval would almost never fire.
+
+What keeps that from running away is **not a clock but the AI limit itself**: a
+run tries, and stops on the first 429, logging it and leaving the catalog as it
+is. `meta.last_run_outcome` records `ok` / `quota` / `error`.
+
+Buckets (genre x decade x difficulty x language, 792 of them) are ranked by how
+empty and how stale they are, with an exponential backoff on buckets that keep
+returning nothing — some combinations simply have no songs to find. A persisted
+cursor rotates within the top band so successive runs spread out.
+
+### How it corrects itself
+
+- **Difficulty**: the AI's label is never verified, so it only stands until a
+  song has been played `DIFFICULTY_MIN_PLAYS` times. After that the measured
+  guess rate (and, in the ambiguous band, the average time to answer) wins.
+  Queries filter on `COALESCE(eff_difficulty, ai_difficulty)`.
+- **Dead previews**: preview URLs rotate while the provider id stays stable, so
+  a failed URL is first re-resolved by id and repaired. Only a song that fails
+  `CATALOG_DEAD_THRESHOLD` confirmed checks is removed. A transient network
+  error yields no verdict at all, so a bad afternoon cannot evict the catalog.
+- **Duplicates** are structurally impossible: `UNIQUE (provider, provider_ref)`
+  plus a `UNIQUE` slug of artist+title, which collapses the original pressing
+  and the remaster of the same song onto one record.
+
+### Debugging
+
+The server logs through `utils/logger.js`, which has four levels and defaults
+to `info`. Set `LOG_LEVEL=debug` to see the reasoning behind what happens:
+
+```bash
+LOG_LEVEL=debug npm run dev
+```
+
+Each line is `<timestamp> <LEVEL> [<scope>] <message>`, with scopes `game`,
+`catalog`, `builder`, `scheduler`, `ai` and `music`. What debug adds:
+
+| Scope | Answers the question |
+|---|---|
+| `catalog` | Why did the playlist contain *these* songs? Every relaxation level with its candidate count, and the songs finally picked with their play counts |
+| `builder` | Why is the catalog not growing? Which buckets were picked and why (scores), how many songs the AI suggested, how many resolved, how many were new |
+| `builder` | Why did a song disappear? Each preview check, repair and eviction |
+| `game` | What happened in this room? Every round with its song and id, correct and wrong guesses with response times |
+| `ai` / `music` | How long did the external calls take, and what came back |
+
+A worked example — the playlist relaxed all the way down because the catalog
+was thin for that combination:
+
+```
+DEBUG [catalog] query genres=[rock] decade=90s language=en difficulty=easy limit=2 excluded=0
+DEBUG [catalog]   level=exact candidates=1 picked=1
+DEBUG [catalog]   level=no-difficulty candidates=1 picked=1
+DEBUG [catalog]   level=no-language candidates=1 picked=1
+DEBUG [catalog]   level=genre-only candidates=6 picked=2
+DEBUG [catalog] query resolved at level=genre-only with 2 song(s): ...
+```
+
+Note that `console` only treats its first argument as a format string, so the
+logger merges its prefix into the caller's message — placeholders like `%s`
+and `%d` work as expected.
+
+### Commands
+
+```bash
+npm run catalog:stats                    # what is in the catalog
+npm run catalog:refresh -- --max-calls 10  # grow it by hand (local, no limit worries)
+npm run catalog:seed                     # regenerate the committed seed
+```
 
 ---
 

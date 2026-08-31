@@ -58,6 +58,16 @@ const messages = {
       gameOver: 'Game Over!',
       newGame: 'New Game'
     },
+    connection: {
+      waking: 'Waking up the server, one moment...'
+    },
+    help: {
+      open: 'About this app',
+      close: 'Close',
+      createdBy: 'Made by',
+      version: 'Version',
+      rights: '© 2026 Fjordo · Just for fun'
+    },
     errors: {
       title: 'Error',
       generic: 'An error occurred.',
@@ -129,6 +139,16 @@ const messages = {
       wrongGuess: 'Risposta sbagliata, riprova!',
       gameOver: 'Partita Finita!',
       newGame: 'Nuova Partita'
+    },
+    connection: {
+      waking: 'Sto riattivando il server, un attimo...'
+    },
+    help: {
+      open: "Info sull'app",
+      close: 'Chiudi',
+      createdBy: 'Creato da',
+      version: 'Versione',
+      rights: '© 2026 Fjordo · Solo per divertimento'
     },
     errors: {
       title: 'Errore',

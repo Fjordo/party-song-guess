@@ -7,6 +7,12 @@ services:
       - "3000:3000"
     volumes:
       - ../app/server:/app/server
+      # Keep the image's own node_modules: better-sqlite3 is a native module
+      # compiled for Alpine, and the host copy would shadow it
+      - /app/server/node_modules
+      - catalog_data:/data
+    environment:
+      - CATALOG_DB_PATH=/data/catalog.db
     env_file:
       - .env
     command: node index.js
@@ -22,3 +28,7 @@ services:
     command: npm run dev
     depends_on:
       - server
+
+volumes:
+  # Keeps the song catalog across `docker compose down` / `up`
+  catalog_data:

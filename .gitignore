@@ -4,3 +4,6 @@ dist
 coverage
 /docker-compose/.env
 .claude/
+
+# Local catalog database (the deployed one lives on a Fly volume)
+app/server/.data/
