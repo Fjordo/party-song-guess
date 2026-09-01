@@ -27,7 +27,7 @@ Un gioco musicale multiplayer in tempo reale via browser. I giocatori devono ind
 
 ### Pre-requisiti
 
-NodeJS > 20.19 or > 22.12
+NodeJS >= 22 (il server usa better-sqlite3 >=13, che richiede Node 22+)
 
 ### Avvio Standard
 
@@ -115,7 +115,7 @@ npm run test:coverage     # Genera il report di copertura
 
 ### CI/CD
 
-I test vengono eseguiti automaticamente su GitHub Actions ad ogni push/pull request su Node.js 20.x e 22.x.
+I test vengono eseguiti automaticamente su GitHub Actions ad ogni push/pull request su Node.js 22.x e 24.x (server) e 20.x e 22.x (client).
 
 ## GOOGLE API KEY
 

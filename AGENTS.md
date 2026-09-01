@@ -13,7 +13,7 @@
 - **Frontend**: React 19, Vite 7, TailwindCSS 4
 - **Backend**: Node.js (Express 4, Socket.io 4)
 - **APIs**: iTunes Search API (song previews), Google Gemini AI (playlist generation)
-- **Requirements**: Node.js >20.19 or >22.12
+- **Requirements**: Node.js >=22 (better-sqlite3 >=13 has no Node 20 ABI)
 
 **Key Features**:
 
