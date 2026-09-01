@@ -11,6 +11,7 @@ module.exports = {
   testMatch: [
     '**/__tests__/**/*.test.js'
   ],
+  maxWorkers: 1,  // Disable parallel test execution entirely
   coverageThreshold: {
     // Per-directory thresholds (more realistic than global)
     './services/': {
