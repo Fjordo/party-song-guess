@@ -15,8 +15,9 @@ function maskTitle(title, revealed) {
     .join('');
 }
 
-export default function HelpButton() {
+export default function HelpButton({ socket }) {
   const [isOpen, setIsOpen] = useState(false);
+  const [catalog, setCatalog] = useState({ status: 'loading' });
   const appTitle = t('appTitle');
   const [revealed, setRevealed] = useState(appTitle.length);
   const triggerRef = useRef(null);
@@ -32,8 +33,31 @@ export default function HelpButton() {
     // Reduced motion opens on the resolved title; the interval below then has
     // nothing left to reveal and clears itself on its first tick.
     setRevealed(prefersReducedMotion ? appTitle.length : 0);
+    setCatalog({ status: 'loading' });
     setIsOpen(true);
   };
+
+  useEffect(() => {
+    if (!isOpen) return undefined;
+    let active = true;
+    let requestId = 0;
+    const requestStats = () => {
+      const id = ++requestId;
+      // Do not queue requests while the sleeping server is disconnected.
+      socket.timeout(8000).volatile.emit('get_catalog_stats', (error, data) => {
+        if (!active || id !== requestId) return;
+        setCatalog(error || data?.error || !Array.isArray(data?.byGenre)
+          ? { status: 'error' }
+          : { status: 'ready', ...data });
+      });
+    };
+    socket.on('connect', requestStats);
+    requestStats();
+    return () => {
+      active = false;
+      socket.off('connect', requestStats);
+    };
+  }, [isOpen, socket]);
 
   // Step the reveal forward while the dialog is open.
   useEffect(() => {
@@ -102,7 +126,7 @@ export default function HelpButton() {
 
       {isOpen && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4"
+          className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4"
           onClick={() => setIsOpen(false)}
         >
           <div
@@ -112,7 +136,7 @@ export default function HelpButton() {
             aria-labelledby="help-title"
             onClick={(event) => event.stopPropagation()}
             onKeyDown={handleKeyDown}
-            className="relative w-full max-w-sm rounded-xl border border-gray-700 bg-gray-800 p-6 sm:p-8 shadow-2xl motion-safe:animate-[help-in_180ms_ease-out]"
+            className="relative w-full max-w-sm max-h-[calc(100dvh-2rem)] overflow-y-auto rounded-xl border border-gray-700 bg-gray-800 p-6 sm:p-8 shadow-2xl motion-safe:animate-[help-in_180ms_ease-out]"
           >
             <button
               ref={closeRef}
@@ -142,6 +166,37 @@ export default function HelpButton() {
               </dt>
               <dd className="font-mono text-sm text-purple-300">{APP_VERSION}</dd>
             </dl>
+
+            <section className="border-t border-gray-700 mt-6 pt-4" aria-labelledby="catalog-title">
+              <h3 id="catalog-title" className="text-sm font-semibold text-white mb-3">
+                {t('help.catalogTitle')}
+              </h3>
+              <div aria-live="polite" aria-busy={catalog.status === 'loading'}>
+                {catalog.status === 'loading' && (
+                  <p className="text-sm text-gray-400">{t('help.catalogLoading')}</p>
+                )}
+                {catalog.status === 'error' && (
+                  <p className="text-sm text-gray-400">{t('help.catalogUnavailable')}</p>
+                )}
+                {catalog.status === 'ready' && (
+                  <>
+                    <p className="flex justify-between gap-3 text-sm mb-3">
+                      <span className="text-gray-300">{t('help.catalogTotal')}</span>
+                      <span className="font-mono font-bold text-purple-300">{catalog.total.toLocaleString()}</span>
+                    </p>
+                    <dl className="grid grid-cols-2 gap-x-4 gap-y-2">
+                      {catalog.byGenre.map(({ genre, count }) => (
+                        <div key={genre} className="flex justify-between gap-2 text-sm">
+                          <dt className="text-gray-400">{t(`landing.genre_${genre}`)}</dt>
+                          <dd className="font-mono text-purple-200">{count.toLocaleString()}</dd>
+                        </div>
+                      ))}
+                    </dl>
+                    <p className="mt-3 text-xs text-gray-400">{t('help.catalogNote')}</p>
+                  </>
+                )}
+              </div>
+            </section>
 
             <p className="border-t border-gray-700 mt-6 pt-4 text-xs text-gray-500">
               {t('help.rights')}

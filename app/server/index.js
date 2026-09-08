@@ -110,6 +110,25 @@ io.on('connection', (socket) => {
     log.debug('socket connected: %s (transport=%s)',
         socket.id, socket.conn && socket.conn.transport && socket.conn.transport.name);
 
+    socket.on('get_catalog_stats', (reply) => {
+        if (typeof reply !== 'function') return;
+        if (!checkRateLimit(socket.id)) {
+            reply({ error: 'RATE_LIMIT_EXCEEDED' });
+            return;
+        }
+        try {
+            const { total, byGenre } = catalogRepo.stats();
+            const counts = new Map(byGenre.map(({ value, n }) => [value, n]));
+            reply({
+                total,
+                byGenre: [...ALLOWED_GENRES].map(genre => ({ genre, count: counts.get(genre) || 0 }))
+            });
+        } catch (error) {
+            log.error('catalog statistics unavailable: %s', error.message);
+            reply({ error: 'CATALOG_UNAVAILABLE' });
+        }
+    });
+
     socket.on('create_room', ({ playerName }) => {
         if (!checkRateLimit(socket.id)) {
             socket.emit('error', { code: 'RATE_LIMIT_EXCEEDED' });

@@ -66,6 +66,11 @@ const messages = {
     },
     help: {
       open: 'About this app',
+      catalogTitle: 'Indexed songs by genre',
+      catalogTotal: 'Total unique songs',
+      catalogLoading: 'Loading catalog...',
+      catalogUnavailable: 'Catalog unavailable. Reopen Help to try again.',
+      catalogNote: 'A song can belong to multiple genres. Counts are updated each time you open Help.',
       close: 'Close',
       createdBy: 'Made by',
       version: 'Version',
@@ -151,6 +156,11 @@ const messages = {
     },
     help: {
       open: "Info sull'app",
+      catalogTitle: 'Canzoni indicizzate per genere',
+      catalogTotal: 'Totale canzoni uniche',
+      catalogLoading: 'Caricamento catalogo...',
+      catalogUnavailable: 'Catalogo non disponibile. Riapri Help per riprovare.',
+      catalogNote: 'Una canzone può appartenere a più generi. I conteggi si aggiornano a ogni apertura di Help.',
       close: 'Chiudi',
       createdBy: 'Creato da',
       version: 'Versione',

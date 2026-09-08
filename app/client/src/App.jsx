@@ -201,7 +201,7 @@ function App() {
     <div className="fixed inset-0 bg-gray-900 text-white flex flex-col overflow-hidden">
       <style>{scrollbarStyle}</style>
 
-      <HelpButton />
+      <HelpButton socket={socket} />
 
       {/* 2. AREA DI SCROLL GENERALE: Se il contenuto sfora (es. tastiera mobile), qui si scrolla */}
       <div className="flex-1 overflow-y-auto p-4 w-full custom-scrollbar">
