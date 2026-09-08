@@ -35,12 +35,12 @@ function isQuotaError(error) {
  * @returns {Promise<Array<{artist: string, title: string}>>}
  * @throws {Error} - On API/network failure; `error.isQuotaError` marks limit errors
  */
-async function getSongListFromAI({ genres, decade, language, difficulty, count }) {
+async function getSongListFromAI({ genres, decade, language, difficulty, count, exclude = [] }) {
     // Request 30% more to cover songs not found on the music provider
     const safeCount = Math.ceil(count * 1.3);
 
     const model = genAI.getGenerativeModel({
-        model: "gemini-3-flash-preview",
+        model: "gemini-3.5-flash-lite",
         generationConfig: {
             responseMimeType: "application/json",
             temperature: 0.7,
@@ -54,7 +54,8 @@ async function getSongListFromAI({ genres, decade, language, difficulty, count }
     - Livello di Oscurità/Difficoltà: ${difficulty === 'hard' ? 'Canzoni meno note, B-sides, o artisti di nicchia (NON HIT GLOBALI)' : 'Grandi successi commerciali e Hit famose'}
 
     Restituisci un array JSON di oggetti. Ogni oggetto deve avere esattamente queste chiavi: "artist", "title".
-    Esempio: [{"artist": "Pino Daniele", "title": "Je so' pazzo"}]`;
+    Esempio: [{"artist": "Pino Daniele", "title": "Je so' pazzo"}]
+    ${exclude.length ? `Escludi queste canzoni già in catalogo (anche remix e rimasterizzazioni): ${JSON.stringify(exclude)}` : ''}`;
 
     log.debug('requesting %d songs: genres=[%s] decade=%s language=%s difficulty=%s',
         safeCount, genres.join(','), decade || 'any', language || 'any', difficulty);
@@ -63,7 +64,7 @@ async function getSongListFromAI({ genres, decade, language, difficulty, count }
 
     let response;
     try {
-        const result = await model.generateContent(prompt);
+        const result = await model.generateContent(prompt, { timeout: 60000 });
         response = result.response;
     } catch (error) {
         if (isQuotaError(error)) {

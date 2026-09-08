@@ -151,7 +151,7 @@ describe('aiService - Google Gemini AI Integration', () => {
 
       // Verify getGenerativeModel was called with correct config
       expect(mockGetGenerativeModel).toHaveBeenCalledWith({
-        model: 'gemini-3-flash-preview',
+        model: 'gemini-3.5-flash-lite',
         generationConfig: {
           responseMimeType: 'application/json',
           temperature: 0.7

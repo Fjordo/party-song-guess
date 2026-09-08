@@ -151,7 +151,7 @@ function toEntries(records, bucket, origin) {
  * Ask the AI for one bucket and merge whatever the provider can resolve.
  * Throws only for AI call failures, which the caller classifies.
  */
-async function fillBucket(bucket, deps) {
+async function fillBucket(bucket, deps, options = {}) {
     const { ai, music, repo } = deps;
 
     const recommendations = await ai.getSongListFromAI({
@@ -159,7 +159,8 @@ async function fillBucket(bucket, deps) {
         decade: bucket.decade,
         language: bucket.language,
         difficulty: bucket.difficulty,
-        count: CONFIG.songsPerCall
+        count: options.count || CONFIG.songsPerCall,
+        ...(options.exclude ? { exclude: options.exclude } : {})
     });
 
     if (!recommendations || recommendations.length === 0) {
@@ -345,6 +346,7 @@ async function runFallback({ genres, decade, language, difficulty, count }, deps
 }
 
 module.exports = {
+    fillBucket,
     pickBuckets,
     runRefresh,
     runRevalidation,

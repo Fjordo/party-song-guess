@@ -463,6 +463,32 @@ function stats() {
     };
 }
 
+function songsForGenre(genre) {
+    return db.prepare(`SELECT s.artist, s.title FROM songs s
+        JOIN song_tags t ON t.song_id = s.id
+        WHERE t.kind = 'genre' AND t.value = ? ORDER BY s.id`).all(genre);
+}
+
+// Atomic across processes sharing this SQLite file. A crashed worker's lease expires.
+function claimLease(key, owner, now, durationMs) {
+    return db.transaction(() => {
+        const raw = getMeta(key);
+        const lease = raw ? JSON.parse(raw) : null;
+        if (lease && lease.expiresAt > now) return false;
+        setMeta(key, JSON.stringify({ owner, expiresAt: now + durationMs }));
+        return true;
+    }).immediate();
+}
+
+function releaseLease(key, owner) {
+    db.transaction(() => {
+        const raw = getMeta(key);
+        if (raw && JSON.parse(raw).owner === owner) {
+            db.prepare('DELETE FROM meta WHERE key = ?').run(key);
+        }
+    }).immediate();
+}
+
 module.exports = {
     open,
     close,
@@ -483,5 +509,8 @@ module.exports = {
     getCursor,
     setCursor,
     recordRunOutcome,
-    stats
+    stats,
+    songsForGenre,
+    claimLease,
+    releaseLease
 };
