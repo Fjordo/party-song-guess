@@ -455,7 +455,7 @@ if (difficulty === 'easy') {
 
 **File**: [app/server/services/aiService.js](app/server/services/aiService.js)
 
-**Model**: `gemini-3-flash-preview` (fast, cost-effective)
+**Model**: `gemini-3.5-flash-lite` (fast, cost-effective)
 
 **Purpose**: Generate thematic playlists based on game settings
 
