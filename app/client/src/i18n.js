@@ -1,6 +1,9 @@
 const messages = {
   en: {
     appTitle: 'Party Song Guess',
+    pwa: {
+      install: 'Install app'
+    },
     landing: {
       namePlaceholder: 'Your name',
       roundsLabel: 'Number of rounds',
@@ -101,6 +104,9 @@ const messages = {
   },
   it: {
     appTitle: 'Party Song Guess',
+    pwa: {
+      install: "Installa l'app"
+    },
     landing: {
       namePlaceholder: 'Il tuo nome',
       roundsLabel: 'Numero di round',

@@ -4,6 +4,7 @@ import io from 'socket.io-client';
 import Lobby from './components/Lobby';
 import GameRoom from './components/GameRoom';
 import HelpButton from './components/HelpButton';
+import PwaInstallButton from './components/PwaInstallButton';
 
 let savedSession = null;
 try { savedSession = JSON.parse(sessionStorage.getItem('party-song-session')); } catch { /* Storage may be unavailable. */ }
@@ -269,6 +270,8 @@ function App() {
           <h1 className="text-2xl sm:text-4xl md:text-5xl font-bold mb-4 sm:mb-6 px-12 sm:px-0 text-center text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600 flex-shrink-0">
             {t('appTitle')}
           </h1>
+
+          <PwaInstallButton />
 
           {connectionState === 'connecting' && (
             <div className="w-full max-w-md mb-4 flex-shrink-0">
