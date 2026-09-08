@@ -13,21 +13,26 @@ export default function GameRoom({ socket, room, players }) {
     const [countdown, setCountdown] = useState(null);
 
     useEffect(() => {
+        const audio = audioRef.current;
+        let countdownTimer;
+        let focusTimer;
         socket.on('start_countdown', ({ duration }) => {
             setStatus(t('game.getReady')); // Or specific status
             setCountdown(duration);//test
             let count = duration;
-            const timer = setInterval(() => {
+            clearInterval(countdownTimer);
+            countdownTimer = setInterval(() => {
                 count--;
                 if (count > 0) {
                     setCountdown(count);
                 } else {
-                    clearInterval(timer);
+                    clearInterval(countdownTimer);
                 }
             }, 1000);
         });
 
         socket.on('new_round', ({ roundNumber, previewUrl }) => {
+            clearInterval(countdownTimer);
             setCountdown(null);
             setCurrentRound(roundNumber);
             setStatus('PLAYING');
@@ -36,13 +41,14 @@ export default function GameRoom({ socket, room, players }) {
             setGuess('');
 
             // Focus input and place cursor at end
-            setTimeout(() => {
+            focusTimer = setTimeout(() => {
                 if (inputRef.current) {
                     inputRef.current.focus();
                 }
             }, 100);
 
             // Play Audio
+            audioRef.current.pause();
             audioRef.current.src = previewUrl;
             audioRef.current.volume = 0.5;
             audioRef.current.play().catch(e => console.error("Autoplay prevent?", e));
@@ -61,6 +67,13 @@ export default function GameRoom({ socket, room, players }) {
             audioRef.current.pause();//test
         });
 
+        socket.on('round_skipped', ({ song }) => {
+            setStatus('ROUND_OVER');
+            setRoundResult({ winner: null, song, skipped: true });
+            setErrorMessage(null);
+            audioRef.current.pause();
+        });
+
         socket.on('wrong_guess', () => {
             setErrorMessage(t('game.wrongGuess'));
         });
@@ -71,8 +84,11 @@ export default function GameRoom({ socket, room, players }) {
             socket.off('new_round');
             socket.off('round_winner');
             socket.off('round_timeout');
+            socket.off('round_skipped');
             socket.off('wrong_guess');
-            audioRef.current.pause();
+            clearInterval(countdownTimer);
+            clearTimeout(focusTimer);
+            audio.pause();
         };
     }, [socket]);
 
@@ -111,7 +127,7 @@ export default function GameRoom({ socket, room, players }) {
                     <h3 className="text-lg sm:text-xl text-green-400 font-bold">
                         {roundResult.winner
                             ? `${roundResult.winner} ${t('game.guessed')}`
-                            : t('game.timeUp')}
+                            : t(roundResult.skipped ? 'game.songSkipped' : 'game.timeUp')}
                     </h3>
                     <p className="text-base sm:text-lg break-words">
                         {roundResult.song.title} - <span className="text-gray-400">{roundResult.song.artist}</span>
@@ -144,6 +160,21 @@ export default function GameRoom({ socket, room, players }) {
                 </button>
             </form>
 
+            {players.length === 1 && (
+                <button
+                    type="button"
+                    disabled={status !== 'PLAYING'}
+                    onClick={() => {
+                        if (socket.connected) socket.emit('skip_song', {
+                            roomId: room.id, roundNumber: currentRound
+                        });
+                    }}
+                    className="mt-3 w-full sm:w-auto px-6 py-3 rounded-lg bg-gray-700 hover:bg-gray-600 disabled:opacity-40 disabled:cursor-not-allowed font-semibold"
+                >
+                    {t('game.skipSong')}
+                </button>
+            )}
+
             {errorMessage && (
                 <div className="mt-3 w-full text-red-400 text-sm font-semibold text-center">
                     {errorMessage}
@@ -153,7 +184,7 @@ export default function GameRoom({ socket, room, players }) {
             <div className="mt-8 w-full">
                 <h4 className="text-gray-400 mb-2 font-bold uppercase text-sm tracking-wider">{t('game.scoreboard')}</h4>
                 <div className="flex flex-wrap gap-4">
-                    {players.sort((a, b) => b.score - a.score).map(p => (
+                    {[...players].sort((a, b) => b.score - a.score).map(p => (
                         <div key={p.id} className="bg-gray-800 px-3 py-1 rounded flex items-center gap-2 border border-gray-700">
                             <div className="w-2 h-2 rounded-full bg-green-400"></div>
                             <span className="font-bold">{p.name}</span>

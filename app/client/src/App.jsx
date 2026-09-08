@@ -71,6 +71,13 @@ function App() {
       setPlayers(updatedPlayers);
     });
 
+    socket.on('game_left', () => {
+      setGameState('LANDING');
+      setRoom(null);
+      setPlayers([]);
+      setErrorMessage('');
+    });
+
     socket.on('game_started', ({ totalRounds }) => {
       setRoom(prev => ({ ...prev, totalRounds }));
       setGameState('PLAYING');
@@ -131,6 +138,7 @@ function App() {
       socket.off('room_created');
       socket.off('room_joined');
       socket.off('player_joined');
+      socket.off('game_left');
       socket.off('game_started');
       socket.off('update_scores');
       socket.off('game_over');
@@ -264,7 +272,7 @@ function App() {
                 room={room}
                 players={players}
                 startGame={startGame}
-                isOwner={room.players[0].id === socket.id}
+                isOwner={players[0]?.id === socket.id}
                 totalRounds={totalRounds}
                 setTotalRounds={setTotalRounds}
                 selectedGenres={selectedGenres}
@@ -283,6 +291,18 @@ function App() {
               <GameRoom socket={socket} room={room} players={players} />
             )}
 
+            {room && gameState !== 'LANDING' && (
+              <button
+                type="button"
+                onClick={() => {
+                  if (socket.connected) socket.emit('leave_game', { roomId: room.id });
+                }}
+                className="relative z-50 mt-4 px-5 py-3 rounded-lg border border-red-400 text-red-300 hover:bg-red-900/50 focus-visible:outline-2 focus-visible:outline-red-300"
+              >
+                {t('game.leaveGame')}
+              </button>
+            )}
+
             {gameState === 'ENDED' && (
               /* 3. GAME OVER FIX: Altezza massima fissa (80% viewport) e flex column */
               <div className="bg-gray-800 p-6 rounded-xl text-center w-full max-w-lg shadow-2xl flex flex-col max-h-[80vh]">
@@ -293,7 +313,7 @@ function App() {
                     'overflow-y-auto' abilita la barra
                 */}
                 <div className="flex-1 overflow-y-auto min-h-0 custom-scrollbar pr-2 space-y-2 mb-4">
-                  {players.sort((a, b) => b.score - a.score).map((p, i) => (
+                  {[...players].sort((a, b) => b.score - a.score).map((p, i) => (
                     <div
                       key={p.id}
                       className={`flex items-center justify-between p-3 rounded ${i === 0 ? 'bg-yellow-500/20 border border-yellow-500/50' : 'bg-gray-700'

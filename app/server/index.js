@@ -91,6 +91,21 @@ function validateRoomId(roomId) {
     return typeof roomId === 'string' && /^[A-F0-9]{6}$/.test(roomId);
 }
 
+function removePlayer(socket, roomId) {
+    const room = rooms[roomId];
+    if (!room || !room.players.some(p => p.id === socket.id)) return;
+    room.players = room.players.filter(p => p.id !== socket.id);
+    socket.leave(roomId);
+    if (room.players.length === 0) {
+        clearTimeout(room.cleanupTimer);
+        clearTimeout(room.roundTimer);
+        delete rooms[roomId];
+        log.info('room %s deleted (empty)', roomId);
+    } else {
+        io.to(roomId).emit('player_joined', room.players);
+    }
+}
+
 io.on('connection', (socket) => {
     log.debug('socket connected: %s (transport=%s)',
         socket.id, socket.conn && socket.conn.transport && socket.conn.transport.name);
@@ -244,6 +259,8 @@ io.on('connection', (socket) => {
                 }
             }
 
+            // The last player may have left while live discovery was pending.
+            if (rooms[roomId] !== room) return;
             const playlist = result.songs;
 
             if (playlist.length === 0) {
@@ -287,6 +304,7 @@ io.on('connection', (socket) => {
             setTimeout(() => startRound(roomId, gameId), 1000);
 
         } catch (e) {
+            if (rooms[roomId] !== room) return;
             log.error('room %s start_game failed:', roomId, e.message);
             // Reset to LOBBY so players can retry
             room.state = 'LOBBY';
@@ -307,9 +325,11 @@ io.on('connection', (socket) => {
 
         const room = rooms[roomId];
         if (!room || !room.roundActive || room.state !== 'PLAYING') return;
+        if (!room.players.some(p => p.id === socket.id)) return;
 
         if (checkAnswer(guess, room.currentSong.title)) {
             room.roundActive = false;
+            clearTimeout(room.roundTimer);
             // Award point
             const player = room.players.find(p => p.id === socket.id);
             if (player) {
@@ -342,24 +362,33 @@ io.on('connection', (socket) => {
         }
     });
 
+    socket.on('skip_song', ({ roomId, roundNumber } = {}) => {
+        if (!validateRoomId(roomId)) return;
+        const room = rooms[roomId];
+        if (!room || room.state !== 'PLAYING' || !room.roundActive ||
+            room.players.length !== 1 || room.players[0].id !== socket.id ||
+            room.currentRound !== roundNumber) return;
+
+        room.roundActive = false;
+        clearTimeout(room.roundTimer);
+        io.to(roomId).emit('round_skipped', { song: publicSong(room.currentSong) });
+        const gameId = room.gameId;
+        setTimeout(() => startRound(roomId, gameId), 5000);
+    });
+
+    socket.on('leave_game', ({ roomId } = {}) => {
+        if (!validateRoomId(roomId)) return;
+        removePlayer(socket, roomId);
+        socket.emit('game_left', { roomId });
+    });
+
     socket.on('disconnect', (reason) => {
         log.debug('socket disconnected: %s (%s)', socket.id, reason);
         // Clean up rate limit data
         delete rateLimits[socket.id];
         // Remove player from any room they were in
         for (const roomId in rooms) {
-            const room = rooms[roomId];
-            const playerIndex = room.players.findIndex(p => p.id === socket.id);
-            if (playerIndex !== -1) {
-                room.players.splice(playerIndex, 1);
-                if (room.players.length === 0) {
-                    delete rooms[roomId];
-                    log.info('room %s deleted (empty after disconnect)', roomId);
-                } else {
-                    io.to(roomId).emit('player_joined', room.players);
-                }
-                break;
-            }
+            removePlayer(socket, roomId);
         }
     });
 });
@@ -403,7 +432,7 @@ function startRound(roomId, gameId) {
         });
 
         // Timeout if no one guesses in 30s
-        setTimeout(() => {
+        room.roundTimer = setTimeout(() => {
             if (!rooms[roomId] || room.gameId !== gameId) return;
             if (room.roundActive && room.currentSong === song) {
                 room.roundActive = false;
