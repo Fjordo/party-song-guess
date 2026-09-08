@@ -51,6 +51,13 @@ const messages = {
       round: 'Round',
       submit: 'SUBMIT',
       skipSong: 'Skip song',
+      timeRemaining: 'Time remaining',
+      volume: 'Volume',
+      resumeAudio: 'Play audio',
+      albumArt: 'Album artwork',
+      rematch: 'Rematch',
+      waitingRematch: 'Waiting for the host to start a rematch...',
+      reconnectingPlayer: 'Reconnecting...',
       songSkipped: 'Song skipped',
       leaveGame: 'Leave game',
       timeUp: 'Time\'s Up!',
@@ -62,6 +69,7 @@ const messages = {
       newGame: 'New Game'
     },
     connection: {
+      reconnecting: 'Reconnecting to your game. Your seat is reserved for 1 minute.',
       waking: 'Waking up the server, one moment...'
     },
     help: {
@@ -79,6 +87,8 @@ const messages = {
     errors: {
       title: 'Error',
       generic: 'An error occurred.',
+      sessionExpired: 'Unable to resume this session. It may have expired, be open in another tab, or the server may have restarted. Please join or create a room.',
+      sessionReplaced: 'Your game was resumed in another tab.',
       missingNameCreate: 'Enter your name to create a room.',
       missingNameJoin: 'Enter your name to join a room.',
       missingRoomId: 'Enter a valid room ID.',
@@ -141,6 +151,13 @@ const messages = {
       round: 'Round',
       submit: 'INVIA',
       skipSong: 'Salta canzone',
+      timeRemaining: 'Tempo rimasto',
+      volume: 'Volume',
+      resumeAudio: 'Avvia audio',
+      albumArt: 'Copertina album',
+      rematch: 'Rivincita',
+      waitingRematch: "In attesa che l’host avvii la rivincita...",
+      reconnectingPlayer: 'Riconnessione...',
       songSkipped: 'Canzone saltata',
       leaveGame: 'Abbandona partita',
       timeUp: 'Tempo Scaduto!',
@@ -152,7 +169,8 @@ const messages = {
       newGame: 'Nuova Partita'
     },
     connection: {
-      waking: 'Sto riattivando il server, un attimo...'
+      waking: 'Sto riattivando il server, un attimo...',
+      reconnecting: 'Riconnessione alla partita. Il tuo posto resta riservato per 1 minuto.'
     },
     help: {
       open: "Info sull'app",
@@ -169,6 +187,8 @@ const messages = {
     errors: {
       title: 'Errore',
       generic: 'Si è verificato un errore.',
+      sessionExpired: 'Impossibile riprendere la sessione: potrebbe essere scaduta, aperta in un’altra scheda oppure il server è stato riavviato. Rientra o crea una stanza.',
+      sessionReplaced: 'La partita è stata ripresa in un’altra scheda.',
       missingNameCreate: 'Inserisci il tuo nome per creare una stanza.',
       missingNameJoin: 'Inserisci il tuo nome per unirti a una stanza.',
       missingRoomId: 'Inserisci un ID stanza valido.',

@@ -5,6 +5,17 @@ import Lobby from './components/Lobby';
 import GameRoom from './components/GameRoom';
 import HelpButton from './components/HelpButton';
 
+let savedSession = null;
+try { savedSession = JSON.parse(sessionStorage.getItem('party-song-session')); } catch { /* Storage may be unavailable. */ }
+function saveSession(session) {
+  savedSession = session;
+  try {
+    if (session) sessionStorage.setItem('party-song-session', JSON.stringify(session));
+    else sessionStorage.removeItem('party-song-session');
+  } catch { /* In-memory recovery still works when storage is blocked. */ }
+}
+const receiveRound = round => ({ ...round, deadline: Date.now() + (round?.remainingMs || 0) });
+
 // Socket configuration: VITE_SERVER_URL takes precedence (production/fly.io)
 // Falls back to individual VITE_SOCKET_* vars for local development
 const SOCKET_HOST =
@@ -15,7 +26,8 @@ const SOCKET_PROTOCOL =
   (window.location.protocol === 'https:' ? 'https' : 'http');
 
 const socket = io(
-  import.meta.env.VITE_SERVER_URL || `${SOCKET_PROTOCOL}://${SOCKET_HOST}:${SOCKET_PORT}`
+  import.meta.env.VITE_SERVER_URL || `${SOCKET_PROTOCOL}://${SOCKET_HOST}:${SOCKET_PORT}`,
+  { autoConnect: false }
 );
 
 // Stile per la scrollbar personalizzata (inserito direttamente qui per comodità)
@@ -38,10 +50,11 @@ const scrollbarStyle = `
 `;
 
 function App() {
-  const [gameState, setGameState] = useState('LANDING'); // LANDING, LOBBY, PLAYING, ENDED
+  const [gameState, setGameState] = useState(savedSession ? 'RECONNECTING' : 'LANDING'); // LANDING, LOBBY, PLAYING, ENDED
   const [room, setRoom] = useState(null);
   const [players, setPlayers] = useState([]);
-  const [playerName, setPlayerName] = useState('');
+  const [playerName, setPlayerName] = useState(savedSession?.playerName || '');
+  const [round, setRound] = useState(null);
   const [totalRounds, setTotalRounds] = useState(10);
   const [errorMessage, setErrorMessage] = useState('');
   const [selectedGenres, setSelectedGenres] = useState(['pop']);
@@ -53,35 +66,61 @@ function App() {
   const [connectionState, setConnectionState] = useState('connecting');
 
   useEffect(() => {
-    socket.on('room_created', (roomData) => {
-      setErrorMessage(t(''));
+    const applySettings = settings => {
+      if (!settings) return;
+      setSelectedGenres(settings.genres);
+      setSelectedDecade(settings.decade || '');
+      setSelectedLanguage(settings.language || '');
+      setSelectedDifficulty(settings.difficulty);
+      setTotalRounds(settings.rounds);
+    };
+    const applyRoom = roomData => {
+      setErrorMessage('');
       setRoom(roomData);
-      setGameState('LOBBY');
       setPlayers(roomData.players);
+      setGameState(roomData.state);
+      setRound(receiveRound(roomData.round));
+      applySettings(roomData.settings);
+    };
+    socket.on('session_created', session => {
+      saveSession(session);
+      setPlayerName(session.playerName);
     });
-
-    socket.on('room_joined', (roomData) => {
-      setErrorMessage(t(''));
-      setRoom(roomData);
-      setGameState('LOBBY');
-      setPlayers(roomData.players);
+    socket.on('room_created', applyRoom);
+    socket.on('room_joined', applyRoom);
+    socket.on('room_resumed', applyRoom);
+    socket.on('game_started', applyRoom);
+    socket.on('round_state', data => setRound(receiveRound(data)));
+    socket.on('game_loading', ({ settings }) => {
+      setGameState('LOADING');
+      setErrorMessage('');
+      applySettings(settings);
     });
-
-    socket.on('player_joined', (updatedPlayers) => {
-      setPlayers(updatedPlayers);
-    });
-
+    socket.on('player_joined', setPlayers);
     socket.on('game_left', () => {
+      saveSession(null);
       setGameState('LANDING');
       setRoom(null);
       setPlayers([]);
+      setRound(null);
       setErrorMessage('');
     });
-
-    socket.on('game_started', ({ totalRounds }) => {
-      setRoom(prev => ({ ...prev, totalRounds }));
-      setGameState('PLAYING');
+    socket.on('resume_failed', () => {
+      saveSession(null);
+      setGameState('LANDING');
+      setRoom(null);
+      setPlayers([]);
+      setErrorMessage(t('errors.sessionExpired'));
     });
+    const closeSession = message => {
+      saveSession(null);
+      setGameState('LANDING');
+      setRoom(null);
+      setPlayers([]);
+      setErrorMessage(t(message));
+    };
+    socket.on('session_replaced', () => closeSession('errors.sessionReplaced'));
+    socket.on('room_expired', () => closeSession('errors.sessionExpired'));
 
     socket.on('update_scores', (updatedPlayers) => {
       setPlayers(updatedPlayers);
@@ -94,6 +133,10 @@ function App() {
 
     socket.on('connect', () => {
       setConnectionState('online');
+      if (savedSession) {
+        setGameState('RECONNECTING');
+        socket.emit('resume_room', savedSession);
+      }
       setErrorMessage((current) =>
         current === t('errors.serverUnavailable') ? '' : current
       );
@@ -115,10 +158,8 @@ function App() {
 
     socket.on('disconnect', () => {
       setConnectionState('connecting');
-      setGameState('LANDING');
-      setRoom(null);
-      setPlayers([]);
-      setErrorMessage(t('errors.disconnected'));
+      setGameState(savedSession ? 'RECONNECTING' : 'LANDING');
+      setErrorMessage('');
     });
 
     socket.on('error', (payload) => {
@@ -134,7 +175,22 @@ function App() {
       }
     });
 
+    const resync = () => {
+      if (document.visibilityState === 'visible' && socket.connected && savedSession) {
+        socket.emit('get_room_state', { roomId: savedSession.roomId });
+      }
+    };
+    document.addEventListener('visibilitychange', resync);
+    socket.connect();
     return () => {
+      document.removeEventListener('visibilitychange', resync);
+      socket.off('session_created');
+      socket.off('room_resumed');
+      socket.off('resume_failed');
+      socket.off('session_replaced');
+      socket.off('room_expired');
+      socket.off('round_state');
+      socket.off('game_loading');
       socket.off('room_created');
       socket.off('room_joined');
       socket.off('player_joined');
@@ -150,6 +206,7 @@ function App() {
   }, []);
 
   const createRoom = () => {
+    if (!socket.connected) return;
     if (!playerName) {
       setErrorMessage(t('errors.missingNameCreate'));
       return;
@@ -159,6 +216,7 @@ function App() {
   };
 
   const joinRoom = (roomId) => {
+    if (!socket.connected) return;
     if (!playerName) {
       setErrorMessage(t('errors.missingNameJoin'));
       return;
@@ -168,11 +226,11 @@ function App() {
       return;
     }
     setErrorMessage('');
-    socket.emit('join_room', { roomId, playerName });
+    socket.emit('join_room', { roomId: roomId.toUpperCase(), playerName });
   };
 
   const startGame = () => {
-    if (room) {
+    if (room && socket.connected) {
       setErrorMessage('');
       socket.emit('start_game', {
         roomId: room.id,
@@ -198,16 +256,17 @@ function App() {
   // AGGIUNGIAMO min-h-0 alla lista e max-h-[xx] al contenitore
   return (
     // 1. BLOCCO PRINCIPALE: h-screen fissa l'app alla finestra, overflow-hidden evita scroll doppi
-    <div className="fixed inset-0 bg-gray-900 text-white flex flex-col overflow-hidden">
+    <div className="fixed inset-0 h-dvh bg-gray-900 text-white flex flex-col overflow-hidden">
       <style>{scrollbarStyle}</style>
 
       <HelpButton socket={socket} />
 
       {/* 2. AREA DI SCROLL GENERALE: Se il contenuto sfora (es. tastiera mobile), qui si scrolla */}
-      <div className="flex-1 overflow-y-auto p-4 w-full custom-scrollbar">
-        <div className="flex flex-col items-center justify-start min-h-full py-4">
+      <div className="min-h-0 flex-1 overflow-y-auto overscroll-y-contain p-3 sm:p-4 w-full custom-scrollbar"
+        style={{ paddingTop: 'max(0.75rem, env(safe-area-inset-top))', paddingBottom: 'max(1rem, env(safe-area-inset-bottom))', paddingLeft: 'max(0.75rem, env(safe-area-inset-left))', paddingRight: 'max(0.75rem, env(safe-area-inset-right))' }}>
+        <div className="flex flex-col items-center justify-start min-h-full py-2 sm:py-4">
 
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-6 px-12 sm:px-0 text-center text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600 flex-shrink-0">
+          <h1 className="text-2xl sm:text-4xl md:text-5xl font-bold mb-4 sm:mb-6 px-12 sm:px-0 text-center text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600 flex-shrink-0">
             {t('appTitle')}
           </h1>
 
@@ -215,7 +274,7 @@ function App() {
             <div className="w-full max-w-md mb-4 flex-shrink-0">
               <div className="flex items-center gap-3 bg-purple-900/60 border border-purple-500 text-purple-100 px-4 py-3 rounded-lg shadow-lg">
                 <div className="h-4 w-4 rounded-full border-2 border-purple-300 border-t-transparent animate-spin" />
-                <p className="text-sm">{t('connection.waking')}</p>
+                <p className="text-sm">{t(savedSession ? 'connection.reconnecting' : 'connection.waking')}</p>
               </div>
             </div>
           )}
@@ -267,12 +326,18 @@ function App() {
               </div>
             )}
 
+            {gameState === 'RECONNECTING' && (
+              <p role="status" className="text-center text-purple-200 p-6">{t('connection.reconnecting')}</p>
+            )}
+            {gameState === 'LOADING' && (
+              <p role="status" className="text-center text-purple-200 p-6">{t('lobby.generating')}</p>
+            )}
             {gameState === 'LOBBY' && (
               <Lobby
                 room={room}
                 players={players}
                 startGame={startGame}
-                isOwner={players[0]?.id === socket.id}
+                isOwner={players.find(player => player.connected)?.id === socket.id}
                 totalRounds={totalRounds}
                 setTotalRounds={setTotalRounds}
                 selectedGenres={selectedGenres}
@@ -288,16 +353,23 @@ function App() {
             )}
 
             {gameState === 'PLAYING' && (
-              <GameRoom socket={socket} room={room} players={players} />
+              <GameRoom key={`${room.gameId}:${round?.roundNumber}`} socket={socket} room={room} players={players} round={round} />
             )}
 
-            {room && gameState !== 'LANDING' && (
+            {(room || savedSession) && gameState !== 'LANDING' && (
               <button
                 type="button"
                 onClick={() => {
-                  if (socket.connected) socket.emit('leave_game', { roomId: room.id });
+                  if (socket.connected && gameState !== 'RECONNECTING') {
+                    socket.emit('leave_game', { roomId: room.id });
+                  } else if (!socket.connected) {
+                    saveSession(null);
+                    setRoom(null);
+                    setPlayers([]);
+                    setGameState('LANDING');
+                  }
                 }}
-                className="relative z-50 mt-4 px-5 py-3 rounded-lg border border-red-400 text-red-300 hover:bg-red-900/50 focus-visible:outline-2 focus-visible:outline-red-300"
+                className="relative z-50 mt-4 min-h-12 w-full max-w-2xl sm:w-auto px-5 py-3 rounded-lg border border-red-400 text-red-300 hover:bg-red-900/50 focus-visible:outline-2 focus-visible:outline-red-300 touch-manipulation"
               >
                 {t('game.leaveGame')}
               </button>
@@ -305,7 +377,7 @@ function App() {
 
             {gameState === 'ENDED' && (
               /* 3. GAME OVER FIX: Altezza massima fissa (80% viewport) e flex column */
-              <div className="bg-gray-800 p-6 rounded-xl text-center w-full max-w-lg shadow-2xl flex flex-col max-h-[80vh]">
+              <div className="bg-gray-800 p-4 sm:p-6 rounded-xl text-center w-full max-w-lg shadow-2xl flex flex-col max-h-[75dvh]">
                 <h2 className="text-3xl font-bold mb-4 text-purple-400 flex-shrink-0">{t('game.gameOver')}</h2>
 
                 {/* TRUCCO: 'flex-1' prende lo spazio disponibile
@@ -329,12 +401,12 @@ function App() {
                   ))}
                 </div>
 
-                <button
-                  onClick={() => window.location.reload()}
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition transform hover:scale-105 flex-shrink-0"
+                {players.find(player => player.connected)?.id === socket.id ? <button
+                  onClick={() => { if (socket.connected) socket.emit('rematch', { roomId: room.id }); }}
+                  className="w-full min-h-12 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition flex-shrink-0 touch-manipulation"
                 >
-                  {t('game.newGame')}
-                </button>
+                  {t('game.rematch')}
+                </button> : <p className="text-gray-400">{t('game.waitingRematch')}</p>}
               </div>
             )}
           </div>

@@ -119,7 +119,7 @@ export default function HelpButton({ socket }) {
         onClick={openDialog}
         aria-haspopup="dialog"
         aria-label={t('help.open')}
-        className="fixed top-3 right-3 z-40 h-9 w-9 rounded-full bg-gray-800/80 border border-gray-700 text-gray-400 font-mono font-bold backdrop-blur-sm transition hover:text-purple-300 hover:border-purple-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-400"
+        className="fixed top-[max(0.75rem,env(safe-area-inset-top))] right-[max(0.75rem,env(safe-area-inset-right))] z-40 h-12 w-12 rounded-full bg-gray-800/80 border border-gray-700 text-gray-400 font-mono font-bold backdrop-blur-sm transition hover:text-purple-300 hover:border-purple-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-400 touch-manipulation"
       >
         ?
       </button>
@@ -136,21 +136,21 @@ export default function HelpButton({ socket }) {
             aria-labelledby="help-title"
             onClick={(event) => event.stopPropagation()}
             onKeyDown={handleKeyDown}
-            className="relative w-full max-w-sm max-h-[calc(100dvh-2rem)] overflow-y-auto rounded-xl border border-gray-700 bg-gray-800 p-6 sm:p-8 shadow-2xl motion-safe:animate-[help-in_180ms_ease-out]"
+            className="relative w-full max-w-sm max-h-[calc(100dvh-2rem)] overflow-y-auto overscroll-y-contain rounded-xl border border-gray-700 bg-gray-800 p-4 sm:p-8 shadow-2xl motion-safe:animate-[help-in_180ms_ease-out]"
           >
             <button
               ref={closeRef}
               type="button"
               onClick={() => setIsOpen(false)}
               aria-label={t('help.close')}
-              className="absolute top-3 right-3 h-8 w-8 rounded-full text-gray-500 transition hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-400"
+              className="absolute top-2 right-2 h-12 w-12 rounded-full text-gray-400 transition hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-400 touch-manipulation"
             >
               ✕
             </button>
 
             <h2
               id="help-title"
-              className="font-mono text-xl sm:text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600 mb-6 pr-8 break-words"
+              className="font-mono text-xl sm:text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600 mb-6 pr-12 break-words"
             >
               {maskTitle(appTitle, revealed)}
             </h2>
@@ -184,7 +184,7 @@ export default function HelpButton({ socket }) {
                       <span className="text-gray-300">{t('help.catalogTotal')}</span>
                       <span className="font-mono font-bold text-purple-300">{catalog.total.toLocaleString()}</span>
                     </p>
-                    <dl className="grid grid-cols-2 gap-x-4 gap-y-2">
+                    <dl className="grid grid-cols-1 min-[360px]:grid-cols-2 gap-x-4 gap-y-2">
                       {catalog.byGenre.map(({ genre, count }) => (
                         <div key={genre} className="flex justify-between gap-2 text-sm">
                           <dt className="text-gray-400">{t(`landing.genre_${genre}`)}</dt>

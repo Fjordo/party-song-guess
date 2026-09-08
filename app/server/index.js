@@ -49,6 +49,55 @@ app.get('/health', (_req, res) => res.sendStatus(200));
 
 // Store rooms in memory for speed
 const rooms = {};
+const sessions = new Map();
+const RECONNECT_GRACE_MS = 60000;
+const ROUND_DURATION_MS = 30000;
+
+function hostId(room) {
+    return room.players.find(player => player.connected)?.id;
+}
+
+function roundSnapshot(room) {
+    return {
+        phase: room.phase || 'WAITING',
+        roundNumber: room.currentRound,
+        remainingMs: Math.max(0, (room.phaseEndsAt || 0) - Date.now()),
+        durationMs: ROUND_DURATION_MS,
+        ...(room.roundActive ? { previewUrl: room.currentSong.previewUrl,
+            elapsedMs: Date.now() - room.roundStartedAt } : {}),
+        ...(room.phase === 'ROUND_OVER' ? { result: room.roundResult } : {})
+    };
+}
+
+function publicRoom(room) {
+    return { id: room.id, players: room.players, state: room.state,
+        totalRounds: room.totalRounds, settings: room.settings, gameId: room.gameId,
+        round: roundSnapshot(room) };
+}
+
+function publishRound(room) {
+    io.to(room.id).emit('round_state', roundSnapshot(room));
+}
+
+function registerSession(socket, room, player) {
+    const token = crypto.randomBytes(32).toString('hex');
+    sessions.set(token, { roomId: room.id, player, socket });
+    socket.data.sessionToken = token;
+    socket.emit('session_created', { roomId: room.id, token, playerName: player.name });
+}
+
+function deleteRoom(roomId) {
+    const room = rooms[roomId];
+    if (!room) return;
+    clearTimeout(room.cleanupTimer);
+    clearTimeout(room.roundTimer);
+    for (const [token, session] of sessions) {
+        if (session.roomId !== roomId) continue;
+        clearTimeout(session.timer);
+        sessions.delete(token);
+    }
+    delete rooms[roomId];
+}
 
 // Rate limiting: max 30 events per socket per minute
 const rateLimits = {};
@@ -95,11 +144,15 @@ function removePlayer(socket, roomId) {
     const room = rooms[roomId];
     if (!room || !room.players.some(p => p.id === socket.id)) return;
     room.players = room.players.filter(p => p.id !== socket.id);
+    const session = sessions.get(socket.data.sessionToken);
+    if (session?.roomId === roomId) {
+        clearTimeout(session.timer);
+        sessions.delete(socket.data.sessionToken);
+        socket.data.sessionToken = null;
+    }
     socket.leave(roomId);
     if (room.players.length === 0) {
-        clearTimeout(room.cleanupTimer);
-        clearTimeout(room.roundTimer);
-        delete rooms[roomId];
+        deleteRoom(roomId);
         log.info('room %s deleted (empty)', roomId);
     } else {
         io.to(roomId).emit('player_joined', room.players);
@@ -107,6 +160,7 @@ function removePlayer(socket, roomId) {
 }
 
 io.on('connection', (socket) => {
+    socket.data ||= {};
     log.debug('socket connected: %s (transport=%s)',
         socket.id, socket.conn && socket.conn.transport && socket.conn.transport.name);
 
@@ -129,7 +183,41 @@ io.on('connection', (socket) => {
         }
     });
 
+    socket.on('resume_room', ({ roomId, token } = {}) => {
+        if (!checkRateLimit(socket.id)) return;
+        const session = typeof token === 'string' ? sessions.get(token) : null;
+        const room = validateRoomId(roomId) ? rooms[roomId] : null;
+        if (!session || !room || session.roomId !== roomId ||
+            (socket.data.sessionToken && socket.data.sessionToken !== token)) {
+            socket.emit('resume_failed');
+            return;
+        }
+        clearTimeout(session.timer);
+        // A refreshed tab can reconnect before the old transport times out.
+        // Possession of the private token transfers the seat, never duplicates it.
+        if (session.socket !== socket) {
+            session.socket.leave(roomId);
+            session.socket.data.sessionToken = null;
+            session.socket.emit('session_replaced');
+            session.socket = socket;
+        }
+        session.player.id = socket.id;
+        session.player.connected = true;
+        socket.data.sessionToken = token;
+        socket.join(roomId);
+        socket.emit('room_resumed', publicRoom(room));
+        io.to(roomId).emit('player_joined', room.players);
+    });
+
+    socket.on('get_room_state', ({ roomId } = {}) => {
+        const room = validateRoomId(roomId) ? rooms[roomId] : null;
+        if (!room || !room.players.some(p => p.id === socket.id && p.connected)) return;
+        if (!checkRateLimit(socket.id)) return;
+        socket.emit('room_resumed', publicRoom(room));
+    });
+
     socket.on('create_room', ({ playerName }) => {
+        if (sessions.has(socket.data.sessionToken)) return;
         if (!checkRateLimit(socket.id)) {
             socket.emit('error', { code: 'RATE_LIMIT_EXCEEDED' });
             return;
@@ -147,7 +235,7 @@ io.on('connection', (socket) => {
 
         rooms[roomId] = {
             id: roomId,
-            players: [{ id: socket.id, name: safeName, score: 0 }],
+            players: [{ id: socket.id, name: safeName, score: 0, connected: true }],
             state: 'LOBBY', // LOBBY, PLAYING, ENDED
             currentRound: 0,
             totalRounds: rounds,
@@ -160,11 +248,13 @@ io.on('connection', (socket) => {
             gameId: 0
         };
         socket.join(roomId);
-        socket.emit('room_created', rooms[roomId]);
+        registerSession(socket, rooms[roomId], rooms[roomId].players[0]);
+        socket.emit('room_created', publicRoom(rooms[roomId]));
         log.info('room %s created by %s', roomId, safeName);
     });
 
     socket.on('join_room', ({ roomId, playerName }) => {
+        if (sessions.has(socket.data.sessionToken)) return;
         if (!checkRateLimit(socket.id)) {
             socket.emit('error', { code: 'RATE_LIMIT_EXCEEDED' });
             return;
@@ -176,17 +266,19 @@ io.on('connection', (socket) => {
 
         const safeName = playerName.trim().slice(0, 50);
         if (rooms[roomId] && rooms[roomId].state === 'LOBBY') {
-            rooms[roomId].players.push({ id: socket.id, name: safeName, score: 0 });
+            const player = { id: socket.id, name: safeName, score: 0, connected: true };
+            rooms[roomId].players.push(player);
+            registerSession(socket, rooms[roomId], player);
             socket.join(roomId);
             io.to(roomId).emit('player_joined', rooms[roomId].players);
-            socket.emit('room_joined', rooms[roomId]);
+            socket.emit('room_joined', publicRoom(rooms[roomId]));
             log.info('room %s: %s joined (%d players)', roomId, safeName, rooms[roomId].players.length);
         } else {
             socket.emit('error', { code: 'ROOM_NOT_FOUND_OR_STARTED' });
         }
     });
 
-    socket.on('start_game', async ({ roomId, genre, genres, decade, rounds, language, difficulty }) => {
+    const startGame = async ({ roomId, genres, decade, rounds, language, difficulty } = {}) => {
         if (!checkRateLimit(socket.id)) {
             socket.emit('error', { code: 'RATE_LIMIT_EXCEEDED' });
             return;
@@ -197,10 +289,10 @@ io.on('connection', (socket) => {
         }
 
         const room = rooms[roomId];
-        if (!room || room.players.length === 0) return;
+        if (!room || !['LOBBY', 'ENDED'].includes(room.state)) return;
 
         // Only room creator (first player) can start the game
-        if (room.players[0].id !== socket.id) {
+        if (hostId(room) !== socket.id) {
             socket.emit('error', { code: 'UNAUTHORIZED' });
             return;
         }
@@ -221,11 +313,16 @@ io.on('connection', (socket) => {
             return;
         }
 
+        room.settings = { genres: safeGenres, decade: safeDecade, rounds: requestedRounds,
+            language: safeLanguage, difficulty: safeDifficulty };
+        clearTimeout(room.cleanupTimer);
         room.state = 'LOADING';
+        room.roundActive = false;
+        room.phase = 'WAITING';
         log.debug('room %s start_game: genres=[%s] decade=%s language=%s difficulty=%s rounds=%d alreadyPlayed=%d',
             roomId, safeGenres.join(','), safeDecade || 'any', safeLanguage || 'any',
             safeDifficulty, requestedRounds, room.playedSongIds.size);
-        io.to(roomId).emit('game_loading', { message: 'Building playlist...' });
+        io.to(roomId).emit('game_loading', { settings: room.settings });
 
         try {
             const request = {
@@ -284,6 +381,7 @@ io.on('connection', (socket) => {
 
             if (playlist.length === 0) {
                 room.state = 'LOBBY';
+                io.to(roomId).emit('room_resumed', publicRoom(room));
                 const isTimeout = liveFailure && liveFailure.message.startsWith('AI timeout');
                 log.warn('room %s could not build a playlist (timeout=%s)', roomId, Boolean(isTimeout));
                 io.to(roomId).emit('error', {
@@ -300,6 +398,9 @@ io.on('connection', (socket) => {
             room.songs = playlist;
             room.totalRounds = playlist.length;
             room.currentRound = 0;
+            room.players.forEach(player => { player.score = 0; });
+            room.roundResult = null;
+            room.phaseEndsAt = 0;
             room.state = 'PLAYING';
             // Invalidate any timer still pending from the previous game
             room.gameId = (room.gameId || 0) + 1;
@@ -317,7 +418,7 @@ io.on('connection', (socket) => {
                         song.decade || '?', song.effDifficulty || song.aiDifficulty || '?'));
             }
 
-            io.to(roomId).emit('game_started', { totalRounds: room.totalRounds });
+            io.to(roomId).emit('game_started', publicRoom(room));
 
             // Short delay to let the frontend transition
             setTimeout(() => startRound(roomId, gameId), 1000);
@@ -327,10 +428,16 @@ io.on('connection', (socket) => {
             log.error('room %s start_game failed:', roomId, e.message);
             // Reset to LOBBY so players can retry
             room.state = 'LOBBY';
+            io.to(roomId).emit('room_resumed', publicRoom(room));
             io.to(roomId).emit('error', { code: 'GENERATION_FAILED' });
         }
+    };
+    socket.on('start_game', startGame);
+    socket.on('rematch', ({ roomId } = {}) => {
+        const room = validateRoomId(roomId) ? rooms[roomId] : null;
+        if (!room || room.state !== 'ENDED') return;
+        return startGame({ roomId, ...room.settings });
     });
-
 
     socket.on('submit_guess', ({ roomId, guess }) => {
         if (!checkRateLimit(socket.id)) {
@@ -344,7 +451,7 @@ io.on('connection', (socket) => {
 
         const room = rooms[roomId];
         if (!room || !room.roundActive || room.state !== 'PLAYING') return;
-        if (!room.players.some(p => p.id === socket.id)) return;
+        if (!room.players.some(p => p.id === socket.id && p.connected)) return;
 
         if (checkAnswer(guess, room.currentSong.title)) {
             room.roundActive = false;
@@ -362,6 +469,10 @@ io.on('connection', (socket) => {
                 catalogRepo.recordGuess(room.currentSong.id, elapsed);
 
                 io.to(roomId).emit('update_scores', room.players);
+                room.phase = 'ROUND_OVER';
+                room.roundResult = { winner: player.name, song: publicSong(room.currentSong) };
+                room.phaseEndsAt = Date.now() + 5000;
+                publishRound(room);
                 io.to(roomId).emit('round_winner', { player: player.name, song: publicSong(room.currentSong) });
 
                 // Pause to let players see the winner and song info
@@ -385,11 +496,15 @@ io.on('connection', (socket) => {
         if (!validateRoomId(roomId)) return;
         const room = rooms[roomId];
         if (!room || room.state !== 'PLAYING' || !room.roundActive ||
-            room.players.length !== 1 || room.players[0].id !== socket.id ||
+            room.players.length !== 1 || room.players[0].id !== socket.id || !room.players[0].connected ||
             room.currentRound !== roundNumber) return;
 
         room.roundActive = false;
         clearTimeout(room.roundTimer);
+        room.phase = 'ROUND_OVER';
+        room.roundResult = { winner: null, song: publicSong(room.currentSong), skipped: true };
+        room.phaseEndsAt = Date.now() + 5000;
+        publishRound(room);
         io.to(roomId).emit('round_skipped', { song: publicSong(room.currentSong) });
         const gameId = room.gameId;
         setTimeout(() => startRound(roomId, gameId), 5000);
@@ -405,10 +520,14 @@ io.on('connection', (socket) => {
         log.debug('socket disconnected: %s (%s)', socket.id, reason);
         // Clean up rate limit data
         delete rateLimits[socket.id];
-        // Remove player from any room they were in
-        for (const roomId in rooms) {
-            removePlayer(socket, roomId);
-        }
+        // Explicit leave removes the player immediately; network loss preserves the seat.
+        const session = sessions.get(socket.data.sessionToken);
+        if (!session || session.player.id !== socket.id) return;
+        session.player.connected = false;
+        const room = rooms[session.roomId];
+        if (!room) return;
+        io.to(room.id).emit('player_joined', room.players);
+        session.timer = setTimeout(() => removePlayer(socket, room.id), RECONNECT_GRACE_MS);
     });
 });
 
@@ -422,12 +541,16 @@ io.on('connection', (socket) => {
  */
 function startRound(roomId, gameId) {
     const room = rooms[roomId];
-    if (!room || room.gameId !== gameId) return;
+    if (!room || room.gameId !== gameId || room.state !== 'PLAYING') return;
     if (room.currentRound >= room.totalRounds) {
         endGame(roomId, gameId);
         return;
     }
 
+    room.phase = 'COUNTDOWN';
+    room.roundActive = false;
+    room.phaseEndsAt = Date.now() + 3000;
+    publishRound(room);
     // Emit countdown signal
     io.to(roomId).emit('start_countdown', { duration: 3 });
 
@@ -438,6 +561,8 @@ function startRound(roomId, gameId) {
         room.currentSong = song;
         room.roundActive = true;
         room.roundStartedAt = Date.now();
+        room.phase = 'PLAYING';
+        room.phaseEndsAt = room.roundStartedAt + ROUND_DURATION_MS;
         room.currentRound++;
 
         catalogRepo.recordPlay(song.id);
@@ -445,9 +570,11 @@ function startRound(roomId, gameId) {
         log.debug('room %s round %d/%d: %s - %s [id=%d]',
             roomId, room.currentRound, room.totalRounds, song.artist, song.title, song.id);
 
+        publishRound(room);
         io.to(roomId).emit('new_round', {
             roundNumber: room.currentRound,
-            previewUrl: song.previewUrl
+            previewUrl: song.previewUrl,
+            remainingMs: ROUND_DURATION_MS
         });
 
         // Timeout if no one guesses in 30s
@@ -457,12 +584,16 @@ function startRound(roomId, gameId) {
                 room.roundActive = false;
                 log.debug('room %s round %d timed out, nobody guessed "%s"',
                     roomId, room.currentRound, song.title);
+                room.phase = 'ROUND_OVER';
+                room.roundResult = { winner: null, song: publicSong(song) };
+                room.phaseEndsAt = Date.now() + 5000;
+                publishRound(room);
                 io.to(roomId).emit('round_timeout', { song: publicSong(song) });
                 setTimeout(() => {
                     startRound(roomId, gameId);
                 }, 5000);
             }
-        }, 30000);
+        }, ROUND_DURATION_MS);
     }, 3000);
 }
 
@@ -471,6 +602,8 @@ function endGame(roomId, gameId) {
     if (!room || (gameId !== undefined && room.gameId !== gameId)) return;
 
     room.state = 'ENDED';
+    room.roundActive = false;
+    room.phase = 'ENDED';
     io.to(roomId).emit('game_over', room.players);
 
     // Reclaim the room if it is simply abandoned. The timer is cancelled when a
@@ -479,7 +612,8 @@ function endGame(roomId, gameId) {
     // clients on the current round with no game_over and no error.
     clearTimeout(room.cleanupTimer);
     room.cleanupTimer = setTimeout(() => {
-        delete rooms[roomId];
+        io.to(roomId).emit('room_expired');
+        deleteRoom(roomId);
         log.info('room %s cleaned up after being abandoned', roomId);
     }, 30 * 60 * 1000);
 }
