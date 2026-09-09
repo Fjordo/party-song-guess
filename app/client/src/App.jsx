@@ -239,12 +239,7 @@ function App() {
       <header className="app-header">
         <div className="app-brand" aria-label={t('appTitle')}>
           <span className="brand-mark" aria-hidden="true">
-            <svg viewBox="0 0 24 24">
-              <path d="M8 17V6l11-2v11" />
-              <path d="M8 10l11-2" />
-              <circle cx="5" cy="17" r="3" />
-              <circle cx="16" cy="15" r="3" />
-            </svg>
+            <img src="/spg.svg?v=2" alt="" />
           </span>
           <span className="brand-name">{t('appTitle')}</span>
         </div>
