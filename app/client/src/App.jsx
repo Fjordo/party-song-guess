@@ -32,24 +32,6 @@ const socket = io(
 );
 
 // Stile per la scrollbar personalizzata (inserito direttamente qui per comodità)
-const scrollbarStyle = `
-  .custom-scrollbar::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
-  }
-  .custom-scrollbar::-webkit-scrollbar-track {
-    background: rgba(0, 0, 0, 0.2);
-    border-radius: 4px;
-  }
-  .custom-scrollbar::-webkit-scrollbar-thumb {
-    background: #4b5563;
-    border-radius: 4px;
-  }
-  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: #6b7280;
-  }
-`;
-
 function App() {
   const [gameState, setGameState] = useState(savedSession ? 'RECONNECTING' : 'LANDING'); // LANDING, LOBBY, PLAYING, ENDED
   const [room, setRoom] = useState(null);
@@ -252,33 +234,28 @@ function App() {
     );
   };
 
-  // ... (tutti gli import e la logica rimangono uguali)
-
-  // AGGIUNGIAMO min-h-0 alla lista e max-h-[xx] al contenitore
   return (
-    // 1. BLOCCO PRINCIPALE: h-screen fissa l'app alla finestra, overflow-hidden evita scroll doppi
-    <div className="fixed inset-0 h-dvh bg-gray-900 text-white flex flex-col overflow-hidden">
-      <style>{scrollbarStyle}</style>
-
-      <HelpButton socket={socket} />
-
-      {/* 2. AREA DI SCROLL GENERALE: Se il contenuto sfora (es. tastiera mobile), qui si scrolla */}
-      <div className="min-h-0 flex-1 overflow-y-auto overscroll-y-contain p-3 sm:p-4 w-full custom-scrollbar"
-        style={{ paddingTop: 'max(0.75rem, env(safe-area-inset-top))', paddingBottom: 'max(1rem, env(safe-area-inset-bottom))', paddingLeft: 'max(0.75rem, env(safe-area-inset-left))', paddingRight: 'max(0.75rem, env(safe-area-inset-right))' }}>
-        <div className="flex flex-col items-center justify-start min-h-full py-2 sm:py-4">
-
-          <h1 className="text-2xl sm:text-4xl md:text-5xl font-bold mb-4 sm:mb-6 px-12 sm:px-0 text-center text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600 flex-shrink-0">
-            {t('appTitle')}
-          </h1>
-
+    <div className="app-shell">
+      <header className="app-header">
+        <div className="app-brand" aria-label={t('appTitle')}>
+          <span className="brand-mark" aria-hidden="true">
+            <span /><span /><span />
+          </span>
+          <span className="brand-name">{t('appTitle')}</span>
+        </div>
+        <div className="header-actions">
           <PwaInstallButton />
+          <HelpButton socket={socket} />
+        </div>
+      </header>
+
+      <div className="app-main custom-scrollbar">
+        <div className="app-content">
 
           {connectionState === 'connecting' && (
-            <div className="w-full max-w-md mb-4 flex-shrink-0">
-              <div className="flex items-center gap-3 bg-purple-900/60 border border-purple-500 text-purple-100 px-4 py-3 rounded-lg shadow-lg">
-                <div className="h-4 w-4 rounded-full border-2 border-purple-300 border-t-transparent animate-spin" />
-                <p className="text-sm">{t(savedSession ? 'connection.reconnecting' : 'connection.waking')}</p>
-              </div>
+            <div className="status-banner" role="status">
+              <span className="status-spinner" aria-hidden="true" />
+              <p>{t(savedSession ? 'connection.reconnecting' : 'connection.waking')}</p>
             </div>
           )}
 
@@ -301,39 +278,45 @@ function App() {
             </div>
           )}
 
-          {/* WRAPPER CENTRALE */}
-          <div className="w-full flex flex-col items-center justify-center flex-1">
+          <div className="content-stage">
 
             {gameState === 'LANDING' && (
-              <div className="bg-gray-800 p-6 sm:p-8 rounded-xl shadow-2xl space-y-4 w-full max-w-md">
+              <div className="surface-card landing-card">
+                <div className="landing-heading">
+                  <p className="eyebrow">PLAY · GUESS · WIN</p>
+                  <h1>{t('appTitle')}</h1>
+                  <div className="sound-wave" aria-hidden="true">
+                    {[22, 44, 30, 62, 38, 72, 46, 28, 54, 34].map((height, index) => (
+                      <span key={index} style={{ height }} />
+                    ))}
+                  </div>
+                </div>
+                <label className="field-label" htmlFor="player-name">{t('landing.namePlaceholder')}</label>
                 <input
+                  id="player-name"
                   type="text"
                   placeholder={t('landing.namePlaceholder')}
-                  className="w-full p-3 rounded bg-gray-700 border border-gray-600 focus:outline-none focus:border-purple-500"
+                  className="text-input"
                   value={playerName}
                   onChange={e => setPlayerName(e.target.value)}
+                  autoComplete="nickname"
                 />
-                <div className="flex gap-4">
-                  <button
-                    onClick={createRoom}
-                    className="flex-1 bg-purple-600 hover:bg-purple-700 p-3 rounded font-bold transition"
-                  >
-                    {t('landing.createRoom')}
-                  </button>
-                </div>
+                <button onClick={createRoom} className="primary-button">
+                  {t('landing.createRoom')} <span aria-hidden="true">→</span>
+                </button>
 
-                <div className="border-t border-gray-700 pt-4">
-                  <p className="mb-2 text-sm text-gray-400">{t('landing.joinLabel')}</p>
+                <div className="section-divider"><span>{t('landing.joinLabel')}</span></div>
+                <div>
                   <FormJoin joinRoom={joinRoom} />
                 </div>
               </div>
             )}
 
             {gameState === 'RECONNECTING' && (
-              <p role="status" className="text-center text-purple-200 p-6">{t('connection.reconnecting')}</p>
+              <div role="status" className="surface-card state-card"><span className="status-spinner" />{t('connection.reconnecting')}</div>
             )}
             {gameState === 'LOADING' && (
-              <p role="status" className="text-center text-purple-200 p-6">{t('lobby.generating')}</p>
+              <div role="status" className="surface-card state-card"><span className="status-spinner" />{t('lobby.generating')}</div>
             )}
             {gameState === 'LOBBY' && (
               <Lobby
@@ -372,32 +355,31 @@ function App() {
                     setGameState('LANDING');
                   }
                 }}
-                className="relative z-50 mt-4 min-h-12 w-full max-w-2xl sm:w-auto px-5 py-3 rounded-lg border border-red-400 text-red-300 hover:bg-red-900/50 focus-visible:outline-2 focus-visible:outline-red-300 touch-manipulation"
+                className="leave-button"
               >
                 {t('game.leaveGame')}
               </button>
             )}
 
             {gameState === 'ENDED' && (
-              /* 3. GAME OVER FIX: Altezza massima fissa (80% viewport) e flex column */
-              <div className="bg-gray-800 p-4 sm:p-6 rounded-xl text-center w-full max-w-lg shadow-2xl flex flex-col max-h-[75dvh]">
-                <h2 className="text-3xl font-bold mb-4 text-purple-400 flex-shrink-0">{t('game.gameOver')}</h2>
+              <div className="surface-card end-card">
+                <p className="eyebrow">FINAL SCORE</p>
+                <h2>{t('game.gameOver')}</h2>
 
                 {/* TRUCCO: 'flex-1' prende lo spazio disponibile
                     'min-h-0' permette al flex item di rimpicciolirsi sotto il suo contenuto minimo (fondamentale per lo scroll)
                     'overflow-y-auto' abilita la barra
                 */}
-                <div className="flex-1 overflow-y-auto min-h-0 custom-scrollbar pr-2 space-y-2 mb-4">
+                <div className="ranking-list custom-scrollbar">
                   {[...players].sort((a, b) => b.score - a.score).map((p, i) => (
                     <div
                       key={p.id}
-                      className={`flex items-center justify-between p-3 rounded ${i === 0 ? 'bg-yellow-500/20 border border-yellow-500/50' : 'bg-gray-700'
-                        }`}
+                      className={`ranking-item ${i === 0 ? 'is-winner' : ''}`}
                     >
                       <span className="font-bold flex items-center gap-2 truncate">
                         {i === 0 && '👑'} {i + 1}. {p.name}
                       </span>
-                      <span className="font-mono bg-gray-900 px-2 py-1 rounded text-purple-300 ml-2 whitespace-nowrap">
+                      <span className="ranking-score">
                         {p.score} pts
                       </span>
                     </div>
@@ -406,7 +388,7 @@ function App() {
 
                 {players.find(player => player.connected)?.id === socket.id ? <button
                   onClick={() => { if (socket.connected) socket.emit('rematch', { roomId: room.id }); }}
-                  className="w-full min-h-12 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition flex-shrink-0 touch-manipulation"
+                  className="primary-button"
                 >
                   {t('game.rematch')}
                 </button> : <p className="text-gray-400">{t('game.waitingRematch')}</p>}
@@ -425,17 +407,20 @@ function App() {
 function FormJoin({ joinRoom }) {
   const [id, setId] = useState('');
   return (
-    <div className="flex flex-col sm:flex-row gap-2">
+    <div className="join-row">
       <input
         type="text"
         placeholder={t('landing.joinPlaceholder')}
-        className="flex-1 p-2 rounded bg-gray-700 w-full"
+        className="text-input room-input"
         value={id}
-        onChange={e => setId(e.target.value)}
+        onChange={e => setId(e.target.value.toUpperCase())}
+        maxLength={6}
+        autoComplete="off"
+        aria-label={t('landing.joinPlaceholder')}
       />
       <button
         onClick={() => joinRoom(id)}
-        className="bg-gray-600 hover:bg-gray-500 px-4 py-2 rounded w-full sm:w-auto"
+        className="secondary-button"
       >
         {t('landing.joinButton')}
       </button>

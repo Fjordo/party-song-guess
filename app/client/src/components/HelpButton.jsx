@@ -119,7 +119,7 @@ export default function HelpButton({ socket }) {
         onClick={openDialog}
         aria-haspopup="dialog"
         aria-label={t('help.open')}
-        className="fixed top-[max(0.75rem,env(safe-area-inset-top))] right-[max(0.75rem,env(safe-area-inset-right))] z-40 h-12 w-12 rounded-full bg-gray-800/80 border border-gray-700 text-gray-400 font-mono font-bold backdrop-blur-sm transition hover:text-purple-300 hover:border-purple-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-400 touch-manipulation"
+        className="help-trigger"
       >
         ?
       </button>

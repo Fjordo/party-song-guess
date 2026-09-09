@@ -40,9 +40,14 @@ export default function PwaInstallButton() {
         <button
             type="button"
             onClick={installApp}
-            className="mb-4 rounded-lg border border-cyan-400/70 bg-cyan-950/60 px-4 py-2 text-sm font-semibold text-cyan-100 transition hover:bg-cyan-900/80"
+            className="install-button"
+            aria-label={t('pwa.install')}
+            title={t('pwa.install')}
         >
-            {t('pwa.install')}
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12 3v11m0 0 4-4m-4 4-4-4M5 16v3a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-3" />
+            </svg>
+            <span>{t('pwa.install')}</span>
         </button>
     )
 }

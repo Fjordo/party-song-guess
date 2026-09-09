@@ -22,8 +22,8 @@ export default defineConfig({
         description: 'Multiplayer music guessing game',
         start_url: '/',
         display: 'standalone',
-        background_color: '#111827',
-        theme_color: '#1e1b4b',
+        background_color: '#070812',
+        theme_color: '#070812',
         icons: [
           {
             src: '/spg.svg',
