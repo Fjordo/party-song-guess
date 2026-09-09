@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { t } from '../i18n';
 
 const APP_VERSION = import.meta.env.VITE_APP_VERSION || '0.0.0';
@@ -124,9 +125,9 @@ export default function HelpButton({ socket }) {
         ?
       </button>
 
-      {isOpen && (
+      {isOpen && createPortal((
         <div
-          className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4"
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4"
           onClick={() => setIsOpen(false)}
         >
           <div
@@ -203,7 +204,7 @@ export default function HelpButton({ socket }) {
             </p>
           </div>
         </div>
-      )}
+      ), document.body)}
     </>
   );
 }

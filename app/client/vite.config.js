@@ -26,7 +26,7 @@ export default defineConfig({
         theme_color: '#070812',
         icons: [
           {
-            src: '/spg.svg',
+            src: '/spg.svg?v=2',
             sizes: '320x320',
             type: 'image/svg+xml',
             purpose: 'any maskable',

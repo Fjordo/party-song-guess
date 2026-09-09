@@ -89,10 +89,7 @@ button { -webkit-tap-highlight-color: transparent; }
   box-shadow: 0 8px 24px rgba(124, 58, 237, .3);
 }
 
-.brand-mark span { width: 3px; border-radius: 4px; background: currentColor; }
-.brand-mark span:nth-child(1) { height: 10px; }
-.brand-mark span:nth-child(2) { height: 18px; }
-.brand-mark span:nth-child(3) { height: 13px; }
+.brand-mark svg { width: 23px; height: 23px; fill: currentColor; stroke: currentColor; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
 
 .install-button, .help-trigger {
   min-height: 44px;
@@ -295,8 +292,11 @@ button { -webkit-tap-highlight-color: transparent; }
 .countdown-overlay strong { font-size: clamp(7rem, 42vw, 14rem); line-height: .8; letter-spacing: -.08em; text-shadow: 0 0 70px rgba(139,92,246,.45); animation: count-pop .8s ease-out both; }
 @keyframes count-pop { from { opacity: .2; transform: scale(.72); } }
 
-.leave-button { position: relative; z-index: 30; min-height: 44px; margin-top: .8rem; padding: .55rem 1rem; border: 0; background: transparent; color: #8e92a8; font-size: .82rem; text-decoration: underline; text-underline-offset: 4px; cursor: pointer; }
-.leave-button:hover { color: #fda4af; }
+.leave-button { position: relative; z-index: 30; width: 100%; max-width: 820px; min-height: 52px; margin-top: .75rem; padding: .65rem 1rem; display: flex; align-items: center; justify-content: center; gap: .55rem; border: 1px solid rgba(251,113,133,.22); border-radius: 16px; background: rgba(251,113,133,.045); color: #c9cad5; font-size: .875rem; font-weight: 700; cursor: pointer; touch-action: manipulation; transition: color 160ms ease, border-color 160ms ease, background 160ms ease, transform 160ms ease; }
+.leave-button svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.leave-button:hover { color: #fecdd3; border-color: rgba(251,113,133,.48); background: rgba(251,113,133,.1); }
+.leave-button:active { transform: scale(.99); }
+.leave-button:focus-visible { outline: 3px solid rgba(251,113,133,.3); outline-offset: 2px; }
 .state-card { max-width: 440px; min-height: 180px; padding: 2rem; display: flex; align-items: center; justify-content: center; gap: .75rem; color: #d7d2fe; }
 .end-card { max-width: 520px; max-height: 76dvh; padding: 1.25rem; display: flex; flex-direction: column; text-align: center; }
 .end-card h2 { margin: 0 0 1rem; font-size: clamp(2rem, 10vw, 3.3rem); letter-spacing: -.05em; }

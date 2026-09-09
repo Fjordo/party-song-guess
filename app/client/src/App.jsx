@@ -239,7 +239,12 @@ function App() {
       <header className="app-header">
         <div className="app-brand" aria-label={t('appTitle')}>
           <span className="brand-mark" aria-hidden="true">
-            <span /><span /><span />
+            <svg viewBox="0 0 24 24">
+              <path d="M8 17V6l11-2v11" />
+              <path d="M8 10l11-2" />
+              <circle cx="5" cy="17" r="3" />
+              <circle cx="16" cy="15" r="3" />
+            </svg>
           </span>
           <span className="brand-name">{t('appTitle')}</span>
         </div>
@@ -357,7 +362,12 @@ function App() {
                 }}
                 className="leave-button"
               >
-                {t('game.leaveGame')}
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="m10 17 5-5-5-5" />
+                  <path d="M15 12H3" />
+                  <path d="M21 19V5a2 2 0 0 0-2-2h-6" />
+                </svg>
+                <span>{t('game.leaveGame')}</span>
               </button>
             )}
 
