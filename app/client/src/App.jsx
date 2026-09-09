@@ -31,9 +31,15 @@ const socket = io(
   { autoConnect: false }
 );
 
+const initialInvitedRoomId = (() => {
+  const value = new URLSearchParams(window.location.search).get('room')?.toUpperCase() || '';
+  return /^[A-F0-9]{6}$/.test(value) ? value : '';
+})();
+
 // Stile per la scrollbar personalizzata (inserito direttamente qui per comodità)
 function App() {
   const [gameState, setGameState] = useState(savedSession ? 'RECONNECTING' : 'LANDING'); // LANDING, LOBBY, PLAYING, ENDED
+  const [invitedRoomId, setInvitedRoomId] = useState(initialInvitedRoomId);
   const [room, setRoom] = useState(null);
   const [players, setPlayers] = useState([]);
   const [playerName, setPlayerName] = useState(savedSession?.playerName || '');
@@ -59,6 +65,10 @@ function App() {
     };
     const applyRoom = roomData => {
       setErrorMessage('');
+      setInvitedRoomId('');
+      const currentUrl = new URL(window.location.href);
+      currentUrl.searchParams.delete('room');
+      window.history.replaceState(null, '', currentUrl);
       setRoom(roomData);
       setPlayers(roomData.players);
       setGameState(roomData.state);
@@ -301,14 +311,29 @@ function App() {
                   onChange={e => setPlayerName(e.target.value)}
                   autoComplete="nickname"
                 />
-                <button onClick={createRoom} className="primary-button">
-                  {t('landing.createRoom')} <span aria-hidden="true">→</span>
-                </button>
-
-                <div className="section-divider"><span>{t('landing.joinLabel')}</span></div>
-                <div>
-                  <FormJoin joinRoom={joinRoom} />
-                </div>
+                {invitedRoomId ? (
+                  <>
+                    <div className="invite-room-banner">
+                      <span>{t('share.invitedRoom')}</span>
+                      <strong>{invitedRoomId}</strong>
+                    </div>
+                    <button onClick={() => joinRoom(invitedRoomId)} className="primary-button">
+                      {t('share.joinRoom')} <span aria-hidden="true">→</span>
+                    </button>
+                    <div className="section-divider"><span>{t('share.orCreate')}</span></div>
+                    <button onClick={createRoom} className="secondary-button standalone-secondary">
+                      {t('landing.createRoom')}
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <button onClick={createRoom} className="primary-button">
+                      {t('landing.createRoom')} <span aria-hidden="true">→</span>
+                    </button>
+                    <div className="section-divider"><span>{t('landing.joinLabel')}</span></div>
+                    <FormJoin joinRoom={joinRoom} />
+                  </>
+                )}
               </div>
             )}
 
@@ -340,30 +365,6 @@ function App() {
 
             {gameState === 'PLAYING' && (
               <GameRoom key={`${room.gameId}:${round?.roundNumber}`} socket={socket} room={room} players={players} round={round} />
-            )}
-
-            {(room || savedSession) && gameState !== 'LANDING' && (
-              <button
-                type="button"
-                onClick={() => {
-                  if (socket.connected && gameState !== 'RECONNECTING') {
-                    socket.emit('leave_game', { roomId: room.id });
-                  } else if (!socket.connected) {
-                    saveSession(null);
-                    setRoom(null);
-                    setPlayers([]);
-                    setGameState('LANDING');
-                  }
-                }}
-                className="leave-button"
-              >
-                <svg viewBox="0 0 24 24" aria-hidden="true">
-                  <path d="m10 17 5-5-5-5" />
-                  <path d="M15 12H3" />
-                  <path d="M21 19V5a2 2 0 0 0-2-2h-6" />
-                </svg>
-                <span>{t('game.leaveGame')}</span>
-              </button>
             )}
 
             {gameState === 'ENDED' && (
@@ -398,6 +399,30 @@ function App() {
                   {t('game.rematch')}
                 </button> : <p className="text-gray-400">{t('game.waitingRematch')}</p>}
               </div>
+            )}
+
+            {(room || savedSession) && gameState !== 'LANDING' && (
+              <button
+                type="button"
+                onClick={() => {
+                  if (socket.connected && gameState !== 'RECONNECTING') {
+                    socket.emit('leave_game', { roomId: room.id });
+                  } else if (!socket.connected) {
+                    saveSession(null);
+                    setRoom(null);
+                    setPlayers([]);
+                    setGameState('LANDING');
+                  }
+                }}
+                className={`leave-button ${gameState === 'ENDED' ? 'leave-button-ended' : ''}`}
+              >
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="m10 17 5-5-5-5" />
+                  <path d="M15 12H3" />
+                  <path d="M21 19V5a2 2 0 0 0-2-2h-6" />
+                </svg>
+                <span>{t('game.leaveGame')}</span>
+              </button>
             )}
           </div>
         </div>

@@ -48,6 +48,26 @@ const messages = {
       generating: 'Generating...',
       hostStarting: 'The host is about to start the game...'
     },
+    share: {
+      open: 'Share',
+      eyebrow: 'ROOM INVITE',
+      title: 'Share this room',
+      roomCode: 'Room code',
+      copyCode: 'Copy code',
+      copyCodeHint: 'Copy only the room code',
+      shareLink: 'Share invitation link',
+      shareLinkHint: 'Opens this room directly',
+      shareCode: 'Share code',
+      shareCodeHint: 'Send only the room code',
+      inviteText: 'Join my Party Song Guess room!',
+      codeCopied: 'Room code copied.',
+      linkCopied: 'Invitation link copied.',
+      nativeUnavailable: 'Sharing apps are not available in this browser. The selected content will be copied instead.',
+      error: 'Unable to share. Please try again.',
+      invitedRoom: 'You were invited to room',
+      joinRoom: 'Join this room',
+      orCreate: 'Or create a new room'
+    },
     game: {
       getReady: 'Get Ready...',
       guessTheSong: '🎵 GUESS THE SONG 🎵',
@@ -150,6 +170,26 @@ const messages = {
       startGame: 'Avvia Gioco',
       generating: 'Generazione in corso...',
       hostStarting: 'L\'host sta per avviare la partita...'
+    },
+    share: {
+      open: 'Condividi',
+      eyebrow: 'INVITO ALLA STANZA',
+      title: 'Condividi la stanza',
+      roomCode: 'Codice stanza',
+      copyCode: 'Copia codice',
+      copyCodeHint: 'Copia soltanto il codice',
+      shareLink: 'Condividi link di invito',
+      shareLinkHint: 'Apre direttamente questa stanza',
+      shareCode: 'Condividi codice',
+      shareCodeHint: 'Invia soltanto il codice stanza',
+      inviteText: 'Entra nella mia stanza di Party Song Guess!',
+      codeCopied: 'Codice stanza copiato.',
+      linkCopied: 'Link di invito copiato.',
+      nativeUnavailable: 'Le app di condivisione non sono disponibili in questo browser. Il contenuto selezionato verrà copiato.',
+      error: 'Impossibile condividere. Riprova.',
+      invitedRoom: 'Sei stato invitato nella stanza',
+      joinRoom: 'Entra nella stanza',
+      orCreate: 'Oppure crea una nuova stanza'
     },
     game: {
       getReady: 'Preparati...',

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { t } from '../i18n';
+import ShareRoomButton from './ShareRoomButton';
 
 const GENRES = ['pop', 'rock', 'hiphop', 'rap', 'trap', 'dance', 'jazz', 'metal', 'indie', 'electronic', 'rnb'];
 
@@ -42,9 +43,12 @@ export default function Lobby({
     return (
         <div className="surface-card lobby-card">
             <header className="lobby-header">
-                <div>
+                <div className="room-code-block">
+                    <div>
                     <p className="eyebrow">ROOM CODE</p>
                     <h1>{room.id}</h1>
+                    </div>
+                    <ShareRoomButton roomId={room.id} />
                 </div>
                 <span className="waiting-badge"><i />{t('lobby.waiting')}</span>
             </header>
