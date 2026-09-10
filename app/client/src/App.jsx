@@ -89,6 +89,7 @@ function App() {
       setErrorMessage('');
       applySettings(settings);
     });
+    socket.on('settings_updated', applySettings);
     socket.on('player_joined', setPlayers);
     socket.on('game_left', () => {
       saveSession(null);
@@ -184,6 +185,7 @@ function App() {
       socket.off('room_expired');
       socket.off('round_state');
       socket.off('game_loading');
+      socket.off('settings_updated');
       socket.off('room_created');
       socket.off('room_joined');
       socket.off('player_joined');
@@ -236,12 +238,32 @@ function App() {
     }
   };
 
+  const updateGameSettings = (changes) => {
+    const nextSettings = {
+      genres: changes.genres ?? selectedGenres,
+      decade: changes.decade ?? selectedDecade,
+      rounds: changes.rounds ?? totalRounds,
+      language: changes.language ?? selectedLanguage,
+      difficulty: changes.difficulty ?? selectedDifficulty
+    };
+
+    setSelectedGenres(nextSettings.genres);
+    setSelectedDecade(nextSettings.decade);
+    setTotalRounds(nextSettings.rounds);
+    setSelectedLanguage(nextSettings.language);
+    setSelectedDifficulty(nextSettings.difficulty);
+
+    if (room && socket.connected) {
+      socket.emit('update_game_settings', { roomId: room.id, ...nextSettings });
+    }
+  };
+
   const toggleGenre = (genreKey) => {
-    setSelectedGenres((prev) =>
-      prev.includes(genreKey)
-        ? prev.filter((g) => g !== genreKey)
-        : [...prev, genreKey]
-    );
+    if (selectedGenres.includes(genreKey) && selectedGenres.length === 1) return;
+    const genres = selectedGenres.includes(genreKey)
+      ? selectedGenres.filter((genre) => genre !== genreKey)
+      : [...selectedGenres, genreKey];
+    updateGameSettings({ genres });
   };
 
   return (
@@ -350,15 +372,12 @@ function App() {
                 startGame={startGame}
                 isOwner={players.find(player => player.connected)?.id === socket.id}
                 totalRounds={totalRounds}
-                setTotalRounds={setTotalRounds}
+                updateGameSettings={updateGameSettings}
                 selectedGenres={selectedGenres}
                 toggleGenre={toggleGenre}
                 selectedDecade={selectedDecade}
-                setSelectedDecade={setSelectedDecade}
                 selectedLanguage={selectedLanguage}
-                setSelectedLanguage={setSelectedLanguage}
                 selectedDifficulty={selectedDifficulty}
-                setSelectedDifficulty={setSelectedDifficulty}
                 errorMessage={errorMessage}
               />
             )}

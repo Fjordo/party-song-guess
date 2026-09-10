@@ -24,7 +24,7 @@ Party Song Guess is a real-time multiplayer browser game where players guess the
 
 ## Events Flow
 
-1. **Lobby**: `create_room` -> `room_created` -> User shares ID.
+1. **Lobby**: `create_room` -> `room_created` -> User shares ID. The host changes the game conditions with `update_game_settings`; the server validates them and broadcasts `settings_updated` to every participant. Non-host clients render the synchronized conditions as read-only.
 2. **Game Start**: Owner clicks start -> `start_game` -> Server reads the song catalog -> `game_started` (typically a few ms; falls back to live AI discovery only when the catalog cannot fill the game).
 3. **Round Loop**:
     - Server: `new_round` (sends previewUrl).
@@ -34,6 +34,24 @@ Party Song Guess is a real-time multiplayer browser game where players guess the
         - Correct: `round_winner` -> `update_scores` -> Wait 5s -> Next Round.
         - Default: Wait 30s -> `round_timeout` -> Wait 5s -> Next Round.
 4. **Game Over**: Server emits `game_over` -> Client shows final scores.
+5. **Rematch setup**: The connected host emits `rematch` -> the server resets scores and round state -> `room_resumed` returns every client to the same lobby. Previous settings remain selected and can be changed before a new `start_game`.
+
+## Lobby Settings
+
+The server is the source of truth for game conditions. Every room starts with
+default settings and stores the latest validated selection in `room.settings`.
+Only the first connected player (the current host) may update them while the
+room is in `LOBBY` state. Updates are broadcast immediately, included in room
+snapshots for reconnecting or newly joined players, and validated again when
+the host starts the game.
+
+The synchronized fields are:
+
+- `genres`
+- `decade`
+- `rounds`
+- `language`
+- `difficulty`
 
 ## Song Catalog
 

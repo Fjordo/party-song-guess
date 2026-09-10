@@ -53,6 +53,20 @@ const sessions = new Map();
 const RECONNECT_GRACE_MS = 60000;
 const ROUND_DURATION_MS = 30000;
 
+function validateSettings({ genres, decade, rounds, language, difficulty } = {}) {
+    const safeGenres = Array.isArray(genres)
+        ? genres.filter(g => typeof g === 'string' && ALLOWED_GENRES.has(g))
+        : [];
+    const safeDecade = ALLOWED_DECADES.has(decade ?? '') ? (decade || null) : null;
+    const safeLanguage = ALLOWED_LANGUAGES.has(language ?? '') ? (language || null) : null;
+    const safeDifficulty = ALLOWED_DIFFICULTIES.has(difficulty) ? difficulty : 'easy';
+    const safeRounds = Math.max(1, Math.min(50, parseInt(rounds, 10) || 10));
+
+    if (safeGenres.length === 0) return null;
+    return { genres: safeGenres, decade: safeDecade, rounds: safeRounds,
+        language: safeLanguage, difficulty: safeDifficulty };
+}
+
 function hostId(room) {
     return room.players.find(player => player.connected)?.id;
 }
@@ -245,7 +259,8 @@ io.on('connection', (socket) => {
             playedSongIds: new Set(),
             // Bumped on every start_game; timers from an older game check it and
             // bail, so a finished game cannot interfere with the next one
-            gameId: 0
+            gameId: 0,
+            settings: { genres: ['pop'], decade: null, rounds, language: null, difficulty: 'easy' }
         };
         socket.join(roomId);
         registerSession(socket, rooms[roomId], rooms[roomId].players[0]);
@@ -278,6 +293,30 @@ io.on('connection', (socket) => {
         }
     });
 
+    socket.on('update_game_settings', (payload = {}) => {
+        if (!checkRateLimit(socket.id)) {
+            socket.emit('error', { code: 'RATE_LIMIT_EXCEEDED' });
+            return;
+        }
+
+        const room = validateRoomId(payload.roomId) ? rooms[payload.roomId] : null;
+        if (!room || room.state !== 'LOBBY') return;
+        if (hostId(room) !== socket.id) {
+            socket.emit('error', { code: 'UNAUTHORIZED' });
+            return;
+        }
+
+        const settings = validateSettings(payload);
+        if (!settings) {
+            socket.emit('error', { code: 'INVALID_INPUT' });
+            return;
+        }
+
+        room.settings = settings;
+        room.totalRounds = settings.rounds;
+        io.to(room.id).emit('settings_updated', settings);
+    });
+
     const startGame = async ({ roomId, genres, decade, rounds, language, difficulty } = {}) => {
         if (!checkRateLimit(socket.id)) {
             socket.emit('error', { code: 'RATE_LIMIT_EXCEEDED' });
@@ -298,23 +337,15 @@ io.on('connection', (socket) => {
         }
 
         // 1. Initial room setup — clamp rounds between 1 and 50
-        let requestedRounds = Math.max(1, Math.min(50, parseInt(rounds, 10) || 10));
-
-        // Whitelist validation to prevent prompt injection into AI service
-        const safeGenres = Array.isArray(genres)
-            ? genres.filter(g => typeof g === 'string' && ALLOWED_GENRES.has(g))
-            : [];
-        const safeDecade = ALLOWED_DECADES.has(decade ?? '') ? (decade || null) : null;
-        const safeLanguage = ALLOWED_LANGUAGES.has(language ?? '') ? (language || null) : null;
-        const safeDifficulty = ALLOWED_DIFFICULTIES.has(difficulty) ? difficulty : 'easy';
-
-        if (safeGenres.length === 0) {
+        const settings = validateSettings({ genres, decade, rounds, language, difficulty });
+        if (!settings) {
             socket.emit('error', { code: 'INVALID_INPUT' });
             return;
         }
+        const { genres: safeGenres, decade: safeDecade, rounds: requestedRounds,
+            language: safeLanguage, difficulty: safeDifficulty } = settings;
 
-        room.settings = { genres: safeGenres, decade: safeDecade, rounds: requestedRounds,
-            language: safeLanguage, difficulty: safeDifficulty };
+        room.settings = settings;
         clearTimeout(room.cleanupTimer);
         room.state = 'LOADING';
         room.roundActive = false;
@@ -434,9 +465,36 @@ io.on('connection', (socket) => {
     };
     socket.on('start_game', startGame);
     socket.on('rematch', ({ roomId } = {}) => {
+        if (!checkRateLimit(socket.id)) {
+            socket.emit('error', { code: 'RATE_LIMIT_EXCEEDED' });
+            return;
+        }
         const room = validateRoomId(roomId) ? rooms[roomId] : null;
         if (!room || room.state !== 'ENDED') return;
-        return startGame({ roomId, ...room.settings });
+
+        if (hostId(room) !== socket.id) {
+            socket.emit('error', { code: 'UNAUTHORIZED' });
+            return;
+        }
+
+        // A rematch first returns everyone to the lobby. The host can keep the
+        // previous settings or change them before starting the next game.
+        clearTimeout(room.cleanupTimer);
+        clearTimeout(room.roundTimer);
+        room.cleanupTimer = null;
+        room.roundTimer = null;
+        room.state = 'LOBBY';
+        room.phase = 'WAITING';
+        room.roundActive = false;
+        room.currentRound = 0;
+        room.currentSong = null;
+        room.songs = [];
+        room.roundResult = null;
+        room.phaseEndsAt = 0;
+        room.players.forEach(player => { player.score = 0; });
+
+        log.info('room %s returned to lobby for a rematch', roomId);
+        io.to(roomId).emit('room_resumed', publicRoom(room));
     });
 
     socket.on('submit_guess', ({ roomId, guess }) => {

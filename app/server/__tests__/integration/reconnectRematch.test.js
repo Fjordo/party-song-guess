@@ -113,20 +113,55 @@ describe('Rematch', () => {
         }
         expect(h.room().state).toBe('ENDED');
     };
-    test('preserves room, players, settings and song history while resetting scores', async () => {
+    test('returns everyone to the lobby with previous settings and song history', async () => {
         const h = harness();
         await finish(h);
         const settings = { ...h.room().settings };
+        const previousIds = new Set(h.room().playedSongIds);
+        const previousGameId = h.room().gameId;
+
+        await h.alice.send('rematch', { roomId: h.roomId });
+
+        expect(h.room().id).toBe(h.roomId);
+        expect(h.room().state).toBe('LOBBY');
+        expect(h.room().phase).toBe('WAITING');
+        expect(h.room().settings).toEqual(settings);
+        expect(h.room().playedSongIds).toEqual(previousIds);
+        expect(h.room().players[0].score).toBe(0);
+        expect(h.room().currentRound).toBe(0);
+        expect(h.room().gameId).toBe(previousGameId);
+        expect(h.events.filter(e => e.event === 'game_started')).toHaveLength(1);
+
+        const lobby = h.events.filter(e => e.event === 'room_resumed').at(-1).data;
+        expect(lobby.state).toBe('LOBBY');
+        expect(lobby.settings).toEqual(settings);
+        expect(lobby.round.phase).toBe('WAITING');
+    });
+    test('lets the host change settings before starting the next game', async () => {
+        const h = harness();
+        await finish(h);
         const previousIds = new Set(h.room().playedSongIds);
         h.repo.query.mockImplementation(request => {
             expect([...request.exclude]).toEqual([...previousIds]);
             return { songs: [4,5,6].map(id => ({ id, title: `Fresh ${id}`, previewUrl: `/${id}` })) };
         });
         await h.alice.send('rematch', { roomId: h.roomId });
-        expect(h.room().id).toBe(h.roomId);
-        expect(h.room().settings).toEqual(settings);
-        expect(h.room().players[0].score).toBe(0);
-        expect(h.room().currentRound).toBe(0);
+        await h.alice.send('start_game', {
+            roomId: h.roomId,
+            genres: ['pop'],
+            decade: '90s',
+            rounds: 2,
+            language: 'it',
+            difficulty: 'hard'
+        });
+
+        expect(h.room().settings).toEqual({
+            genres: ['pop'],
+            decade: '90s',
+            rounds: 2,
+            language: 'it',
+            difficulty: 'hard'
+        });
         expect(h.room().gameId).toBe(2);
         jest.advanceTimersByTime(4000);
         expect(h.room().currentSong.id).toBe(4);
@@ -134,7 +169,7 @@ describe('Rematch', () => {
         expect(starts).toHaveLength(2);
         expect(starts[1].data.players[0].score).toBe(0);
     });
-    test('only a connected host can start, duplicate and mid-game starts are ignored', async () => {
+    test('only a connected host can reopen the lobby and duplicate requests are ignored', async () => {
         const h = harness();
         const b = h.client('bob');
         b.send('join_room', { roomId: h.roomId, playerName: 'Bob' });
@@ -143,8 +178,8 @@ describe('Rematch', () => {
         expect(h.room().state).toBe('ENDED');
         await h.alice.send('rematch', { roomId: h.roomId });
         await h.alice.send('rematch', { roomId: h.roomId });
-        await h.start();
-        expect(h.events.filter(e => e.event === 'game_started')).toHaveLength(2);
+        expect(h.room().state).toBe('LOBBY');
+        expect(h.events.filter(e => e.event === 'room_resumed')).toHaveLength(1);
     });
     test('a connected player can host a rematch while the former host reconnects', async () => {
         const h = harness();
@@ -153,18 +188,72 @@ describe('Rematch', () => {
         await finish(h);
         h.alice.send('disconnect', 'transport close');
         await b.send('rematch', { roomId: h.roomId });
-        expect(h.room().gameId).toBe(2);
+        expect(h.room().state).toBe('LOBBY');
+        expect(h.room().gameId).toBe(1);
         const a = h.client('returned');
         a.send('resume_room', sessionFor(h));
         expect(resumed(h, a.id).players.every(player => player.score === 0)).toBe(true);
     });
-    test('failed rematch loading restores the lobby and saved settings', async () => {
+    test('failed rematch start restores the lobby and the newly selected settings', async () => {
         const h = harness();
         await finish(h);
         h.repo.query.mockReturnValue({ songs: [] });
         h.builder.runFallback.mockResolvedValue();
         await h.alice.send('rematch', { roomId: h.roomId });
+        await h.alice.send('start_game', {
+            roomId: h.roomId,
+            genres: ['pop'],
+            rounds: 5,
+            difficulty: 'hard'
+        });
         expect(h.room().state).toBe('LOBBY');
-        expect(h.events.filter(e => e.event === 'room_resumed').at(-1).data.settings.genres).toEqual(['rock']);
+        expect(h.events.filter(e => e.event === 'room_resumed').at(-1).data.settings).toMatchObject({
+            genres: ['pop'], rounds: 5, difficulty: 'hard'
+        });
+    });
+});
+
+describe('Lobby settings', () => {
+    test('publishes the host settings to every player and to later joins', () => {
+        const h = harness();
+        const b = h.client('bob');
+        b.send('join_room', { roomId: h.roomId, playerName: 'Bob' });
+
+        h.alice.send('update_game_settings', {
+            roomId: h.roomId,
+            genres: ['rock', 'indie'],
+            decade: '90s',
+            rounds: 15,
+            language: 'en',
+            difficulty: 'hard'
+        });
+
+        const expected = {
+            genres: ['rock', 'indie'], decade: '90s', rounds: 15,
+            language: 'en', difficulty: 'hard'
+        };
+        expect(h.room().settings).toEqual(expected);
+        expect(h.events.filter(e => e.event === 'settings_updated').at(-1).data).toEqual(expected);
+
+        const c = h.client('carol');
+        c.send('join_room', { roomId: h.roomId, playerName: 'Carol' });
+        const joined = h.events.filter(e => e.clientId === 'carol' && e.event === 'room_joined').at(-1).data;
+        expect(joined.settings).toEqual(expected);
+    });
+
+    test('does not let a participant change the game settings', () => {
+        const h = harness();
+        const b = h.client('bob');
+        b.send('join_room', { roomId: h.roomId, playerName: 'Bob' });
+        const original = structuredClone(h.room().settings);
+
+        b.send('update_game_settings', {
+            roomId: h.roomId, genres: ['metal'], rounds: 20, difficulty: 'hard'
+        });
+
+        expect(h.room().settings).toEqual(original);
+        expect(h.events.at(-1)).toMatchObject({
+            clientId: 'bob', event: 'error', data: { code: 'UNAUTHORIZED' }
+        });
     });
 });

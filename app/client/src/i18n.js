@@ -46,7 +46,10 @@ const messages = {
       waiting: 'Waiting for players...',
       startGame: 'Start Game',
       generating: 'Generating...',
-      hostStarting: 'The host is about to start the game...'
+      hostStarting: 'The host is about to start the game...',
+      gameSettings: 'Game settings',
+      settingsHintOwner: 'Choose the settings. Changes are shown to everyone in real time.',
+      settingsHintPlayer: 'The host is choosing these settings for the next game.'
     },
     share: {
       open: 'Share',
@@ -78,8 +81,8 @@ const messages = {
       volume: 'Volume',
       resumeAudio: 'Play audio',
       albumArt: 'Album artwork',
-      rematch: 'Rematch',
-      waitingRematch: 'Waiting for the host to start a rematch...',
+      rematch: 'Play again',
+      waitingRematch: 'Waiting for the host to set up the next game...',
       reconnectingPlayer: 'Reconnecting...',
       songSkipped: 'Song skipped',
       leaveGame: 'Leave game',
@@ -169,7 +172,10 @@ const messages = {
       waiting: 'In attesa di giocatori...',
       startGame: 'Avvia Gioco',
       generating: 'Generazione in corso...',
-      hostStarting: 'L\'host sta per avviare la partita...'
+      hostStarting: 'L\'host sta per avviare la partita...',
+      gameSettings: 'Condizioni della partita',
+      settingsHintOwner: 'Scegli i parametri. Le modifiche sono visibili a tutti in tempo reale.',
+      settingsHintPlayer: 'L’host sta scegliendo questi parametri per la prossima partita.'
     },
     share: {
       open: 'Condividi',
@@ -201,8 +207,8 @@ const messages = {
       volume: 'Volume',
       resumeAudio: 'Avvia audio',
       albumArt: 'Copertina album',
-      rematch: 'Rivincita',
-      waitingRematch: "In attesa che l’host avvii la rivincita...",
+      rematch: 'Rigioca',
+      waitingRematch: "In attesa che l’host configuri la prossima partita...",
       reconnectingPlayer: 'Riconnessione...',
       songSkipped: 'Canzone saltata',
       leaveGame: 'Abbandona partita',

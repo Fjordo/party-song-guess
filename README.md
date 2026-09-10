@@ -1,10 +1,12 @@
 # Party Song Guess
 
 [![CI](https://github.com/Fjordo/party-song-guess/actions/workflows/ci.yml/badge.svg)](https://github.com/Fjordo/party-song-guess/actions/workflows/ci.yml)
-[![Tests](https://img.shields.io/badge/tests-107%20passing-brightgreen)](https://github.com/Fjordo/party-song-guess/actions)
+[![Tests](https://img.shields.io/badge/tests-322%20passing-brightgreen)](https://github.com/Fjordo/party-song-guess/actions)
 [![Coverage](https://img.shields.io/badge/coverage-97.91%25-brightgreen)](https://github.com/Fjordo/party-song-guess)
 
 Un gioco musicale multiplayer in tempo reale via browser. I giocatori devono indovinare il titolo della canzone riprodotta randomicamente.
+
+Versione corrente: **client 0.7.0**, **server 0.5.0**.
 
 ## Struttura del Progetto
 
@@ -18,6 +20,9 @@ Un gioco musicale multiplayer in tempo reale via browser. I giocatori devono ind
 - **Real-time Multiplayer**: Sincronizzazione perfetta tra i client grazie a Socket.io.
 - **Preview Musicali**: Utilizzo dell'API di iTunes per riprodurre 10 round di canzoni.
 - **Sistema di Punti**: Chi indovina per primo ottiene il punto.
+- **Partite configurabili**: L'host sceglie numero di round, difficoltà, decennio, lingua e generi musicali.
+- **Condizioni sincronizzate**: Tutti i partecipanti vedono in tempo reale i parametri scelti dall'host, senza poterli modificare.
+- **Rigioca con nuove condizioni**: Al termine della partita l'host può riportare tutti nella lobby, modificare i parametri e avviare la rivincita nella stessa stanza.
 
 ## Come avviare il progetto
 
@@ -102,14 +107,14 @@ Il server include una suite completa di test automatici con Jest.
 
 ```bash
 cd app/server
-npm test                  # Esegui tutti i 107 test
+npm test                  # Esegui tutti i test
 npm run test:watch        # Modalità watch (ri-esegue i test sui cambiamenti)
 npm run test:coverage     # Genera il report di copertura
 ```
 
 ### Test Coverage
 
-- **107 test** totali (43 checkAnswer + 19 languageDetection + 14 musicService + 11 aiService + 20 gameFlow)
+- **322 test** totali in 17 suite, incluse le integrazioni per lobby, rivincita e sincronizzazione delle impostazioni
 - **97.91%** di copertura sui servizi
 - **100%** di copertura sulle utility (checkAnswer, languageDetection)
 

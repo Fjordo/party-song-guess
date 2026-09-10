@@ -10,15 +10,12 @@ export default function Lobby({
     startGame,
     isOwner,
     totalRounds,
-    setTotalRounds,
+    updateGameSettings,
     selectedGenres,
     toggleGenre,
     selectedDecade,
-    setSelectedDecade,
     selectedLanguage,
-    setSelectedLanguage,
     selectedDifficulty,
-    setSelectedDifficulty,
     errorMessage
 }) {
     const [isLoadingInternal, setIsLoadingInternal] = useState(false);
@@ -68,25 +65,28 @@ export default function Lobby({
                 </div>
             </section>
 
-            {isOwner && (
-                <section className="settings-panel">
+            <section className={`settings-panel ${isOwner ? '' : 'is-readonly'}`} aria-labelledby="game-settings-title">
+                    <div className="settings-heading">
+                        <h2 id="game-settings-title">{t('lobby.gameSettings')}</h2>
+                        <p>{t(isOwner ? 'lobby.settingsHintOwner' : 'lobby.settingsHintPlayer')}</p>
+                    </div>
                     <div className="settings-grid">
                         <label className="select-field">
                             <span>{t('landing.roundsLabel')}</span>
-                            <select value={totalRounds} onChange={event => setTotalRounds(parseInt(event.target.value, 10))} disabled={isLoading}>
+                            <select value={totalRounds} onChange={event => updateGameSettings({ rounds: parseInt(event.target.value, 10) })} disabled={isLoading || !isOwner}>
                                 <option value={5}>5</option><option value={10}>10</option><option value={15}>15</option><option value={20}>20</option>
                             </select>
                         </label>
                         <label className="select-field">
                             <span>{t('landing.difficultyLabel')}</span>
-                            <select value={selectedDifficulty} onChange={event => setSelectedDifficulty(event.target.value)} disabled={isLoading}>
+                            <select value={selectedDifficulty} onChange={event => updateGameSettings({ difficulty: event.target.value })} disabled={isLoading || !isOwner}>
                                 <option value="easy">{t('landing.difficulty_easy')}</option>
                                 <option value="hard">{t('landing.difficulty_hard')}</option>
                             </select>
                         </label>
                         <label className="select-field">
                             <span>{t('landing.decadesLabel')}</span>
-                            <select value={selectedDecade} onChange={event => setSelectedDecade(event.target.value)} disabled={isLoading}>
+                            <select value={selectedDecade} onChange={event => updateGameSettings({ decade: event.target.value })} disabled={isLoading || !isOwner}>
                                 <option value="">{t('landing.anyDecade')}</option>
                                 {['50s', '60s', '70s', '80s', '90s', '2000s', '2010s', '2020s'].map(decade => (
                                     <option key={decade} value={decade}>{t(`landing.decade_${decade}`)}</option>
@@ -95,7 +95,7 @@ export default function Lobby({
                         </label>
                         <label className="select-field">
                             <span>{t('landing.languageLabel')}</span>
-                            <select value={selectedLanguage} onChange={event => setSelectedLanguage(event.target.value)} disabled={isLoading}>
+                            <select value={selectedLanguage} onChange={event => updateGameSettings({ language: event.target.value })} disabled={isLoading || !isOwner}>
                                 <option value="">{t('landing.language_any')}</option>
                                 <option value="it">{t('landing.language_it')}</option>
                                 <option value="en">{t('landing.language_en')}</option>
@@ -104,7 +104,7 @@ export default function Lobby({
                         </label>
                     </div>
 
-                    <fieldset className="genre-fieldset" disabled={isLoading}>
+                    <fieldset className="genre-fieldset" disabled={isLoading || !isOwner}>
                         <legend>{t('landing.genresLabel')}</legend>
                         <div className="genre-grid">
                             {GENRES.map(genre => (
@@ -121,7 +121,6 @@ export default function Lobby({
                         </div>
                     </fieldset>
                 </section>
-            )}
 
             {isOwner ? (
                 <button onClick={handleStartGame} disabled={isLoading} className="primary-button lobby-start">
