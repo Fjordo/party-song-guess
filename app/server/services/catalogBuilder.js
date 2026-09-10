@@ -304,40 +304,46 @@ async function runRevalidation(options = {}) {
  *
  * @returns {Promise<{added: number, updated: number}>}
  */
-async function runFallback({ genres, decade, language, difficulty, count }, deps = {}) {
+async function runFallback({ genres, decade, languages, language, difficulty, count }, deps = {}) {
     const resolvedDeps = { ...defaults, ...deps };
     const { ai, music, repo } = resolvedDeps;
+    const requestedLanguages = Array.isArray(languages) && languages.length > 0
+        ? [...new Set(languages)]
+        : [language || null];
+    const countPerLanguage = Math.ceil(count / requestedLanguages.length);
 
-    log.debug('live fallback for genres=[%s] decade=%s language=%s difficulty=%s count=%d',
-        genres.join(','), decade || 'any', language || 'any', difficulty, count);
+    log.debug('live fallback for genres=[%s] decade=%s languages=[%s] difficulty=%s count=%d',
+        genres.join(','), decade || 'any', requestedLanguages.filter(Boolean).join(','), difficulty, count);
 
-    const recommendations = await ai.getSongListFromAI({
-        genres, decade, language, difficulty, count
-    });
-
-    if (!recommendations || recommendations.length === 0) {
-        log.debug('live fallback: the AI returned nothing');
-        return { added: 0, updated: 0 };
-    }
-
-    const resolved = await music.searchAndGetPreviewMany(
-        recommendations.map(song => ({ artist: song.artist, title: song.title })),
-        FALLBACK_LOOKUP
-    );
-
-    const records = resolved.filter(Boolean);
-    if (records.length === 0) {
-        log.debug('live fallback: none of the %d suggestions had a playable preview', resolved.length);
-        return { added: 0, updated: 0 };
-    }
-
-    // The request may span several genres; tag with each so the songs are
-    // findable under any of them next time.
     let totals = { added: 0, updated: 0 };
-    for (const genre of genres) {
-        const bucket = { genre, decade, language, difficulty };
-        const result = repo.upsertSongs(toEntries(records, bucket, 'fallback'));
-        totals = { added: totals.added + result.added, updated: totals.updated + result.updated };
+    for (const requestedLanguage of requestedLanguages) {
+        const recommendations = await ai.getSongListFromAI({
+            genres, decade, language: requestedLanguage, difficulty, count: countPerLanguage
+        });
+
+        if (!recommendations || recommendations.length === 0) {
+            log.debug('live fallback: the AI returned nothing for language=%s', requestedLanguage || 'any');
+            continue;
+        }
+
+        const resolved = await music.searchAndGetPreviewMany(
+            recommendations.map(song => ({ artist: song.artist, title: song.title })),
+            FALLBACK_LOOKUP
+        );
+        const records = resolved.filter(Boolean);
+        if (records.length === 0) {
+            log.debug('live fallback: none of the %d suggestions had a playable preview for language=%s',
+                resolved.length, requestedLanguage || 'any');
+            continue;
+        }
+
+        // The request may span several genres; tag with each so the songs are
+        // findable under any of them next time.
+        for (const genre of genres) {
+            const bucket = { genre, decade, language: requestedLanguage, difficulty };
+            const result = repo.upsertSongs(toEntries(records, bucket, 'fallback'));
+            totals = { added: totals.added + result.added, updated: totals.updated + result.updated };
+        }
     }
 
     log.info('live fallback added %d song(s) to the catalog (%d merged)', totals.added, totals.updated);

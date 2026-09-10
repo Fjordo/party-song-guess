@@ -275,21 +275,23 @@ describe('catalogRepo', () => {
             expect(result.songs.map(s => s.title).sort()).toEqual(['A', 'B']);
         });
 
-        test('drops language next', () => {
-            const result = repo.query({ genres: ['rock'], decade: '90s', language: 'en', difficulty: 'easy', limit: 3 });
-            expect(result.relaxedTo).toBe('no-language');
+        test('accepts several languages as alternatives', () => {
+            const result = repo.query({ genres: ['rock'], decade: '90s', languages: ['en', 'it'], limit: 3 });
+            expect(result.relaxedTo).toBe('exact');
             expect(result.songs.map(s => s.title).sort()).toEqual(['A', 'B', 'C']);
         });
 
-        test('drops the decade last, keeping the genre', () => {
-            const result = repo.query({ genres: ['rock'], decade: '90s', language: 'en', difficulty: 'easy', limit: 4 });
-            expect(result.relaxedTo).toBe('genre-only');
-            expect(result.songs.map(s => s.title).sort()).toEqual(['A', 'B', 'C', 'D']);
+        test('drops the decade last while retaining the selected languages', () => {
+            const result = repo.query({ genres: ['rock'], decade: '90s', languages: ['it'], difficulty: 'easy', limit: 2 });
+            expect(result.relaxedTo).toBe('no-decade');
+            expect(result.songs.map(s => s.title).sort()).toEqual(['C', 'D']);
         });
 
-        test('never crosses the genre boundary, returning fewer songs instead', () => {
+        test('never relaxes an excluded language or crosses the genre boundary', () => {
             const result = repo.query({ genres: ['rock'], decade: '90s', language: 'en', difficulty: 'easy', limit: 10 });
-            expect(result.songs).toHaveLength(4);
+            expect(result.songs.map(s => s.title).sort()).toEqual(['A', 'B']);
+            expect(result.songs.map(s => s.title)).not.toContain('C');
+            expect(result.songs.map(s => s.title)).not.toContain('D');
             expect(result.songs.map(s => s.title)).not.toContain('E');
         });
 

@@ -20,7 +20,8 @@ const {
     ALLOWED_GENRES,
     ALLOWED_DECADES,
     ALLOWED_LANGUAGES,
-    ALLOWED_DIFFICULTIES
+    ALLOWED_DIFFICULTIES,
+    LANGUAGES
 } = require('./utils/catalogTags');
 const { createLogger, currentLevel } = require('./utils/logger');
 
@@ -53,18 +54,24 @@ const sessions = new Map();
 const RECONNECT_GRACE_MS = 60000;
 const ROUND_DURATION_MS = 30000;
 
-function validateSettings({ genres, decade, rounds, language, difficulty } = {}) {
+function validateSettings({ genres, decade, rounds, languages, language, difficulty } = {}) {
     const safeGenres = Array.isArray(genres)
         ? genres.filter(g => typeof g === 'string' && ALLOWED_GENRES.has(g))
         : [];
     const safeDecade = ALLOWED_DECADES.has(decade ?? '') ? (decade || null) : null;
-    const safeLanguage = ALLOWED_LANGUAGES.has(language ?? '') ? (language || null) : null;
+    // `language` keeps older clients compatible while new clients send an array.
+    const requestedLanguages = Array.isArray(languages)
+        ? languages
+        : (language ? [language] : LANGUAGES);
+    const safeLanguages = [...new Set(requestedLanguages.filter(value =>
+        typeof value === 'string' && value && ALLOWED_LANGUAGES.has(value)
+    ))];
     const safeDifficulty = ALLOWED_DIFFICULTIES.has(difficulty) ? difficulty : 'easy';
     const safeRounds = Math.max(1, Math.min(50, parseInt(rounds, 10) || 10));
 
-    if (safeGenres.length === 0) return null;
+    if (safeGenres.length === 0 || safeLanguages.length === 0) return null;
     return { genres: safeGenres, decade: safeDecade, rounds: safeRounds,
-        language: safeLanguage, difficulty: safeDifficulty };
+        languages: safeLanguages, difficulty: safeDifficulty };
 }
 
 function hostId(room) {
@@ -260,7 +267,7 @@ io.on('connection', (socket) => {
             // Bumped on every start_game; timers from an older game check it and
             // bail, so a finished game cannot interfere with the next one
             gameId: 0,
-            settings: { genres: ['pop'], decade: null, rounds, language: null, difficulty: 'easy' }
+            settings: { genres: ['pop'], decade: null, rounds, languages: [...LANGUAGES], difficulty: 'easy' }
         };
         socket.join(roomId);
         registerSession(socket, rooms[roomId], rooms[roomId].players[0]);
@@ -317,7 +324,7 @@ io.on('connection', (socket) => {
         io.to(room.id).emit('settings_updated', settings);
     });
 
-    const startGame = async ({ roomId, genres, decade, rounds, language, difficulty } = {}) => {
+    const startGame = async ({ roomId, genres, decade, rounds, languages, language, difficulty } = {}) => {
         if (!checkRateLimit(socket.id)) {
             socket.emit('error', { code: 'RATE_LIMIT_EXCEEDED' });
             return;
@@ -337,21 +344,21 @@ io.on('connection', (socket) => {
         }
 
         // 1. Initial room setup — clamp rounds between 1 and 50
-        const settings = validateSettings({ genres, decade, rounds, language, difficulty });
+        const settings = validateSettings({ genres, decade, rounds, languages, language, difficulty });
         if (!settings) {
             socket.emit('error', { code: 'INVALID_INPUT' });
             return;
         }
         const { genres: safeGenres, decade: safeDecade, rounds: requestedRounds,
-            language: safeLanguage, difficulty: safeDifficulty } = settings;
+            languages: safeLanguages, difficulty: safeDifficulty } = settings;
 
         room.settings = settings;
         clearTimeout(room.cleanupTimer);
         room.state = 'LOADING';
         room.roundActive = false;
         room.phase = 'WAITING';
-        log.debug('room %s start_game: genres=[%s] decade=%s language=%s difficulty=%s rounds=%d alreadyPlayed=%d',
-            roomId, safeGenres.join(','), safeDecade || 'any', safeLanguage || 'any',
+        log.debug('room %s start_game: genres=[%s] decade=%s languages=[%s] difficulty=%s rounds=%d alreadyPlayed=%d',
+            roomId, safeGenres.join(','), safeDecade || 'any', safeLanguages.join(','),
             safeDifficulty, requestedRounds, room.playedSongIds.size);
         io.to(roomId).emit('game_loading', { settings: room.settings });
 
@@ -359,7 +366,8 @@ io.on('connection', (socket) => {
             const request = {
                 genres: safeGenres,
                 decade: safeDecade,
-                language: safeLanguage,
+                // Selecting every supported language is equivalent to no filter.
+                languages: safeLanguages.length === LANGUAGES.length ? [] : safeLanguages,
                 difficulty: safeDifficulty
             };
 

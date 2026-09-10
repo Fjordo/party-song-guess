@@ -66,8 +66,21 @@ The synchronized fields are:
 - `genres`
 - `decade`
 - `rounds`
-- `language`
+- `languages`
 - `difficulty`
+
+`languages` is a non-empty array containing any subset of `it`, `en` and
+`es`. All three are selected by default. The server still accepts the legacy
+singular `language` field from older clients, but room snapshots and current
+events always expose the array form.
+
+The selected languages are alternatives: `['it', 'en']` means Italian **or**
+English songs. Selecting all supported languages removes the catalog language
+filter. For a proper subset, the filter is mandatory: playlist relaxation may
+drop difficulty and then decade, but never language, so a language explicitly
+excluded in the lobby cannot re-enter the game. If live discovery is needed,
+the builder requests and tags each selected language separately before the
+catalog is queried again.
 
 ## Song Catalog
 

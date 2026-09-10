@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import ShareRoomButton from './ShareRoomButton';
 
 const GENRES = ['pop', 'rock', 'hiphop', 'rap', 'trap', 'dance', 'jazz', 'metal', 'indie', 'electronic', 'rnb'];
+const LANGUAGES = ['it', 'en', 'es'];
 
 export default function Lobby({
     room,
@@ -14,7 +15,8 @@ export default function Lobby({
     selectedGenres,
     toggleGenre,
     selectedDecade,
-    selectedLanguage,
+    selectedLanguages,
+    toggleLanguage,
     selectedDifficulty,
     errorMessage
 }) {
@@ -29,7 +31,7 @@ export default function Lobby({
                 rounds: totalRounds,
                 genres: selectedGenres,
                 decade: selectedDecade,
-                language: selectedLanguage,
+                languages: selectedLanguages,
                 difficulty: selectedDifficulty
             });
         } catch (error) {
@@ -94,15 +96,23 @@ export default function Lobby({
                                 ))}
                             </select>
                         </label>
-                        <label className="select-field">
-                            <span>{t('landing.languageLabel')}</span>
-                            <select value={selectedLanguage} onChange={event => updateGameSettings({ language: event.target.value })} disabled={isLoading || !isOwner}>
-                                <option value="">{t('landing.language_any')}</option>
-                                <option value="it">{t('landing.language_it')}</option>
-                                <option value="en">{t('landing.language_en')}</option>
-                                <option value="es">{t('landing.language_es')}</option>
-                            </select>
-                        </label>
+                        <fieldset className="language-fieldset" disabled={isLoading || !isOwner}>
+                            <legend>{t('landing.languageLabel')}</legend>
+                            <div className="language-grid">
+                                {LANGUAGES.map(language => (
+                                    <button
+                                        key={language}
+                                        type="button"
+                                        aria-pressed={selectedLanguages.includes(language)}
+                                        onClick={() => toggleLanguage(language)}
+                                        className={selectedLanguages.includes(language) ? 'is-selected' : ''}
+                                    >
+                                        {t(`landing.language_${language}`)}
+                                    </button>
+                                ))}
+                            </div>
+                            <small>{t('landing.languageHint')}</small>
+                        </fieldset>
                     </div>
 
                     <fieldset className="genre-fieldset" disabled={isLoading || !isOwner}>

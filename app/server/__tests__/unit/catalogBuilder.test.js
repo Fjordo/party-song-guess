@@ -383,6 +383,24 @@ describe('catalogBuilder', () => {
             expect(repo.query({ genres: ['indie'], limit: 5 }).songs).toHaveLength(1);
         });
 
+        test('discovers and tags every selected language separately', async () => {
+            const deps = makeDeps();
+            deps.music.searchAndGetPreviewMany
+                .mockResolvedValueOnce([track(1)])
+                .mockResolvedValueOnce([track(2)]);
+
+            await builder.runFallback({ ...request, language: undefined, languages: ['it', 'en'] }, deps);
+
+            expect(deps.ai.getSongListFromAI).toHaveBeenNthCalledWith(1,
+                expect.objectContaining({ language: 'it', count: 5 }));
+            expect(deps.ai.getSongListFromAI).toHaveBeenNthCalledWith(2,
+                expect.objectContaining({ language: 'en', count: 5 }));
+            expect(repo.query({ genres: ['rock'], languages: ['it'], limit: 5 }).songs.map(song => song.title))
+                .toEqual(['Title 1']);
+            expect(repo.query({ genres: ['rock'], languages: ['en'], limit: 5 }).songs.map(song => song.title))
+                .toEqual(['Title 2']);
+        });
+
         test('prioritises speed over politeness, since a host is waiting', async () => {
             const deps = makeDeps();
             await builder.runFallback(request, deps);

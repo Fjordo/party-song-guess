@@ -151,7 +151,7 @@ describe('Rematch', () => {
             genres: ['pop'],
             decade: '90s',
             rounds: 2,
-            language: 'it',
+            languages: ['it', 'en'],
             difficulty: 'hard'
         });
 
@@ -159,7 +159,7 @@ describe('Rematch', () => {
             genres: ['pop'],
             decade: '90s',
             rounds: 2,
-            language: 'it',
+            languages: ['it', 'en'],
             difficulty: 'hard'
         });
         expect(h.room().gameId).toBe(2);
@@ -214,7 +214,7 @@ describe('Rematch', () => {
 });
 
 describe('Lobby settings', () => {
-    test('publishes the host settings to every player and to later joins', () => {
+    test('publishes multiple languages and applies their union to the catalog query', async () => {
         const h = harness();
         const b = h.client('bob');
         b.send('join_room', { roomId: h.roomId, playerName: 'Bob' });
@@ -224,13 +224,13 @@ describe('Lobby settings', () => {
             genres: ['rock', 'indie'],
             decade: '90s',
             rounds: 15,
-            language: 'en',
+            languages: ['en', 'es'],
             difficulty: 'hard'
         });
 
         const expected = {
             genres: ['rock', 'indie'], decade: '90s', rounds: 15,
-            language: 'en', difficulty: 'hard'
+            languages: ['en', 'es'], difficulty: 'hard'
         };
         expect(h.room().settings).toEqual(expected);
         expect(h.events.filter(e => e.event === 'settings_updated').at(-1).data).toEqual(expected);
@@ -239,6 +239,26 @@ describe('Lobby settings', () => {
         c.send('join_room', { roomId: h.roomId, playerName: 'Carol' });
         const joined = h.events.filter(e => e.clientId === 'carol' && e.event === 'room_joined').at(-1).data;
         expect(joined.settings).toEqual(expected);
+
+        await h.alice.send('start_game', { roomId: h.roomId, ...expected });
+        expect(h.repo.query).toHaveBeenCalledWith(expect.objectContaining({
+            genres: ['rock', 'indie'], languages: ['en', 'es']
+        }));
+    });
+
+    test('selects every supported language by default and rejects an empty selection', () => {
+        const h = harness();
+        expect(h.room().settings.languages).toEqual(['it', 'en', 'es']);
+        const original = structuredClone(h.room().settings);
+
+        h.alice.send('update_game_settings', {
+            roomId: h.roomId, genres: ['pop'], languages: [], rounds: 10, difficulty: 'easy'
+        });
+
+        expect(h.room().settings).toEqual(original);
+        expect(h.events.at(-1)).toMatchObject({
+            clientId: 'alice', event: 'error', data: { code: 'INVALID_INPUT' }
+        });
     });
 
     test('does not let a participant change the game settings', () => {

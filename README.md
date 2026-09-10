@@ -1,12 +1,12 @@
 # Party Song Guess
 
 [![CI](https://github.com/Fjordo/party-song-guess/actions/workflows/ci.yml/badge.svg)](https://github.com/Fjordo/party-song-guess/actions/workflows/ci.yml)
-[![Tests](https://img.shields.io/badge/tests-326%20passing-brightgreen)](https://github.com/Fjordo/party-song-guess/actions)
+[![Tests](https://img.shields.io/badge/tests-328%20passing-brightgreen)](https://github.com/Fjordo/party-song-guess/actions)
 [![Coverage](https://img.shields.io/badge/coverage-97.91%25-brightgreen)](https://github.com/Fjordo/party-song-guess)
 
 Un gioco musicale multiplayer in tempo reale via browser. I giocatori devono indovinare il titolo della canzone riprodotta randomicamente.
 
-Versione corrente: **client 0.8.0**, **server 0.5.0**.
+Versione corrente: **client 0.9.0**, **server 0.6.0**.
 
 ## Struttura del Progetto
 
@@ -20,7 +20,7 @@ Versione corrente: **client 0.8.0**, **server 0.5.0**.
 - **Real-time Multiplayer**: Sincronizzazione perfetta tra i client grazie a Socket.io.
 - **Preview Musicali**: Utilizzo dell'API di iTunes per riprodurre 10 round di canzoni.
 - **Sistema di Punti**: Chi indovina per primo ottiene il punto.
-- **Partite configurabili**: L'host sceglie numero di round, difficoltà, decennio, lingua e generi musicali.
+- **Partite configurabili**: L'host sceglie numero di round, difficoltà, decennio, una o più lingue dei brani e generi musicali. Le lingue deselezionate restano escluse anche se il catalogo deve allentare altri filtri.
 - **Condizioni sincronizzate**: Tutti i partecipanti vedono in tempo reale i parametri scelti dall'host, senza poterli modificare.
 - **Rigioca con nuove condizioni**: Al termine della partita l'host può riportare tutti nella lobby, modificare i parametri e avviare la rivincita nella stessa stanza.
 - **Interfaccia multilingua**: Tutta l'app è tradotta in italiano, inglese e spagnolo tramite i18next; la lingua si può cambiare dall'header e la preferenza viene ricordata.
@@ -122,7 +122,7 @@ npm test                  # Verifica cataloghi, traduzioni e pluralizzazione
 
 ### Test Coverage
 
-- **326 test** totali: 322 test server e 4 test client per i18n
+- **328 test** totali: 324 test server e 4 test client per i18n
 - **97.91%** di copertura sui servizi
 - **100%** di copertura sulle utility (checkAnswer, languageDetection)
 

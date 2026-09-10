@@ -18,7 +18,7 @@
 **Key Features**:
 
 - Real-time multiplayer synchronization via Socket.io
-- Configurable game settings (genres, decades, difficulty, language)
+- Configurable game settings (genres, decades, difficulty, multiple song languages)
 - Intelligent answer matching (handles typos and variations)
 - Multi-language support (English, Italian, Spanish)
 
@@ -166,7 +166,7 @@ Located in [app/server/index.js:~40](app/server/index.js), the `checkAnswer()` f
   - `gameState`: LANDING, LOBBY, PLAYING, ENDED
   - `room`: Current room object
   - `players`: Array with scores
-  - Game settings: genres, decade, language, difficulty
+  - Game settings: genres, decade, languages, difficulty
 - Component-level state for UI-only concerns (loading spinners, input values)
 
 **Server-side** ([app/server/index.js](app/server/index.js)):
@@ -178,6 +178,7 @@ rooms[roomId] = {
   state: 'LOBBY|PLAYING|ENDED',   // Game phase
   currentRound: number,           // Round counter (1-based)
   totalRounds: number,            // Total rounds (5, 10, 15, or 20)
+  settings: { genres, decade, rounds, languages, difficulty },
   currentSong: { title, artist, previewUrl, artwork },
   songs: [],                      // Playlist array
   roundActive: boolean            // Prevents double-scoring
@@ -568,17 +569,22 @@ Each line is `<timestamp> <LEVEL> [<scope>] <message>`, with scopes `game`,
 | `game` | What happened in this room? Every round with its song and id, correct and wrong guesses with response times |
 | `ai` / `music` | How long did the external calls take, and what came back |
 
-A worked example — the playlist relaxed all the way down because the catalog
-was thin for that combination:
+A worked example — the playlist dropped difficulty and decade because the
+catalog was thin for that combination, while retaining the selected languages:
 
 ```
-DEBUG [catalog] query genres=[rock] decade=90s language=en difficulty=easy limit=2 excluded=0
+DEBUG [catalog] query genres=[rock] decade=90s languages=[en,it] difficulty=easy limit=2 excluded=0
 DEBUG [catalog]   level=exact candidates=1 picked=1
 DEBUG [catalog]   level=no-difficulty candidates=1 picked=1
-DEBUG [catalog]   level=no-language candidates=1 picked=1
-DEBUG [catalog]   level=genre-only candidates=6 picked=2
-DEBUG [catalog] query resolved at level=genre-only with 2 song(s): ...
+DEBUG [catalog]   level=no-decade candidates=6 picked=2
+DEBUG [catalog] query resolved at level=no-decade with 2 song(s): ...
 ```
+
+The room setting is `languages: string[]` (`it`, `en`, `es`), with at least
+one entry. Values are OR-ed by the catalog. When all three are selected the
+query omits the language predicate; with a proper subset, language is never
+relaxed. `language: string` remains accepted only for compatibility with older
+clients.
 
 Note that `console` only treats its first argument as a format string, so the
 logger merges its prefix into the caller's message — placeholders like `%s`
@@ -662,9 +668,9 @@ The server has a comprehensive test suite using **Jest** covering unit tests and
 
 **Test Coverage** (as of latest):
 
-- **Total Tests**: 107 passing
+- **Total Tests**: 324 server tests passing, plus 4 client localization tests
 - **Services Coverage**: 97.91% statements, 85.71% branches, 100% functions
-- **Test Types**: Unit tests (87 tests) + Integration tests (20 tests)
+- **Test Types**: Unit and integration tests, including multi-language catalog filtering and synchronized lobby settings
 
 **Running Tests**:
 

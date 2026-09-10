@@ -18,6 +18,14 @@ function saveSession(session) {
   } catch { /* In-memory recovery still works when storage is blocked. */ }
 }
 const receiveRound = round => ({ ...round, deadline: Date.now() + (round?.remainingMs || 0) });
+const SONG_LANGUAGES = ['it', 'en', 'es'];
+const normalizeSongLanguages = settings => {
+  if (Array.isArray(settings?.languages) && settings.languages.length > 0) {
+    return settings.languages;
+  }
+  // Compatibility with rooms created by a server that still sends one language.
+  return settings?.language ? [settings.language] : SONG_LANGUAGES;
+};
 
 // Socket configuration: VITE_SERVER_URL takes precedence (production/fly.io)
 // Falls back to individual VITE_SOCKET_* vars for local development
@@ -51,7 +59,7 @@ function App() {
   const [errorMessage, setErrorMessage] = useState('');
   const [selectedGenres, setSelectedGenres] = useState(['pop']);
   const [selectedDecade, setSelectedDecade] = useState('');
-  const [selectedLanguage, setSelectedLanguage] = useState('');
+  const [selectedLanguages, setSelectedLanguages] = useState(SONG_LANGUAGES);
   const [selectedDifficulty, setSelectedDifficulty] = useState('easy');
   // The server scales to zero, so the first connection of the day has to wake
   // the machine. That takes a couple of seconds and is normal, not an error.
@@ -62,7 +70,7 @@ function App() {
       if (!settings) return;
       setSelectedGenres(settings.genres);
       setSelectedDecade(settings.decade || '');
-      setSelectedLanguage(settings.language || '');
+      setSelectedLanguages(normalizeSongLanguages(settings));
       setSelectedDifficulty(settings.difficulty);
       setTotalRounds(settings.rounds);
     };
@@ -235,7 +243,7 @@ function App() {
         genres: selectedGenres,
         decade: selectedDecade || null,
         rounds: totalRounds,
-        language: selectedLanguage || null,
+        languages: selectedLanguages,
         difficulty: selectedDifficulty || 'easy'
       });
     }
@@ -246,14 +254,14 @@ function App() {
       genres: changes.genres ?? selectedGenres,
       decade: changes.decade ?? selectedDecade,
       rounds: changes.rounds ?? totalRounds,
-      language: changes.language ?? selectedLanguage,
+      languages: changes.languages ?? selectedLanguages,
       difficulty: changes.difficulty ?? selectedDifficulty
     };
 
     setSelectedGenres(nextSettings.genres);
     setSelectedDecade(nextSettings.decade);
     setTotalRounds(nextSettings.rounds);
-    setSelectedLanguage(nextSettings.language);
+    setSelectedLanguages(nextSettings.languages);
     setSelectedDifficulty(nextSettings.difficulty);
 
     if (room && socket.connected) {
@@ -267,6 +275,14 @@ function App() {
       ? selectedGenres.filter((genre) => genre !== genreKey)
       : [...selectedGenres, genreKey];
     updateGameSettings({ genres });
+  };
+
+  const toggleLanguage = (language) => {
+    if (selectedLanguages.includes(language) && selectedLanguages.length === 1) return;
+    const languages = selectedLanguages.includes(language)
+      ? selectedLanguages.filter(item => item !== language)
+      : [...selectedLanguages, language];
+    updateGameSettings({ languages });
   };
 
   return (
@@ -381,7 +397,8 @@ function App() {
                 selectedGenres={selectedGenres}
                 toggleGenre={toggleGenre}
                 selectedDecade={selectedDecade}
-                selectedLanguage={selectedLanguage}
+                selectedLanguages={selectedLanguages}
+                toggleLanguage={toggleLanguage}
                 selectedDifficulty={selectedDifficulty}
                 errorMessage={errorMessage}
               />

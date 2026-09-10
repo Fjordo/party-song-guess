@@ -236,7 +236,7 @@ function upsertSongs(entries) {
  * Fetch candidate songs, ordered by how little they have been played so the
  * catalog rotates instead of replaying favourites.
  */
-function selectCandidates({ genres, decade, language, difficulty, exclude, poolSize }) {
+function selectCandidates({ genres, decade, languages, difficulty, exclude, poolSize }) {
     const where = [];
     const params = [];
 
@@ -249,9 +249,10 @@ function selectCandidates({ genres, decade, language, difficulty, exclude, poolS
         where.push("EXISTS (SELECT 1 FROM song_tags t WHERE t.song_id = s.id AND t.kind = 'decade' AND t.value = ?)");
         params.push(decade);
     }
-    if (language) {
-        where.push("EXISTS (SELECT 1 FROM song_tags t WHERE t.song_id = s.id AND t.kind = 'language' AND t.value = ?)");
-        params.push(language);
+    if (languages && languages.length > 0) {
+        const slots = languages.map(() => '?').join(', ');
+        where.push("EXISTS (SELECT 1 FROM song_tags t WHERE t.song_id = s.id AND t.kind = 'language' AND t.value IN (" + slots + '))');
+        params.push(...languages);
     }
     if (difficulty) {
         where.push('COALESCE(s.eff_difficulty, s.ai_difficulty) = ?');
@@ -282,25 +283,27 @@ function selectCandidates({ genres, decade, language, difficulty, exclude, poolS
  *
  * @returns {{songs: Array<object>, relaxedTo: string, poolSize: number}}
  */
-function query({ genres = [], decade = null, language = null, difficulty = null, exclude = null, limit = 10 }) {
+function query({ genres = [], decade = null, languages = null, language = null, difficulty = null, exclude = null, limit = 10 }) {
+    const safeLanguages = Array.isArray(languages)
+        ? [...new Set(languages)]
+        : (language ? [language] : []);
     const levels = [
-        { name: 'exact', decade, language, difficulty },
-        { name: 'no-difficulty', decade, language, difficulty: null },
-        { name: 'no-language', decade, language: null, difficulty: null },
-        { name: 'genre-only', decade: null, language: null, difficulty: null }
+        { name: 'exact', decade, difficulty },
+        { name: 'no-difficulty', decade, difficulty: null },
+        { name: 'no-decade', decade: null, difficulty: null }
     ];
 
     let best = { songs: [], relaxedTo: 'exact', poolSize: 0 };
 
-    log.debug('query genres=[%s] decade=%s language=%s difficulty=%s limit=%d excluded=%d',
-        genres.join(','), decade || 'any', language || 'any', difficulty || 'any',
+    log.debug('query genres=[%s] decade=%s languages=[%s] difficulty=%s limit=%d excluded=%d',
+        genres.join(','), decade || 'any', safeLanguages.join(','), difficulty || 'any',
         limit, exclude ? exclude.size || exclude.length || 0 : 0);
 
     for (const level of levels) {
         const rows = selectCandidates({
             genres,
             decade: level.decade,
-            language: level.language,
+            languages: safeLanguages,
             difficulty: level.difficulty,
             exclude,
             // Over-fetch so there is something to shuffle within the freshest slice
