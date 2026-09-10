@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { t } from '../i18n';
+import { useTranslation } from 'react-i18next';
 
 function savedVolume() {
     try {
@@ -27,6 +27,7 @@ function SkipIcon() {
 }
 
 export default function GameRoom({ socket, room, players, round }) {
+    const { t } = useTranslation();
     const [guess, setGuess] = useState('');
     const [errorMessage, setErrorMessage] = useState(null);
     const [volume, setVolume] = useState(savedVolume);
@@ -56,7 +57,7 @@ export default function GameRoom({ socket, room, players, round }) {
         const wrongGuess = () => setErrorMessage(t('game.wrongGuess'));
         socket.on('wrong_guess', wrongGuess);
         return () => socket.off('wrong_guess', wrongGuess);
-    }, [socket]);
+    }, [socket, t]);
 
     useEffect(() => {
         const audio = audioRef.current;
@@ -124,10 +125,10 @@ export default function GameRoom({ socket, room, players, round }) {
                         className={`timer-dial ${secondsLeft <= 5 ? 'is-urgent' : ''}`}
                         style={{ '--timer-progress': `${timerProgress * 360}deg` }}
                         role="timer"
-                        aria-label={`${t('game.timeRemaining')}: ${secondsLeft}s`}
+                        aria-label={`${t('game.timeRemaining')}: ${secondsLeft}${t('game.secondsShort')}`}
                     >
                         <span>{secondsLeft}</span>
-                        <small>s</small>
+                        <small>{t('game.secondsShort')}</small>
                     </div>
                 )}
             </header>

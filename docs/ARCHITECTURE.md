@@ -21,6 +21,22 @@ Party Song Guess is a real-time multiplayer browser game where players guess the
 - **Styling**: TailwindCSS
 - **Communication**: `socket.io-client`
 - **Audio**: HTML5 `Audio` object controlled programmatically.
+- **Localization**: `i18next` + `react-i18next`, with complete Italian,
+  English and Spanish resource catalogs.
+
+### Localization
+
+`app/client/src/i18n.js` initializes i18next before React renders. The initial
+language comes from the saved `party-song-ui-language` preference or the
+browser locale, with English as fallback. `LanguageSwitcher` changes the
+language at runtime, persists the choice and keeps the document `lang`
+attribute synchronized. React components use `useTranslation`, so visible
+content and accessibility labels update without reloading the page.
+
+The client test suite checks that all three catalogs expose the same keys,
+every key resolves, score labels use the correct plural form, and runtime
+language changes work without reinitializing i18next. These tests run in CI
+before the production client build.
 
 ## Events Flow
 

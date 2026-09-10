@@ -1,17 +1,20 @@
 {
   "name": "client",
   "private": true,
-  "version": "0.7.0",
+  "version": "0.8.0",
   "type": "module",
   "scripts": {
     "dev": "vite --host",
     "build": "vite build",
     "lint": "eslint .",
+    "test": "node --test src/__tests__/i18n.test.js",
     "preview": "vite preview"
   },
   "dependencies": {
+    "i18next": "^26.4.2",
     "react": "^19.2.0",
     "react-dom": "^19.2.8",
+    "react-i18next": "^17.0.13",
     "socket.io-client": "^4.8.3"
   },
   "devDependencies": {

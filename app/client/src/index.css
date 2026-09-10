@@ -74,6 +74,10 @@ button { -webkit-tap-highlight-color: transparent; }
 .app-brand, .header-actions { display: flex; align-items: center; }
 .app-brand { gap: .7rem; min-width: 0; }
 .header-actions { gap: .5rem; }
+.language-switcher select { height: 44px; padding: 0 1.7rem 0 .7rem; border: 1px solid var(--line); border-radius: 13px; background: rgba(255,255,255,.04); color: #c8cad6; font: 750 .72rem ui-monospace, monospace; cursor: pointer; }
+.language-switcher select:hover { border-color: var(--line-bright); color: white; }
+.language-switcher select:focus-visible { outline: 3px solid rgba(34,211,238,.4); outline-offset: 2px; }
+.language-switcher option { background: #161827; color: white; }
 .brand-name { font-size: .95rem; font-weight: 750; letter-spacing: -.02em; white-space: nowrap; }
 
 .brand-mark {
@@ -193,6 +197,30 @@ button { -webkit-tap-highlight-color: transparent; }
 .standalone-secondary { width: 100%; }
 .invite-room-banner { margin-top: .75rem; min-height: 54px; padding: .65rem .85rem; display: flex; align-items: center; justify-content: space-between; gap: .75rem; border: 1px solid rgba(34,211,238,.24); border-radius: 14px; background: rgba(34,211,238,.06); color: #a8adbf; font-size: .82rem; }
 .invite-room-banner strong { color: #cffafe; font: 850 1rem ui-monospace, monospace; letter-spacing: .12em; }
+
+/* Game rules */
+.rules-teaser { margin: 1rem auto -1rem; padding: .45rem .65rem; display: inline-flex; align-items: center; justify-content: center; gap: .32rem; border: 0; border-radius: 10px; background: transparent; color: #9296aa; font-size: .78rem; cursor: pointer; transition: color 160ms ease, background 160ms ease; }
+.rules-teaser strong { color: #c4b5fd; font-weight: 750; }
+.rules-teaser svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; }
+.rules-teaser:hover { color: #c5c8d4; background: rgba(139,92,246,.08); }
+.rules-teaser:focus-visible { outline: 3px solid rgba(34,211,238,.4); outline-offset: 2px; }
+.rules-overlay { position: fixed; inset: 0; z-index: 120; display: flex; align-items: flex-end; justify-content: center; padding: 0; background: rgba(3,4,10,.82); backdrop-filter: blur(12px); }
+.rules-dialog { width: 100%; max-height: calc(100dvh - 1rem); padding: 1.2rem max(1rem,env(safe-area-inset-right)) max(1.2rem,env(safe-area-inset-bottom)) max(1rem,env(safe-area-inset-left)); overflow-y: auto; overscroll-behavior: contain; border: 1px solid var(--line-bright); border-bottom: 0; border-radius: 24px 24px 0 0; background: linear-gradient(145deg, #1b1d31, #10121f); box-shadow: 0 -24px 70px rgba(0,0,0,.48); animation: share-in 180ms ease-out both; text-align: left; }
+.rules-dialog-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; }
+.rules-dialog-header h2 { margin: 0; color: white; font-size: 1.55rem; letter-spacing: -.035em; }
+.rules-close { width: 44px; height: 44px; flex: none; border: 1px solid var(--line); border-radius: 14px; background: rgba(255,255,255,.04); color: #a8abba; font-size: 1.4rem; cursor: pointer; }
+.rules-close:hover { color: white; background: rgba(255,255,255,.08); }
+.rules-close:focus-visible { outline: 3px solid rgba(34,211,238,.4); outline-offset: 2px; }
+.rules-intro { margin: 1rem 0 1.1rem; color: #c3c6d2; font-size: .9rem; line-height: 1.55; }
+.rules-list { margin: 0; padding: 0; display: grid; gap: .7rem; list-style: none; }
+.rules-list li { display: grid; grid-template-columns: 36px 1fr; gap: .75rem; align-items: start; padding: .75rem; border: 1px solid var(--line); border-radius: 15px; background: rgba(255,255,255,.025); }
+.rules-list li > span { width: 36px; height: 36px; display: grid; place-items: center; border-radius: 11px; background: linear-gradient(135deg, rgba(34,211,238,.16), rgba(139,92,246,.22)); color: var(--cyan); font: 800 .72rem ui-monospace, monospace; }
+.rules-list h3 { margin: .05rem 0 .22rem; color: #f4f4f7; font-size: .88rem; }
+.rules-list p { margin: 0; color: #999daf; font-size: .78rem; line-height: 1.5; }
+.rules-facts { margin: .9rem 0; display: grid; grid-template-columns: repeat(3,1fr); gap: .5rem; }
+.rules-facts span { min-width: 0; padding: .65rem .35rem; border: 1px solid rgba(167,139,250,.18); border-radius: 13px; background: rgba(139,92,246,.06); color: #9da1b3; font-size: .68rem; text-align: center; }
+.rules-facts strong { display: block; margin-bottom: .15rem; color: #ddd6fe; font: 800 .95rem ui-monospace, monospace; }
+.rules-confirm { width: 100%; }
 
 .status-banner, .error-banner { width: 100%; max-width: 620px; margin: 0 auto 1rem; padding: .8rem 1rem; display: flex; align-items: center; gap: .75rem; border-radius: 16px; font-size: .875rem; }
 .status-banner { border: 1px solid rgba(139,92,246,.35); background: rgba(76,29,149,.25); color: #ddd6fe; }
@@ -338,6 +366,10 @@ button { -webkit-tap-highlight-color: transparent; }
 .ranking-item > span:first-child { min-width: 0; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 700; }
 .ranking-score { flex: none; color: var(--violet-bright); font: 800 .86rem ui-monospace, monospace; }
 
+@media (max-width: 420px) {
+  .brand-name { display: none; }
+}
+
 @media (min-width: 600px) {
   .app-header { padding-left: max(1.5rem, env(safe-area-inset-left)); padding-right: max(1.5rem, env(safe-area-inset-right)); }
   .app-main { padding: 1.5rem max(1.5rem, env(safe-area-inset-right)) max(1.5rem, env(safe-area-inset-bottom)) max(1.5rem, env(safe-area-inset-left)); }
@@ -347,6 +379,7 @@ button { -webkit-tap-highlight-color: transparent; }
   .waiting-badge { align-self: auto; }
   .share-overlay { align-items: center; padding: 1.5rem; }
   .share-dialog { max-width: 440px; padding: 1.35rem; border-bottom: 1px solid var(--line-bright); border-radius: 24px; box-shadow: var(--shadow); animation-name: help-in; }
+  .rules-dialog { max-width: 560px; padding: 1.5rem; border-bottom: 1px solid var(--line-bright); border-radius: 24px; box-shadow: var(--shadow); animation-name: help-in; }
   .settings-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
   .song-stage { min-height: 305px; flex-direction: row; gap: 2rem; }
   .cover-frame { width: 250px; }

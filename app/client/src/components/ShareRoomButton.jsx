@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { t } from '../i18n';
+import { useTranslation } from 'react-i18next';
 
 function invitationUrl(roomId) {
     const url = new URL(window.location.href);
@@ -33,6 +33,7 @@ function ShareIcon() {
 }
 
 export default function ShareRoomButton({ roomId }) {
+    const { t } = useTranslation();
     const [isOpen, setIsOpen] = useState(false);
     const [feedback, setFeedback] = useState('');
     const triggerRef = useRef(null);

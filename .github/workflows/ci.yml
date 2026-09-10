@@ -87,6 +87,10 @@ jobs:
       working-directory: app/client
       run: npm ci
 
+    - name: Run client tests
+      working-directory: app/client
+      run: npm test
+
     - name: Build client
       working-directory: app/client
       run: npm run build

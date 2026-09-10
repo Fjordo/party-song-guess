@@ -1,12 +1,12 @@
 # Party Song Guess
 
 [![CI](https://github.com/Fjordo/party-song-guess/actions/workflows/ci.yml/badge.svg)](https://github.com/Fjordo/party-song-guess/actions/workflows/ci.yml)
-[![Tests](https://img.shields.io/badge/tests-322%20passing-brightgreen)](https://github.com/Fjordo/party-song-guess/actions)
+[![Tests](https://img.shields.io/badge/tests-326%20passing-brightgreen)](https://github.com/Fjordo/party-song-guess/actions)
 [![Coverage](https://img.shields.io/badge/coverage-97.91%25-brightgreen)](https://github.com/Fjordo/party-song-guess)
 
 Un gioco musicale multiplayer in tempo reale via browser. I giocatori devono indovinare il titolo della canzone riprodotta randomicamente.
 
-Versione corrente: **client 0.7.0**, **server 0.5.0**.
+Versione corrente: **client 0.8.0**, **server 0.5.0**.
 
 ## Struttura del Progetto
 
@@ -23,6 +23,8 @@ Versione corrente: **client 0.7.0**, **server 0.5.0**.
 - **Partite configurabili**: L'host sceglie numero di round, difficoltà, decennio, lingua e generi musicali.
 - **Condizioni sincronizzate**: Tutti i partecipanti vedono in tempo reale i parametri scelti dall'host, senza poterli modificare.
 - **Rigioca con nuove condizioni**: Al termine della partita l'host può riportare tutti nella lobby, modificare i parametri e avviare la rivincita nella stessa stanza.
+- **Interfaccia multilingua**: Tutta l'app è tradotta in italiano, inglese e spagnolo tramite i18next; la lingua si può cambiare dall'header e la preferenza viene ricordata.
+- **Regole sempre disponibili**: Dalla home è possibile aprire una guida rapida con svolgimento, punteggio e condizioni di vittoria.
 
 ## Come avviare il progetto
 
@@ -102,6 +104,7 @@ Una volta avviati server e client, puoi accedere all'applicazione:
 ## Testing
 
 Il server include una suite completa di test automatici con Jest.
+Il client usa il test runner integrato di Node.js per verificare i cataloghi i18n.
 
 ### Eseguire i test
 
@@ -112,15 +115,20 @@ npm run test:watch        # Modalità watch (ri-esegue i test sui cambiamenti)
 npm run test:coverage     # Genera il report di copertura
 ```
 
+```bash
+cd app/client
+npm test                  # Verifica cataloghi, traduzioni e pluralizzazione
+```
+
 ### Test Coverage
 
-- **322 test** totali in 17 suite, incluse le integrazioni per lobby, rivincita e sincronizzazione delle impostazioni
+- **326 test** totali: 322 test server e 4 test client per i18n
 - **97.91%** di copertura sui servizi
 - **100%** di copertura sulle utility (checkAnswer, languageDetection)
 
 ### CI/CD
 
-I test vengono eseguiti automaticamente su GitHub Actions ad ogni push/pull request su Node.js 22.x e 24.x (server) e 20.x e 22.x (client).
+I test vengono eseguiti automaticamente su GitHub Actions ad ogni push/pull request su Node.js 22.x e 24.x (server) e 20.x e 22.x (client). La CI verifica anche lint e build di produzione del frontend.
 
 ## GOOGLE API KEY
 

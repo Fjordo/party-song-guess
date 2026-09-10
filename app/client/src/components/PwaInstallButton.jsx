@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react'
-import { t } from '../i18n'
+import { useTranslation } from 'react-i18next'
 
 function isStandaloneMode() {
     return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true
 }
 
 export default function PwaInstallButton() {
+    const { t } = useTranslation()
     const [installPrompt, setInstallPrompt] = useState(null)
     const [isInstalled, setIsInstalled] = useState(isStandaloneMode)
 

@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { t } from './i18n';
+import { useTranslation } from 'react-i18next';
 import io from 'socket.io-client';
 import Lobby from './components/Lobby';
 import GameRoom from './components/GameRoom';
 import HelpButton from './components/HelpButton';
 import PwaInstallButton from './components/PwaInstallButton';
+import GameRulesButton from './components/GameRulesButton';
+import LanguageSwitcher from './components/LanguageSwitcher';
 
 let savedSession = null;
 try { savedSession = JSON.parse(sessionStorage.getItem('party-song-session')); } catch { /* Storage may be unavailable. */ }
@@ -38,6 +40,7 @@ const initialInvitedRoomId = (() => {
 
 // Stile per la scrollbar personalizzata (inserito direttamente qui per comodità)
 function App() {
+  const { t } = useTranslation();
   const [gameState, setGameState] = useState(savedSession ? 'RECONNECTING' : 'LANDING'); // LANDING, LOBBY, PLAYING, ENDED
   const [invitedRoomId, setInvitedRoomId] = useState(initialInvitedRoomId);
   const [room, setRoom] = useState(null);
@@ -198,7 +201,7 @@ function App() {
       socket.off('disconnect');
       socket.off('error');
     };
-  }, []);
+  }, [t]);
 
   const createRoom = () => {
     if (!socket.connected) return;
@@ -276,6 +279,7 @@ function App() {
           <span className="brand-name">{t('appTitle')}</span>
         </div>
         <div className="header-actions">
+          <LanguageSwitcher />
           <PwaInstallButton />
           <HelpButton socket={socket} />
         </div>
@@ -315,13 +319,14 @@ function App() {
             {gameState === 'LANDING' && (
               <div className="surface-card landing-card">
                 <div className="landing-heading">
-                  <p className="eyebrow">PLAY · GUESS · WIN</p>
+                  <p className="eyebrow">{t('landing.tagline')}</p>
                   <h1>{t('appTitle')}</h1>
                   <div className="sound-wave" aria-hidden="true">
                     {[22, 44, 30, 62, 38, 72, 46, 28, 54, 34].map((height, index) => (
                       <span key={index} style={{ height }} />
                     ))}
                   </div>
+                  <GameRulesButton />
                 </div>
                 <label className="field-label" htmlFor="player-name">{t('landing.namePlaceholder')}</label>
                 <input
@@ -388,7 +393,7 @@ function App() {
 
             {gameState === 'ENDED' && (
               <div className="surface-card end-card">
-                <p className="eyebrow">FINAL SCORE</p>
+                <p className="eyebrow">{t('game.finalScore')}</p>
                 <h2>{t('game.gameOver')}</h2>
 
                 {/* TRUCCO: 'flex-1' prende lo spazio disponibile
@@ -405,7 +410,7 @@ function App() {
                         {i === 0 && '👑'} {i + 1}. {p.name}
                       </span>
                       <span className="ranking-score">
-                        {p.score} pts
+                        {t('game.points', { count: p.score })}
                       </span>
                     </div>
                   ))}
@@ -454,6 +459,7 @@ function App() {
 
 
 function FormJoin({ joinRoom }) {
+  const { t } = useTranslation();
   const [id, setId] = useState('');
   return (
     <div className="join-row">

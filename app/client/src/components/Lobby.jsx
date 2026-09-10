@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { t } from '../i18n';
+import { useTranslation } from 'react-i18next';
 import ShareRoomButton from './ShareRoomButton';
 
 const GENRES = ['pop', 'rock', 'hiphop', 'rap', 'trap', 'dance', 'jazz', 'metal', 'indie', 'electronic', 'rnb'];
@@ -18,6 +18,7 @@ export default function Lobby({
     selectedDifficulty,
     errorMessage
 }) {
+    const { t } = useTranslation();
     const [isLoadingInternal, setIsLoadingInternal] = useState(false);
     const isLoading = isLoadingInternal && !errorMessage;
 
@@ -42,7 +43,7 @@ export default function Lobby({
             <header className="lobby-header">
                 <div className="room-code-block">
                     <div>
-                    <p className="eyebrow">ROOM CODE</p>
+                    <p className="eyebrow">{t('lobby.roomCode')}</p>
                     <h1>{room.id}</h1>
                     </div>
                     <ShareRoomButton roomId={room.id} />

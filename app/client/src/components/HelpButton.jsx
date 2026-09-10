@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { t } from '../i18n';
+import { useTranslation } from 'react-i18next';
 
 const APP_VERSION = import.meta.env.VITE_APP_VERSION || '0.0.0';
 
@@ -17,6 +17,7 @@ function maskTitle(title, revealed) {
 }
 
 export default function HelpButton({ socket }) {
+  const { t, i18n } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const [catalog, setCatalog] = useState({ status: 'loading' });
   const appTitle = t('appTitle');
@@ -183,13 +184,13 @@ export default function HelpButton({ socket }) {
                   <>
                     <p className="flex justify-between gap-3 text-sm mb-3">
                       <span className="text-gray-300">{t('help.catalogTotal')}</span>
-                      <span className="font-mono font-bold text-purple-300">{catalog.total.toLocaleString()}</span>
+                      <span className="font-mono font-bold text-purple-300">{catalog.total.toLocaleString(i18n.resolvedLanguage)}</span>
                     </p>
                     <dl className="grid grid-cols-1 min-[360px]:grid-cols-2 gap-x-4 gap-y-2">
                       {catalog.byGenre.map(({ genre, count }) => (
                         <div key={genre} className="flex justify-between gap-2 text-sm">
                           <dt className="text-gray-400">{t(`landing.genre_${genre}`)}</dt>
-                          <dd className="font-mono text-purple-200">{count.toLocaleString()}</dd>
+                          <dd className="font-mono text-purple-200">{count.toLocaleString(i18n.resolvedLanguage)}</dd>
                         </div>
                       ))}
                     </dl>

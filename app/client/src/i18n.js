@@ -1,10 +1,17 @@
+import i18n from 'i18next';
+import { initReactI18next } from 'react-i18next';
+
 const messages = {
   en: {
     appTitle: 'Party Song Guess',
+    language: {
+      selector: 'Interface language'
+    },
     pwa: {
       install: 'Install app'
     },
     landing: {
+      tagline: 'PLAY · GUESS · WIN',
       namePlaceholder: 'Your name',
       roundsLabel: 'Number of rounds',
       createRoom: 'Create Room',
@@ -43,6 +50,7 @@ const messages = {
       decade_2020s: '2020s'
     },
     lobby: {
+      roomCode: 'ROOM CODE',
       waiting: 'Waiting for players...',
       startGame: 'Start Game',
       generating: 'Generating...',
@@ -71,7 +79,29 @@ const messages = {
       joinRoom: 'Join this room',
       orCreate: 'Or create a new room'
     },
+    rules: {
+      teaser: 'New here?',
+      open: 'See how to play',
+      eyebrow: 'QUICK GUIDE',
+      title: 'Game rules',
+      intro: 'Listen carefully, be the fastest to name the song and climb the scoreboard.',
+      setupTitle: 'Set up the game',
+      setupText: 'The host creates a room, invites the players and chooses genres, decade, language, difficulty and number of rounds.',
+      guessTitle: 'Guess the title',
+      guessText: 'Each round starts with a countdown, followed by a 30-second preview. Enter the song title; wrong guesses do not stop you from trying again.',
+      scoreTitle: 'Earn the point',
+      scoreText: 'The first player to guess correctly earns one point. If time runs out, nobody scores and the answer is revealed.',
+      winnerTitle: 'Win the game',
+      winnerText: 'The player with the most points after the last round wins. The host can then set up another game in the same room.',
+      quickFacts: 'Key game facts',
+      seconds: 'seconds',
+      point: 'point',
+      rounds: 'rounds',
+      confirm: 'Got it, let’s play!',
+      close: 'Close rules'
+    },
     game: {
+      finalScore: 'FINAL SCORE',
       getReady: 'Get Ready...',
       guessTheSong: '🎵 GUESS THE SONG 🎵',
       round: 'Round',
@@ -92,7 +122,10 @@ const messages = {
       scoreboard: 'Scoreboard',
       wrongGuess: 'Wrong answer, try again!',
       gameOver: 'Game Over!',
-      newGame: 'New Game'
+      newGame: 'New Game',
+      points_one: '{{count}} pt',
+      points_other: '{{count}} pts',
+      secondsShort: 's'
     },
     connection: {
       reconnecting: 'Reconnecting to your game. Your seat is reserved for 1 minute.',
@@ -127,10 +160,14 @@ const messages = {
   },
   it: {
     appTitle: 'Party Song Guess',
+    language: {
+      selector: 'Lingua dell’interfaccia'
+    },
     pwa: {
       install: "Installa l'app"
     },
     landing: {
+      tagline: 'ASCOLTA · INDOVINA · VINCI',
       namePlaceholder: 'Il tuo nome',
       roundsLabel: 'Numero di round',
       createRoom: 'Crea Stanza',
@@ -169,6 +206,7 @@ const messages = {
       decade_2020s: 'Anni 2020'
     },
     lobby: {
+      roomCode: 'CODICE STANZA',
       waiting: 'In attesa di giocatori...',
       startGame: 'Avvia Gioco',
       generating: 'Generazione in corso...',
@@ -197,7 +235,29 @@ const messages = {
       joinRoom: 'Entra nella stanza',
       orCreate: 'Oppure crea una nuova stanza'
     },
+    rules: {
+      teaser: 'È la prima partita?',
+      open: 'Scopri come si gioca',
+      eyebrow: 'GUIDA RAPIDA',
+      title: 'Regole del gioco',
+      intro: 'Ascolta con attenzione, indovina il titolo prima degli altri e scala la classifica.',
+      setupTitle: 'Prepara la partita',
+      setupText: 'L’host crea una stanza, invita i giocatori e sceglie generi, decennio, lingua, difficoltà e numero di round.',
+      guessTitle: 'Indovina il titolo',
+      guessText: 'Ogni round inizia con un conto alla rovescia, seguito da un’anteprima di 30 secondi. Scrivi il titolo: se sbagli, puoi riprovare.',
+      scoreTitle: 'Guadagna il punto',
+      scoreText: 'Il primo giocatore che indovina ottiene un punto. Se il tempo scade, nessuno segna e viene mostrata la risposta.',
+      winnerTitle: 'Vinci la partita',
+      winnerText: 'Dopo l’ultimo round vince chi ha più punti. L’host può poi configurare una nuova partita nella stessa stanza.',
+      quickFacts: 'Dati principali della partita',
+      seconds: 'secondi',
+      point: 'punto',
+      rounds: 'round',
+      confirm: 'Ho capito, giochiamo!',
+      close: 'Chiudi le regole'
+    },
     game: {
+      finalScore: 'PUNTEGGIO FINALE',
       getReady: 'Preparati...',
       guessTheSong: '🎵 INDOVINA LA CANZONE 🎵',
       round: 'Round',
@@ -218,7 +278,10 @@ const messages = {
       scoreboard: 'Classifica',
       wrongGuess: 'Risposta sbagliata, riprova!',
       gameOver: 'Partita Finita!',
-      newGame: 'Nuova Partita'
+      newGame: 'Nuova Partita',
+      points_one: '{{count}} punto',
+      points_other: '{{count}} punti',
+      secondsShort: 's'
     },
     connection: {
       waking: 'Sto riattivando il server, un attimo...',
@@ -250,35 +313,196 @@ const messages = {
       disconnected: 'Connessione persa. Rientra o crea una nuova stanza.',
       serverUnavailable: 'Impossibile raggiungere il server. Riprova più tardi.'
     }
+  },
+  es: {
+    appTitle: 'Party Song Guess',
+    language: {
+      selector: 'Idioma de la interfaz'
+    },
+    pwa: {
+      install: 'Instalar aplicación'
+    },
+    landing: {
+      tagline: 'ESCUCHA · ADIVINA · GANA',
+      namePlaceholder: 'Tu nombre',
+      roundsLabel: 'Número de rondas',
+      createRoom: 'Crear sala',
+      joinLabel: 'O únete:',
+      joinPlaceholder: 'ID de sala',
+      joinButton: 'Unirse',
+      genresLabel: 'Géneros musicales',
+      decadesLabel: 'Década',
+      anyDecade: 'Cualquier década',
+      difficultyLabel: 'Dificultad',
+      difficulty_easy: 'Fácil (canciones populares)',
+      difficulty_hard: 'Difícil (canciones aleatorias)',
+      languageLabel: 'Idioma de la canción',
+      language_any: 'Cualquier idioma',
+      language_it: 'Italiano',
+      language_en: 'Inglés',
+      language_es: 'Español',
+      genre_pop: 'Pop',
+      genre_rock: 'Rock',
+      genre_hiphop: 'Hip-hop',
+      genre_rap: 'Rap',
+      genre_trap: 'Trap',
+      genre_dance: 'Dance',
+      genre_jazz: 'Jazz',
+      genre_metal: 'Metal',
+      genre_indie: 'Indie',
+      genre_electronic: 'Electrónica',
+      genre_rnb: 'R&B',
+      decade_50s: 'Años 50',
+      decade_60s: 'Años 60',
+      decade_70s: 'Años 70',
+      decade_80s: 'Años 80',
+      decade_90s: 'Años 90',
+      decade_2000s: 'Años 2000',
+      decade_2010s: 'Años 2010',
+      decade_2020s: 'Años 2020'
+    },
+    lobby: {
+      roomCode: 'CÓDIGO DE SALA',
+      waiting: 'Esperando jugadores...',
+      startGame: 'Iniciar partida',
+      generating: 'Generando...',
+      hostStarting: 'El anfitrión está a punto de iniciar la partida...',
+      gameSettings: 'Condiciones de la partida',
+      settingsHintOwner: 'Elige los parámetros. Los cambios se muestran a todos en tiempo real.',
+      settingsHintPlayer: 'El anfitrión está eligiendo estos parámetros para la próxima partida.'
+    },
+    share: {
+      open: 'Compartir',
+      eyebrow: 'INVITACIÓN A LA SALA',
+      title: 'Compartir esta sala',
+      roomCode: 'Código de sala',
+      copyCode: 'Copiar código',
+      copyCodeHint: 'Copia solo el código de la sala',
+      shareLink: 'Compartir enlace de invitación',
+      shareLinkHint: 'Abre directamente esta sala',
+      shareCode: 'Compartir código',
+      shareCodeHint: 'Envía solo el código de la sala',
+      inviteText: '¡Únete a mi sala de Party Song Guess!',
+      codeCopied: 'Código de sala copiado.',
+      linkCopied: 'Enlace de invitación copiado.',
+      nativeUnavailable: 'Las aplicaciones para compartir no están disponibles en este navegador. Se copiará el contenido seleccionado.',
+      error: 'No se ha podido compartir. Inténtalo de nuevo.',
+      invitedRoom: 'Te han invitado a la sala',
+      joinRoom: 'Entrar en esta sala',
+      orCreate: 'O crea una sala nueva'
+    },
+    rules: {
+      teaser: '¿Es tu primera partida?',
+      open: 'Descubre cómo jugar',
+      eyebrow: 'GUÍA RÁPIDA',
+      title: 'Reglas del juego',
+      intro: 'Escucha con atención, adivina el título antes que los demás y sube en la clasificación.',
+      setupTitle: 'Prepara la partida',
+      setupText: 'El anfitrión crea una sala, invita a los jugadores y elige géneros, década, idioma, dificultad y número de rondas.',
+      guessTitle: 'Adivina el título',
+      guessText: 'Cada ronda comienza con una cuenta atrás y una muestra de 30 segundos. Escribe el título: si fallas, puedes volver a intentarlo.',
+      scoreTitle: 'Gana el punto',
+      scoreText: 'El primer jugador que acierta consigue un punto. Si se acaba el tiempo, nadie puntúa y se muestra la respuesta.',
+      winnerTitle: 'Gana la partida',
+      winnerText: 'Tras la última ronda gana quien tenga más puntos. El anfitrión puede configurar otra partida en la misma sala.',
+      quickFacts: 'Datos principales de la partida',
+      seconds: 'segundos',
+      point: 'punto',
+      rounds: 'rondas',
+      confirm: 'Entendido, ¡a jugar!',
+      close: 'Cerrar las reglas'
+    },
+    game: {
+      finalScore: 'PUNTUACIÓN FINAL',
+      getReady: 'Prepárate...',
+      guessTheSong: '🎵 ADIVINA LA CANCIÓN 🎵',
+      round: 'Ronda',
+      submit: 'ENVIAR',
+      skipSong: 'Saltar canción',
+      timeRemaining: 'Tiempo restante',
+      volume: 'Volumen',
+      resumeAudio: 'Reproducir audio',
+      albumArt: 'Portada del álbum',
+      rematch: 'Jugar de nuevo',
+      waitingRematch: 'Esperando a que el anfitrión configure la próxima partida...',
+      reconnectingPlayer: 'Reconectando...',
+      songSkipped: 'Canción saltada',
+      leaveGame: 'Abandonar partida',
+      timeUp: '¡Se acabó el tiempo!',
+      guessed: '¡ha acertado!',
+      inputPlaceholder: 'Título de la canción...',
+      scoreboard: 'Clasificación',
+      wrongGuess: 'Respuesta incorrecta, ¡inténtalo de nuevo!',
+      gameOver: '¡Partida terminada!',
+      newGame: 'Nueva partida',
+      points_one: '{{count}} punto',
+      points_other: '{{count}} puntos',
+      secondsShort: 's'
+    },
+    connection: {
+      reconnecting: 'Reconectando a tu partida. Tu plaza se reserva durante 1 minuto.',
+      waking: 'Activando el servidor, espera un momento...'
+    },
+    help: {
+      open: 'Información sobre la aplicación',
+      catalogTitle: 'Canciones indexadas por género',
+      catalogTotal: 'Total de canciones únicas',
+      catalogLoading: 'Cargando catálogo...',
+      catalogUnavailable: 'Catálogo no disponible. Vuelve a abrir la ayuda para intentarlo de nuevo.',
+      catalogNote: 'Una canción puede pertenecer a varios géneros. Los recuentos se actualizan cada vez que abres la ayuda.',
+      close: 'Cerrar',
+      createdBy: 'Creado por',
+      version: 'Versión',
+      rights: '© 2026 Fjordo · Solo por diversión'
+    },
+    errors: {
+      title: 'Error',
+      generic: 'Se ha producido un error.',
+      sessionExpired: 'No se puede reanudar esta sesión. Puede haber caducado, estar abierta en otra pestaña o el servidor puede haberse reiniciado. Vuelve a entrar o crea una sala.',
+      sessionReplaced: 'La partida se ha reanudado en otra pestaña.',
+      missingNameCreate: 'Introduce tu nombre para crear una sala.',
+      missingNameJoin: 'Introduce tu nombre para unirte a una sala.',
+      missingRoomId: 'Introduce un ID de sala válido.',
+      roomNotFound: 'Sala no encontrada o partida ya iniciada.',
+      aiTimeout: 'La IA ha tardado demasiado en responder. Inténtalo de nuevo.',
+      generationFailed: 'El servicio de IA no está disponible temporalmente. Inténtalo de nuevo.',
+      disconnected: 'Conexión perdida. Vuelve a entrar o crea una sala nueva.',
+      serverUnavailable: 'No se puede contactar con el servidor. Inténtalo más tarde.'
+    }
   }
 };
 
-const browserLang = typeof navigator !== 'undefined'
-  ? navigator.language.split('-')[0]
-  : 'en';
+const supportedLanguages = ['en', 'it', 'es'];
+let savedLanguage = null;
+try { savedLanguage = localStorage.getItem('party-song-ui-language'); } catch { /* Optional preference. */ }
+const browserLanguage = typeof navigator !== 'undefined' ? navigator.language : 'en';
+const initialLanguage = supportedLanguages.includes(savedLanguage) ? savedLanguage : browserLanguage;
 
-const currentLocale = messages[browserLang] ? browserLang : 'en';
+i18n
+  .use(initReactI18next)
+  .init({
+    resources: {
+      en: { translation: messages.en },
+      it: { translation: messages.it },
+      es: { translation: messages.es }
+    },
+    lng: initialLanguage,
+    fallbackLng: 'en',
+    supportedLngs: supportedLanguages,
+    load: 'languageOnly',
+    initAsync: false,
+    interpolation: { escapeValue: false }
+  });
 
-export function t(path) {
-  const parts = path.split('.');
-  let value = messages[currentLocale];
-
-  for (const p of parts) {
-    if (!value || typeof value !== 'object') break;
-    value = value[p];
-  }
-
-  if (typeof value === 'string') {
-    return value;
-  }
-
-  // fallback to English
-  value = messages.en;
-  for (const p of parts) {
-    if (!value || typeof value !== 'object') break;
-    value = value[p];
-  }
-
-  return typeof value === 'string' ? value : path;
+if (typeof document !== 'undefined') {
+  const updateDocumentLanguage = language => {
+    const normalizedLanguage = language.split('-')[0];
+    document.documentElement.lang = normalizedLanguage;
+    try { localStorage.setItem('party-song-ui-language', normalizedLanguage); } catch { /* Optional preference. */ }
+  };
+  updateDocumentLanguage(i18n.resolvedLanguage || i18n.language);
+  i18n.on('languageChanged', updateDocumentLanguage);
 }
+
+export default i18n;
 
